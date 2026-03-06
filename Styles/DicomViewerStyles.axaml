@@ -1,0 +1,114 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<Styles.Resources>
+		<Color x:Key="BgBase">#0A0A0E</Color>
+		<Color x:Key="BgSurface">#111118</Color>
+		<Color x:Key="BgPanel">#16161F</Color>
+		<Color x:Key="BgCard">#1C1C28</Color>
+		<Color x:Key="BgHover">#252535</Color>
+		<Color x:Key="BorderSubtle">#2A2A3A</Color>
+		<Color x:Key="BorderActive">#3A3A55</Color>
+		<Color x:Key="AccentBlue">#4A9EFF</Color>
+		<Color x:Key="AccentBlueHover">#6AB4FF</Color>
+		<Color x:Key="AccentGreen">#3DCC7A</Color>
+		<Color x:Key="TextPrimary">#E8E8F0</Color>
+		<Color x:Key="TextSecondary">#8888A8</Color>
+		<Color x:Key="TextMuted">#555570</Color>
+		<Color x:Key="DangerRed">#FF4A6A</Color>
+		<SolidColorBrush x:Key="BgBaseBrush" Color="{StaticResource BgBase}"/>
+		<SolidColorBrush x:Key="BgSurfaceBrush" Color="{StaticResource BgSurface}"/>
+		<SolidColorBrush x:Key="BgPanelBrush" Color="{StaticResource BgPanel}"/>
+		<SolidColorBrush x:Key="BgCardBrush" Color="{StaticResource BgCard}"/>
+		<SolidColorBrush x:Key="BgHoverBrush" Color="{StaticResource BgHover}"/>
+		<SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtle}"/>
+		<SolidColorBrush x:Key="BorderActiveBrush" Color="{StaticResource BorderActive}"/>
+		<SolidColorBrush x:Key="AccentBlueBrush" Color="{StaticResource AccentBlue}"/>
+		<SolidColorBrush x:Key="AccentBlueHoverBrush" Color="{StaticResource AccentBlueHover}"/>
+		<SolidColorBrush x:Key="AccentGreenBrush" Color="{StaticResource AccentGreen}"/>
+		<SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
+		<SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondary}"/>
+		<SolidColorBrush x:Key="TextMutedBrush" Color="{StaticResource TextMuted}"/>
+		<SolidColorBrush x:Key="DangerRedBrush" Color="{StaticResource DangerRed}"/>
+	</Styles.Resources>
+	<Style Selector="Window">
+		<Setter Property="Background" Value="{StaticResource BgBaseBrush}"/>
+		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+		<Setter Property="FontFamily" Value="Inter, Segoe UI, system-ui, sans-serif"/>
+		<Setter Property="FontSize" Value="13"/>
+	</Style>
+	<Style Selector="Button.ToolbarBtn">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Padding" Value="10,0"/>
+		<Setter Property="Height" Value="30"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="CornerRadius" Value="6"/>
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+	</Style>
+	<Style Selector="Button.ToolbarBtn:pointerover /template/ ContentPresenter">
+		<Setter Property="Background" Value="{StaticResource BgHoverBrush}"/>
+		<Setter Property="TextElement.Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+	</Style>
+	<Style Selector="Button.IconBtn">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Padding" Value="0"/>
+		<Setter Property="Width" Value="30"/>
+		<Setter Property="Height" Value="30"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="CornerRadius" Value="5"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+	</Style>
+	<Style Selector="Button.IconBtn:pointerover /template/ ContentPresenter">
+		<Setter Property="Background" Value="{StaticResource BgHoverBrush}"/>
+	</Style>
+	<Style Selector="Button.DangerBtn">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Padding" Value="0"/>
+		<Setter Property="Width" Value="22"/>
+		<Setter Property="Height" Value="22"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="CornerRadius" Value="4"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+	</Style>
+	<Style Selector="Button.DangerBtn:pointerover /template/ ContentPresenter">
+		<Setter Property="Background" Value="#3A1020"/>
+		<Setter Property="TextElement.Foreground" Value="{StaticResource DangerRedBrush}"/>
+	</Style>
+	<Style Selector="Button.AccentBtn">
+		<Setter Property="Background" Value="{StaticResource AccentBlueBrush}"/>
+		<Setter Property="Foreground" Value="White"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Padding" Value="14,0"/>
+		<Setter Property="Height" Value="30"/>
+		<Setter Property="CornerRadius" Value="6"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="HorizontalContentAlignment" Value="Center"/>
+		<Setter Property="VerticalContentAlignment" Value="Center"/>
+	</Style>
+	<Style Selector="Button.AccentBtn:pointerover /template/ ContentPresenter">
+		<Setter Property="Background" Value="{StaticResource AccentBlueHoverBrush}"/>
+	</Style>
+	<Style Selector="TextBlock.SectionHeader">
+		<Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+		<Setter Property="FontSize" Value="10"/>
+		<Setter Property="FontWeight" Value="SemiBold"/>
+		<Setter Property="Margin" Value="0,0,0,6"/>
+	</Style>
+	<Style Selector="Rectangle.Separator">
+		<Setter Property="Fill" Value="{StaticResource BorderSubtleBrush}"/>
+		<Setter Property="Height" Value="1"/>
+		<Setter Property="Margin" Value="0,2"/>
+	</Style>
+	<Style Selector="Slider">
+		<Setter Property="Foreground" Value="{StaticResource AccentBlueBrush}"/>
+	</Style>
+</Styles>
