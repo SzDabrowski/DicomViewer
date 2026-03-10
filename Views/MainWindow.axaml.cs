@@ -57,11 +57,14 @@ namespace DicomViewer.Views
                 {
                     var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
                     {
-                        Title = "Open DICOM File",
+                        Title = "Open File",
                         AllowMultiple = true,
                         FileTypeFilter = new List<FilePickerFileType>
                         {
+                            new("All Supported") { Patterns = new[] { "*.dcm", "*.dicom", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.tif", "*.gif", "*.webp", "*.avi" } },
                             new("DICOM Files") { Patterns = new[] { "*.dcm", "*.dicom" } },
+                            new("Image Files") { Patterns = new[] { "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.tif", "*.gif", "*.webp" } },
+                            new("Video Files") { Patterns = new[] { "*.avi" } },
                             new("All Files") { Patterns = new[] { "*.*" } }
                         }
                     });
@@ -107,21 +110,34 @@ namespace DicomViewer.Views
         private void UpdateCanvasImage()
         {
             if (VM?.ActiveFile == null) { MainCanvas.ClearAllData(); return; }
-            var svc = new DicomService();
+            var filePath = VM.ActiveFile.FilePath;
 
-            // Load Metadata only when Patient changes (Performance optimization)
-            if (MainCanvas.Metadata == null || MainCanvas.Metadata.PatientId != VM.ActiveFile.PatientId)
+            if (ImageService.IsSupported(filePath))
             {
-                var metadata = svc.GetMetadata(VM.ActiveFile.FilePath);
-                if (MainCanvas.Metadata != null && MainCanvas.Metadata.PatientId != metadata.PatientId)
-                    MainCanvas.ClearAllData();
-
-                MainCanvas.Metadata = metadata;
+                MainCanvas.Metadata = null;
+                MainCanvas.CurrentFrameIndex = 0;
+                var imgSvc = new ImageService();
+                var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
+                MainCanvas.SetPixels(pixels, w, h);
             }
+            else
+            {
+                var svc = new DicomService();
 
-            MainCanvas.CurrentFrameIndex = VM.CurrentFrameIndex;
-            var pixels = svc.LoadDicomPixels(VM.ActiveFile.FilePath, VM.CurrentFrameIndex, out int w, out int h);
-            MainCanvas.SetPixels(pixels, w, h);
+                // Load Metadata only when Patient changes (Performance optimization)
+                if (MainCanvas.Metadata == null || MainCanvas.Metadata.PatientId != VM.ActiveFile.PatientId)
+                {
+                    var metadata = svc.GetMetadata(filePath);
+                    if (MainCanvas.Metadata != null && MainCanvas.Metadata.PatientId != metadata.PatientId)
+                        MainCanvas.ClearAllData();
+
+                    MainCanvas.Metadata = metadata;
+                }
+
+                MainCanvas.CurrentFrameIndex = VM.CurrentFrameIndex;
+                var pixels = svc.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                MainCanvas.SetPixels(pixels, w, h);
+            }
         }
 
         // --- DRAG AND DROP HANDLERS ---

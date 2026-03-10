@@ -39,9 +39,31 @@ public partial class DicomFileViewModel : ViewModelBase
 
     public static DicomFileViewModel Create(string filePath)
     {
+        if (ImageService.IsSupported(filePath))
+        {
+            var imgSvc = new ImageService();
+            var imgMeta = imgSvc.GetMetadata(filePath);
+            var model = new DicomFile
+            {
+                FilePath = filePath,
+                PatientName = "",
+                PatientId = "",
+                StudyDate = "",
+                Modality = "IMG",
+                SeriesDescription = System.IO.Path.GetExtension(filePath).ToUpperInvariant().TrimStart('.'),
+                TotalFrames = imgMeta.TotalFrames,
+                Rows = imgMeta.Height,
+                Columns = imgMeta.Width,
+                WindowCenter = 32768,
+                WindowWidth = 65535,
+                IsLoaded = true
+            };
+            return new DicomFileViewModel(model);
+        }
+
         var svc = new DicomService();
         var meta = svc.GetMetadata(filePath);
-        var model = new DicomFile
+        return new DicomFileViewModel(new DicomFile
         {
             FilePath = filePath,
             PatientName = meta.PatientName,
@@ -51,7 +73,6 @@ public partial class DicomFileViewModel : ViewModelBase
             SeriesDescription = meta.SeriesDescription,
             TotalFrames = meta.TotalFrames,
             IsLoaded = true
-        };
-        return new DicomFileViewModel(model);
+        });
     }
 }
