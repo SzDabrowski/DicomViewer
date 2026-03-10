@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DicomViewer.Models;
 using DicomViewer.Services;
+using System;
 
 namespace DicomViewer.ViewModels;
 
@@ -43,12 +44,9 @@ public partial class DicomFileViewModel : ViewModelBase
         {
             var imgSvc = new ImageService();
             var imgMeta = imgSvc.GetMetadata(filePath);
-            var model = new DicomFile
+            return new DicomFileViewModel(new DicomFile
             {
                 FilePath = filePath,
-                PatientName = "",
-                PatientId = "",
-                StudyDate = "",
                 Modality = "IMG",
                 SeriesDescription = System.IO.Path.GetExtension(filePath).ToUpperInvariant().TrimStart('.'),
                 TotalFrames = imgMeta.TotalFrames,
@@ -57,8 +55,25 @@ public partial class DicomFileViewModel : ViewModelBase
                 WindowCenter = 32768,
                 WindowWidth = 65535,
                 IsLoaded = true
-            };
-            return new DicomFileViewModel(model);
+            });
+        }
+
+        if (VideoService.IsSupported(filePath))
+        {
+            var vidSvc = new VideoService();
+            var vidMeta = vidSvc.GetMetadata(filePath);
+            return new DicomFileViewModel(new DicomFile
+            {
+                FilePath = filePath,
+                Modality = "VID",
+                SeriesDescription = System.IO.Path.GetExtension(filePath).ToUpperInvariant().TrimStart('.'),
+                TotalFrames = Math.Max(1, vidMeta.TotalFrames),
+                Rows = vidMeta.Height,
+                Columns = vidMeta.Width,
+                WindowCenter = 32768,
+                WindowWidth = 65535,
+                IsLoaded = true
+            });
         }
 
         var svc = new DicomService();

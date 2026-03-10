@@ -120,11 +120,18 @@ namespace DicomViewer.Views
                 var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
                 MainCanvas.SetPixels(pixels, w, h);
             }
+            else if (VideoService.IsSupported(filePath))
+            {
+                MainCanvas.Metadata = null;
+                MainCanvas.CurrentFrameIndex = VM.CurrentFrameIndex;
+                var vidSvc = new VideoService();
+                var pixels = vidSvc.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                MainCanvas.SetPixels(pixels, w, h);
+            }
             else
             {
                 var svc = new DicomService();
 
-                // Load Metadata only when Patient changes (Performance optimization)
                 if (MainCanvas.Metadata == null || MainCanvas.Metadata.PatientId != VM.ActiveFile.PatientId)
                 {
                     var metadata = svc.GetMetadata(filePath);
