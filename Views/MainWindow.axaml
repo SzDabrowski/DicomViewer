@@ -358,12 +358,13 @@
                     Width="{Binding IsRightPanelVisible, Converter={StaticResource BoolToWidth}}"
                     Background="#16161F" BorderBrush="#2A2A3A" BorderThickness="0,0,0,0"
                     ClipToBounds="True">
-				<Grid RowDefinitions="Auto,*">
+				<Grid RowDefinitions="Auto,*,Auto,Auto">
+					<!-- HEADER -->
 					<Border Grid.Row="0" Padding="12,10" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
 						<Grid ColumnDefinitions="*,Auto">
 							<StackPanel Grid.Column="0" Spacing="2">
-								<TextBlock Text="OPEN FILES" Classes="SectionHeader"/>
-								<TextBlock Foreground="#555570" FontSize="10" Text="File management"/>
+								<TextBlock Text="BROWSER" Classes="SectionHeader"/>
+								<TextBlock Foreground="#555570" FontSize="10" Text="Files &amp; directories"/>
 							</StackPanel>
 							<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding OpenFileCommand}" Padding="10,5">
 								<StackPanel Orientation="Horizontal" Spacing="4">
@@ -373,11 +374,105 @@
 							</Button>
 						</Grid>
 					</Border>
-					<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="6,4">
+
+					<!-- DIRECTORY TREE (when loaded) -->
+					<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="4,4"
+                                  IsVisible="{Binding HasDirectoryLoaded}">
+						<ItemsControl ItemsSource="{Binding DirectoryTree}">
+							<ItemsControl.ItemTemplate>
+								<DataTemplate x:DataType="vm:FileTreeNodeViewModel">
+									<StackPanel>
+										<Border Margin="0,1" CornerRadius="4" Padding="6,5" Cursor="Hand"
+                                                PointerPressed="OnTreeNodePointerPressed">
+											<Border.Styles>
+												<Style Selector="Border:pointerover">
+													<Setter Property="Background" Value="#1C1C30"/>
+												</Style>
+											</Border.Styles>
+											<StackPanel Orientation="Horizontal" Spacing="6">
+												<TextBlock Text="{Binding Icon}" FontSize="10" Foreground="#555570"
+                                                           VerticalAlignment="Center" Width="12"/>
+												<TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold"
+                                                           Foreground="#E8E8F0" TextTrimming="CharacterEllipsis"
+                                                           VerticalAlignment="Center"/>
+											</StackPanel>
+										</Border>
+										<!-- Level 1 children -->
+										<ItemsControl ItemsSource="{Binding Children}" Margin="14,0,0,0"
+                                                      IsVisible="{Binding IsExpanded}">
+											<ItemsControl.ItemTemplate>
+												<DataTemplate x:DataType="vm:FileTreeNodeViewModel">
+													<StackPanel>
+														<Border Margin="0,1" CornerRadius="4" Padding="6,4" Cursor="Hand"
+                                                                PointerPressed="OnTreeNodePointerPressed">
+															<Border.Styles>
+																<Style Selector="Border:pointerover">
+																	<Setter Property="Background" Value="#1C1C30"/>
+																</Style>
+															</Border.Styles>
+															<StackPanel Orientation="Horizontal" Spacing="6">
+																<TextBlock Text="{Binding Icon}" FontSize="10"
+                                                                           Foreground="#555570" VerticalAlignment="Center" Width="12"/>
+																<TextBlock Text="{Binding Name}" FontSize="11"
+                                                                           Foreground="{Binding IsDirectory, Converter={StaticResource BoolToWhite}}"
+                                                                           TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+															</StackPanel>
+														</Border>
+														<!-- Level 2 children -->
+														<ItemsControl ItemsSource="{Binding Children}" Margin="14,0,0,0"
+                                                                      IsVisible="{Binding IsExpanded}">
+															<ItemsControl.ItemTemplate>
+																<DataTemplate x:DataType="vm:FileTreeNodeViewModel">
+																	<Border Margin="0,1" CornerRadius="4" Padding="6,4" Cursor="Hand"
+                                                                            PointerPressed="OnTreeNodePointerPressed">
+																		<Border.Styles>
+																			<Style Selector="Border:pointerover">
+																				<Setter Property="Background" Value="#1C1C30"/>
+																			</Style>
+																		</Border.Styles>
+																		<StackPanel Orientation="Horizontal" Spacing="6">
+																			<TextBlock Text="{Binding Icon}" FontSize="10"
+                                                                                       Foreground="#555570" VerticalAlignment="Center" Width="12"/>
+																			<TextBlock Text="{Binding Name}" FontSize="11"
+                                                                                       Foreground="#8888A8"
+                                                                                       TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+																		</StackPanel>
+																	</Border>
+																</DataTemplate>
+															</ItemsControl.ItemTemplate>
+														</ItemsControl>
+													</StackPanel>
+												</DataTemplate>
+											</ItemsControl.ItemTemplate>
+										</ItemsControl>
+									</StackPanel>
+								</DataTemplate>
+							</ItemsControl.ItemTemplate>
+						</ItemsControl>
+					</ScrollViewer>
+
+					<!-- NO DIRECTORY PLACEHOLDER -->
+					<Border Grid.Row="1" IsVisible="{Binding !HasDirectoryLoaded}" Padding="12">
+						<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
+							<TextBlock Text="&#x1F4C1;" FontSize="28" HorizontalAlignment="Center" Opacity="0.3"/>
+							<TextBlock Text="No directory loaded" Foreground="#444460" FontSize="11"
+                                       HorizontalAlignment="Center"/>
+							<TextBlock Text="Use Open &#x25B8; Open Directory" Foreground="#333350" FontSize="10"
+                                       HorizontalAlignment="Center"/>
+						</StackPanel>
+					</Border>
+
+					<!-- OPEN FILES SECTION (only when multiple files) -->
+					<Border Grid.Row="2" Padding="12,8" BorderBrush="#2A2A3A" BorderThickness="0,1,0,0"
+                            IsVisible="{Binding HasMultipleFiles}">
+						<TextBlock Text="OPEN FILES" Classes="SectionHeader" Margin="0"/>
+					</Border>
+					<ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="6,0,6,4"
+                                  MaxHeight="200" IsVisible="{Binding HasMultipleFiles}">
 						<ItemsControl ItemsSource="{Binding OpenFiles}">
 							<ItemsControl.ItemTemplate>
 								<DataTemplate x:DataType="vm:DicomFileViewModel">
-									<Border Margin="0,1" CornerRadius="6" Padding="10,8" Cursor="Hand"
+									<Border Margin="0,1" CornerRadius="6" Padding="8,6" Cursor="Hand"
                                             Background="{Binding IsActive, Converter={StaticResource BoolToAccent}}"
                                             PointerPressed="OnFileListPointerPressed">
 										<Border.Styles>
@@ -385,32 +480,24 @@
 												<Setter Property="Background" Value="#1C1C30"/>
 											</Style>
 										</Border.Styles>
-										<Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
-											<TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding FileName}"
-                                                       FontSize="12" FontWeight="Medium" Foreground="#E8E8F0"
-                                                       TextTrimming="CharacterEllipsis"/>
-											<Button Grid.Column="1" Grid.Row="0" Grid.RowSpan="3"
-                                                    Classes="DangerBtn"
+										<Grid ColumnDefinitions="*,Auto">
+											<StackPanel Grid.Column="0" Spacing="2">
+												<TextBlock Text="{Binding FileName}" FontSize="11" FontWeight="Medium"
+                                                           Foreground="#E8E8F0" TextTrimming="CharacterEllipsis"/>
+												<StackPanel Orientation="Horizontal" Spacing="4">
+													<Border Background="#1C1C28" CornerRadius="3" Padding="4,1">
+														<TextBlock Text="{Binding Modality}" FontSize="9" Foreground="#4A9EFF"/>
+													</Border>
+													<Border Background="#1C1C28" CornerRadius="3" Padding="4,1">
+														<TextBlock Text="{Binding TotalFrames, StringFormat={}{0} fr}" FontSize="9" Foreground="#8888A8"/>
+													</Border>
+												</StackPanel>
+											</StackPanel>
+											<Button Grid.Column="1" Classes="DangerBtn"
                                                     Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CloseFileCommand}"
-                                                    CommandParameter="{Binding}"
-                                                    VerticalAlignment="Top">
+                                                    CommandParameter="{Binding}" VerticalAlignment="Center">
 												<TextBlock Text="&#x2715;" FontSize="10"/>
 											</Button>
-											<TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding PatientName}"
-                                                       FontSize="10" Foreground="#8888A8"
-                                                       TextTrimming="CharacterEllipsis" Margin="0,2,0,0"/>
-											<StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal"
-                                                        Spacing="4" Margin="0,4,0,0">
-												<Border Background="#1C1C28" CornerRadius="3" Padding="5,2">
-													<TextBlock Text="{Binding Modality}" FontSize="9" Foreground="#4A9EFF"/>
-												</Border>
-												<Border Background="#1C1C28" CornerRadius="3" Padding="5,2">
-													<TextBlock Text="{Binding TotalFrames, StringFormat={}{0} fr}" FontSize="9" Foreground="#8888A8"/>
-												</Border>
-												<Border Background="#1C1C28" CornerRadius="3" Padding="5,2">
-													<TextBlock Text="{Binding StudyDate}" FontSize="9" Foreground="#8888A8"/>
-												</Border>
-											</StackPanel>
 										</Grid>
 									</Border>
 								</DataTemplate>

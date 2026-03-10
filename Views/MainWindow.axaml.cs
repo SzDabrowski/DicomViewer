@@ -8,6 +8,7 @@ using DicomViewer.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace DicomViewer.Views
 {
@@ -87,13 +88,11 @@ namespace DicomViewer.Views
                         var dirPath = folder[0].TryGetLocalPath();
                         if (!string.IsNullOrEmpty(dirPath))
                         {
-                            var supported = new[] { ".dcm", ".dicom", ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".avi" };
-                            var files = System.IO.Directory.GetFiles(dirPath, "*.*", System.IO.SearchOption.TopDirectoryOnly)
-                                .Where(f => supported.Contains(System.IO.Path.GetExtension(f).ToLowerInvariant()))
-                                .ToArray();
-                            if (files.Length > 0) await VM.OpenFilesFromPaths(files);
+                            VM.LoadDirectoryTree(dirPath);
+                            VM.IsRightPanelVisible = true;
                         }
                     }
+                    await Task.CompletedTask;
                 };
 
                 VM.PropertyChanged += (sender, args) =>
@@ -253,6 +252,21 @@ namespace DicomViewer.Views
         private void OnFilmstripHandlePressed(object? sender, PointerPressedEventArgs e)
         {
             if (VM != null) VM.ShowMiniFrames = !VM.ShowMiniFrames;
+        }
+
+        private void OnTreeNodePointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            if (sender is Border b && b.DataContext is FileTreeNodeViewModel node && VM != null)
+            {
+                if (node.IsDirectory)
+                {
+                    node.IsExpanded = !node.IsExpanded;
+                }
+                else
+                {
+                    _ = VM.OpenFilesFromPaths(new[] { node.FullPath });
+                }
+            }
         }
     } // End of MainWindow class
 } // End of namespace

@@ -61,6 +61,17 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public ObservableCollection<DicomFileViewModel> OpenFiles { get; } = new();
     public ObservableCollection<ThumbnailViewModel> Thumbnails { get; } = new();
+    public ObservableCollection<FileTreeNodeViewModel> DirectoryTree { get; } = new();
+
+    [ObservableProperty] private bool _hasDirectoryLoaded;
+
+    public void LoadDirectoryTree(string dirPath)
+    {
+        DirectoryTree.Clear();
+        var root = new FileTreeNodeViewModel(dirPath, true) { IsExpanded = true };
+        DirectoryTree.Add(root);
+        HasDirectoryLoaded = true;
+    }
 
     [RelayCommand]
     private void SelectTool(string tool)
