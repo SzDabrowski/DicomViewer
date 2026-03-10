@@ -75,10 +75,17 @@
 			<Grid ColumnDefinitions="Auto,*,Auto">
 
 				<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
-					<Button Classes="ToolbarBtn" Command="{Binding OpenFileCommand}" ToolTip.Tip="Open DICOM File (Ctrl+O)" UseLayoutRounding="True">
+					<Button Classes="ToolbarBtn" ToolTip.Tip="Open File or Directory (Ctrl+O)" UseLayoutRounding="True">
+						<Button.Flyout>
+							<MenuFlyout Placement="BottomEdgeAlignedLeft">
+								<MenuItem Header="Open File(s)..."  Command="{Binding OpenFileCommand}"/>
+								<MenuItem Header="Open Directory..." Command="{Binding OpenDirectoryCommand}"/>
+							</MenuFlyout>
+						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
 							<TextBlock Text="&#x1F4C2;" FontSize="14" VerticalAlignment="Center"/>
 							<TextBlock Text="Open" FontSize="12" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<TextBlock Text="&#x25BE;" FontSize="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>

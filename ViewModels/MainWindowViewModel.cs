@@ -15,6 +15,7 @@ public enum MouseTool { None, Pan, WindowLevel, Measure, Annotate, Rotate }
 public partial class MainWindowViewModel : ViewModelBase
 {
     public Func<Task>? RequestOpenFile { get; set; }
+    public Func<Task>? RequestOpenDirectory { get; set; }
 
     [ObservableProperty] private MouseTool _activeTool = MouseTool.None;
     [ObservableProperty] private bool _toolPan;
@@ -92,6 +93,13 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (RequestOpenFile != null)
             await RequestOpenFile();
+    }
+
+    [RelayCommand]
+    private async Task OpenDirectory()
+    {
+        if (RequestOpenDirectory != null)
+            await RequestOpenDirectory();
     }
 
     public async Task OpenFilesFromPaths(string[] paths)

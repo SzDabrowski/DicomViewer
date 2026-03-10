@@ -72,6 +72,27 @@ namespace DicomViewer.Views
                     }
                 };
 
+                VM.RequestOpenDirectory = async () =>
+                {
+                    var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                    {
+                        Title = "Open Directory",
+                        AllowMultiple = false
+                    });
+                    if (folder.Count > 0)
+                    {
+                        var dirPath = folder[0].TryGetLocalPath();
+                        if (!string.IsNullOrEmpty(dirPath))
+                        {
+                            var supported = new[] { ".dcm", ".dicom", ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".avi" };
+                            var files = System.IO.Directory.GetFiles(dirPath, "*.*", System.IO.SearchOption.TopDirectoryOnly)
+                                .Where(f => supported.Contains(System.IO.Path.GetExtension(f).ToLowerInvariant()))
+                                .ToArray();
+                            if (files.Length > 0) await VM.OpenFilesFromPaths(files);
+                        }
+                    }
+                };
+
                 VM.PropertyChanged += (sender, args) =>
                 {
                     if (args.PropertyName == nameof(MainWindowViewModel.ActiveFile) ||
