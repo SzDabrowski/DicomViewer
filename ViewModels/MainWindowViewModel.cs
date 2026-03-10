@@ -16,6 +16,13 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     public Func<Task>? RequestOpenFile { get; set; }
     public Func<Task>? RequestOpenDirectory { get; set; }
+    public Func<Task<string?>>? RequestBrowseDirectory { get; set; }
+
+    private readonly SettingsService _settingsService = new();
+    private AppSettings _appSettings = new();
+
+    [ObservableProperty] private string _defaultDirectory = string.Empty;
+    [ObservableProperty] private bool _isSettingsOpen;
 
     [ObservableProperty] private MouseTool _activeTool = MouseTool.None;
     [ObservableProperty] private bool _toolPan;
@@ -111,6 +118,50 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (RequestOpenDirectory != null)
             await RequestOpenDirectory();
+    }
+
+    [RelayCommand]
+    private void ToggleSettings() => IsSettingsOpen = !IsSettingsOpen;
+
+    [RelayCommand]
+    private async Task BrowseDefaultDirectory()
+    {
+        if (RequestBrowseDirectory != null)
+        {
+            var dir = await RequestBrowseDirectory();
+            if (!string.IsNullOrEmpty(dir))
+            {
+                DefaultDirectory = dir;
+                SaveSettings();
+                LoadDirectoryTree(dir);
+                IsRightPanelVisible = true;
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void ClearDefaultDirectory()
+    {
+        DefaultDirectory = string.Empty;
+        SaveSettings();
+    }
+
+    public void LoadSettings()
+    {
+        _appSettings = _settingsService.Load();
+        DefaultDirectory = _appSettings.DefaultDirectory;
+
+        if (!string.IsNullOrEmpty(DefaultDirectory) && System.IO.Directory.Exists(DefaultDirectory))
+        {
+            LoadDirectoryTree(DefaultDirectory);
+            IsRightPanelVisible = true;
+        }
+    }
+
+    private void SaveSettings()
+    {
+        _appSettings.DefaultDirectory = DefaultDirectory;
+        _settingsService.Save(_appSettings);
     }
 
     public async Task OpenFilesFromPaths(string[] paths)

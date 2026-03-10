@@ -95,12 +95,26 @@ namespace DicomViewer.Views
                     await Task.CompletedTask;
                 };
 
+                VM.RequestBrowseDirectory = async () =>
+                {
+                    var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                    {
+                        Title = "Select Default Directory",
+                        AllowMultiple = false
+                    });
+                    if (folder.Count > 0)
+                        return folder[0].TryGetLocalPath();
+                    return null;
+                };
+
                 VM.PropertyChanged += (sender, args) =>
                 {
                     if (args.PropertyName == nameof(MainWindowViewModel.ActiveFile) ||
                         args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         UpdateCanvasImage();
                 };
+
+                VM.LoadSettings();
             };
         }
 

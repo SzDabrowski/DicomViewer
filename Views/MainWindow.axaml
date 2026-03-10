@@ -151,6 +151,48 @@
 							<TextBlock Text="&#x25BE;" FontSize="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
+					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
+					<Button Classes="ToolbarBtn" ToolTip.Tip="Settings" UseLayoutRounding="True">
+						<Button.Flyout>
+							<Flyout Placement="BottomEdgeAlignedLeft" ShowMode="TransientWithDismissOnPointerMoveAway">
+								<Border Background="#16161F" CornerRadius="8" Padding="16,14" Width="320"
+								        BorderBrush="#2A2A3A" BorderThickness="1">
+									<StackPanel Spacing="12">
+										<TextBlock Text="SETTINGS" Foreground="#555570" FontSize="10" FontWeight="SemiBold"/>
+										<StackPanel Spacing="6">
+											<TextBlock Text="Default Directory" Foreground="#8888A8" FontSize="11"/>
+											<Grid ColumnDefinitions="*,Auto,Auto" Height="30">
+												<Border Grid.Column="0" Background="#1C1C28" CornerRadius="5" Padding="8,0"
+												        VerticalAlignment="Stretch">
+													<TextBlock Text="{Binding DefaultDirectory}" Foreground="#E8E8F0" FontSize="11"
+													           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+													           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+												</Border>
+												<TextBlock Grid.Column="0" Text="Not set" Foreground="#444460" FontSize="11"
+												           VerticalAlignment="Center" Margin="8,0"
+												           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+												<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding BrowseDefaultDirectoryCommand}"
+												        Padding="8,0" Height="30" Margin="6,0,0,0">
+													<TextBlock Text="Browse" FontSize="11"/>
+												</Button>
+												<Button Grid.Column="2" Classes="DangerBtn" Command="{Binding ClearDefaultDirectoryCommand}"
+												        Width="30" Height="30" Margin="4,0,0,0"
+												        IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+													<TextBlock Text="&#x2715;" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+												</Button>
+											</Grid>
+											<TextBlock Text="This directory will be loaded automatically on startup."
+											           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
+										</StackPanel>
+									</StackPanel>
+								</Border>
+							</Flyout>
+						</Button.Flyout>
+						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
+							<TextBlock Text="&#x2699;" FontSize="14" VerticalAlignment="Center"/>
+							<TextBlock Text="Settings" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+						</StackPanel>
+					</Button>
 				</StackPanel>
 
 				<Border Grid.Column="1" x:Name="TitleBarDragArea" IsHitTestVisible="True">
