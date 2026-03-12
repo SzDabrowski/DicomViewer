@@ -1,0 +1,39 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "type": "command",
+        "command": "echo '🚀 Claude Code session started for provisioner-koApoK'"
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "type": "command",
+        "command": "echo '📝 File operation: $TOOL_NAME on $FILE_PATH'"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "type": "command",
+        "command": "echo '✓ Command completed'"
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Read",
+      "Write",
+      "Edit",
+      "Bash",
+      "Glob",
+      "Grep",
+      "Task"
+    ],
+    "deny": []
+  },
+  "env": {
+    "PROJECT_NAME": "provisioner-koApoK"
+  }
+}

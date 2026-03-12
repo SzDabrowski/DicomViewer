@@ -112,6 +112,9 @@ namespace DicomViewer.Views
                     if (args.PropertyName == nameof(MainWindowViewModel.ActiveFile) ||
                         args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         UpdateCanvasImage();
+
+                    if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
+                        ScrollFilmstripToCurrentFrame();
                 };
 
                 VM.LoadSettings();
@@ -120,43 +123,48 @@ namespace DicomViewer.Views
 
         private MainWindowViewModel? VM => DataContext as MainWindowViewModel;
 
+        // Each thumbnail is 74px wide + 3px margin on each side = 80px per item
+        private const double ThumbItemWidth = 80.0;
+
+        private void ScrollFilmstripToCurrentFrame()
+        {
+            var scroller = this.FindControl<ScrollViewer>("FilmstripScroller");
+            if (scroller == null || VM == null) return;
+
+            double targetOffset = VM.CurrentFrameIndex * ThumbItemWidth
+                                  - scroller.Viewport.Width / 2
+                                  + ThumbItemWidth / 2;
+
+            double maxOffset = Math.Max(0, VM.TotalFrames * ThumbItemWidth - scroller.Viewport.Width);
+            targetOffset = Math.Max(0, Math.Min(targetOffset, maxOffset));
+
+            scroller.Offset = new Avalonia.Vector(targetOffset, 0);
+        }
+
         private void UpdateCanvasImage()
         {
-            if (VM?.ActiveFile == null) { MainCanvas.ClearAllData(); return; }
+            if (VM?.ActiveFile == null) return;
+            var canvas = this.FindControl<DicomCanvas>("MainCanvas");
+            if (canvas == null) return;
             var filePath = VM.ActiveFile.FilePath;
 
             if (ImageService.IsSupported(filePath))
             {
-                MainCanvas.Metadata = null;
-                MainCanvas.CurrentFrameIndex = 0;
                 var imgSvc = new ImageService();
                 var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
-                MainCanvas.SetPixels(pixels, w, h);
+                canvas.SetPixels(pixels, w, h);
             }
             else if (VideoService.IsSupported(filePath))
             {
-                MainCanvas.Metadata = null;
-                MainCanvas.CurrentFrameIndex = VM.CurrentFrameIndex;
                 var vidSvc = new VideoService();
                 var pixels = vidSvc.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
-                MainCanvas.SetPixels(pixels, w, h);
+                canvas.SetPixels(pixels, w, h);
             }
             else
             {
                 var svc = new DicomService();
-
-                if (MainCanvas.Metadata == null || MainCanvas.Metadata.PatientId != VM.ActiveFile.PatientId)
-                {
-                    var metadata = svc.GetMetadata(filePath);
-                    if (MainCanvas.Metadata != null && MainCanvas.Metadata.PatientId != metadata.PatientId)
-                        MainCanvas.ClearAllData();
-
-                    MainCanvas.Metadata = metadata;
-                }
-
-                MainCanvas.CurrentFrameIndex = VM.CurrentFrameIndex;
                 var pixels = svc.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
-                MainCanvas.SetPixels(pixels, w, h);
+                canvas.SetPixels(pixels, w, h);
             }
         }
 
@@ -196,6 +204,14 @@ namespace DicomViewer.Views
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
+
+            // Wire filmstrip scroll: vertical wheel → horizontal pan
+            var filmstrip = this.FindControl<ScrollViewer>("FilmstripScroller");
+            if (filmstrip != null)
+            {
+                filmstrip.AddHandler(PointerWheelChangedEvent, OnFilmstripWheel, RoutingStrategies.Tunnel | RoutingStrategies.Bubble, handledEventsToo: true);
+            }
+
             MainCanvas.ZoomLevelChanged += (_, z) => { if (VM != null) VM.ZoomLevel = z; };
             MainCanvas.PanChanged += (_, p) => { if (VM != null) { VM.PanX = p.X; VM.PanY = p.Y; } };
             MainCanvas.WindowLevelChanged += (_, wl) => { if (VM != null) { VM.WindowCenter = wl.Center; VM.WindowWidth = wl.Width; } };
@@ -230,6 +246,19 @@ namespace DicomViewer.Views
                         _ = VM.OpenFileCommand.ExecuteAsync(null);
                     break;
             }
+        }
+
+        // ── Filmstrip vertical scroll → horizontal scroll ───────────────────
+        private void OnFilmstripWheel(object? sender, PointerWheelEventArgs e)
+        {
+            var scroller = this.FindControl<ScrollViewer>("FilmstripScroller");
+            if (scroller == null) return;
+
+            double step = ThumbItemWidth * 3 * (e.Delta.Y > 0 ? -1 : 1);
+            scroller.Offset = new Avalonia.Vector(
+                Math.Clamp(scroller.Offset.X + step, 0, scroller.ScrollBarMaximum.X), 0);
+
+            e.Handled = true;
         }
 
         // --- UI INTERACTION METHODS ---

@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace DicomViewer.Converters;
 
-// ── Bool → Opacity ────────────────────────────────────────────────────────────
+// ── Bool → Opacity ──────────────────────────────────────────────────────────────────────────────
 public class BoolToOpacityConverter : IValueConverter
 {
     public double TrueValue { get; set; } = 1.0;
@@ -20,7 +20,7 @@ public class BoolToOpacityConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Bool → Width ──────────────────────────────────────────────────────────────
+// ── Bool → Width ───────────────────────────────────────────────────────────────────────────────
 public class BoolToWidthConverter : IValueConverter
 {
     public double TrueWidth { get; set; } = 260;
@@ -33,7 +33,7 @@ public class BoolToWidthConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Bool → Color (thumbnail border) ──────────────────────────────────────────
+// ── Bool → Color (thumbnail border) ──────────────────────────────────────────────────────────
 public class BoolToColorConverter : IValueConverter
 {
     public static readonly BoolToColorConverter Instance = new();
@@ -45,7 +45,7 @@ public class BoolToColorConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Bool → Card background color ─────────────────────────────────────────────
+// ── Bool → Card background color ───────────────────────────────────────────────────────────────
 public class BoolToCardColorConverter : IValueConverter
 {
     public static readonly BoolToCardColorConverter Instance = new();
@@ -57,7 +57,7 @@ public class BoolToCardColorConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Bool → Play Icon ──────────────────────────────────────────────────────────
+// ── Bool → Play Icon ──────────────────────────────────────────────────────────────────────────────
 public class BoolToPlayIconConverter : IValueConverter
 {
     public static readonly BoolToPlayIconConverter Instance = new();
@@ -69,7 +69,7 @@ public class BoolToPlayIconConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Bool → Highlight background ───────────────────────────────────────────────
+// ── Bool → Highlight background ───────────────────────────────────────────────────────────────────
 public class BoolToHighlightConverter : IValueConverter
 {
     public static readonly BoolToHighlightConverter Instance = new();
@@ -83,7 +83,7 @@ public class BoolToHighlightConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Bool → Accent brush ───────────────────────────────────────────────────────
+// ── Bool → Accent brush ────────────────────────────────────────────────────────────────────────────────
 public class BoolToAccentConverter : IValueConverter
 {
     public static readonly BoolToAccentConverter Instance = new();
@@ -97,7 +97,7 @@ public class BoolToAccentConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── TotalFrames → Slider Max ──────────────────────────────────────────────────
+// ── TotalFrames → Slider Max ──────────────────────────────────────────────────────────────────────────
 public class TotalFramesToMaxConverter : IValueConverter
 {
     public static readonly TotalFramesToMaxConverter Instance = new();
@@ -109,7 +109,7 @@ public class TotalFramesToMaxConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Tool → Active Bool ────────────────────────────────────────────────────────
+// ── Tool → Active Bool ─────────────────────────────────────────────────────────────────────────────
 public class ToolToActiveConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)

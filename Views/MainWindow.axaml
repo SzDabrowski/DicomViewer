@@ -305,7 +305,6 @@
 
 			<Grid Grid.Column="0">
 				<ctrl:DicomCanvas x:Name="MainCanvas"
-                                  CurrentFrameIndex="{Binding CurrentFrameIndex}"
                                   WindowCenter="{Binding WindowCenter}"
                                   WindowWidth="{Binding WindowWidth}"
                                   IsInverted="{Binding InvertColors}"
