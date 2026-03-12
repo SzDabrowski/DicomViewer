@@ -20,7 +20,8 @@ public partial class FileTreeNodeViewModel : ViewModelBase
     public string Name { get; }
     public string FullPath { get; }
     public bool IsDirectory { get; }
-    public string Icon => IsDirectory ? (IsExpanded ? "\u25BC" : "\u25B6") : GetFileIcon();
+    public string Icon => IsDirectory ? (IsExpanded ? "\uEAB4" : "\uEAB6") : GetFileIcon();
+    public string? FolderIcon => IsDirectory ? (IsExpanded ? "\uEAF7" : "\uEA83") : null;
     public ObservableCollection<FileTreeNodeViewModel> Children { get; } = new();
 
     public FileTreeNodeViewModel(string path, bool isDirectory)
@@ -36,6 +37,7 @@ public partial class FileTreeNodeViewModel : ViewModelBase
     partial void OnIsExpandedChanged(bool value)
     {
         OnPropertyChanged(nameof(Icon));
+        OnPropertyChanged(nameof(FolderIcon));
     }
 
     private void LoadChildren()
@@ -81,9 +83,10 @@ public partial class FileTreeNodeViewModel : ViewModelBase
         var ext = Path.GetExtension(FullPath).ToLowerInvariant();
         return ext switch
         {
-            ".dcm" or ".dicom" => "\u2695",  // medical
-            ".avi" or ".mp4" or ".mkv" or ".mov" or ".wmv" => "\u25B6",  // play
-            _ => "\U0001F5BC"  // image
+            ".dcm" or ".dicom" => "\uEB05",   // heart (medical)
+            ".avi" or ".mp4" or ".mkv" or ".mov" or ".wmv" => "\uEB2C",  // play (video)
+            ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif" or ".webp" => "\uEAEA",  // file-media (image)
+            _ => "\uEA7B"  // file (generic)
         };
     }
 }

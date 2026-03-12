@@ -36,7 +36,7 @@ namespace DicomViewer.Views
                 WindowState = WindowState == WindowState.Maximized
                     ? WindowState.Normal
                     : WindowState.Maximized;
-                maxIcon.Text = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
+                maxIcon.Text = WindowState == WindowState.Maximized ? "\uEABB" : "\uEAB9";
             };
 
             this.FindControl<Button>("BtnClose")!.Click += (_, _)

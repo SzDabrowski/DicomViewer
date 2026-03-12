@@ -4,6 +4,10 @@
              xmlns:local="using:DicomViewer"
              RequestedThemeVariant="Dark">
 
+    <Application.Resources>
+        <FontFamily x:Key="Codicon">avares://DicomViewer/Assets/Fonts/codicon.ttf#codicon</FontFamily>
+    </Application.Resources>
+
     <Application.DataTemplates>
         <local:ViewLocator/>
     </Application.DataTemplates>

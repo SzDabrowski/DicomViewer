@@ -23,11 +23,11 @@
 		<conv:BoolToAccentConverter x:Key="BoolToAccent"/>
 		<conv:BoolToWhiteConverter x:Key="BoolToWhite"/>
 		<conv:ProgressToWidthConverter x:Key="ProgressToWidth"/>
-		<conv:BoolToStringConverter x:Key="BoolToCollapseArrow" TrueValue="&#x25BC;" FalseValue="&#x25B2;"/>
+		<conv:BoolToStringConverter x:Key="BoolToCollapseArrow" TrueValue="&#xEAB4;" FalseValue="&#xEAB7;"/>
 		<conv:BoolToStringConverter x:Key="BoolToFilmstripTip" TrueValue="Collapse Filmstrip" FalseValue="Expand Filmstrip"/>
 		<conv:BoolToStringConverter x:Key="BoolToFilePanelTip" TrueValue="Hide File Panel" FalseValue="Show File Panel"/>
-		<conv:BoolToStringConverter x:Key="BoolToRightArrow" TrueValue="&#x25B6;" FalseValue="&#x25C4;"/>
-		<conv:BoolToStringConverter x:Key="BoolToPlayIcon" TrueValue="&#x23F8;" FalseValue="&#x25B6;"/>
+		<conv:BoolToStringConverter x:Key="BoolToRightArrow" TrueValue="&#xEAB6;" FalseValue="&#xEAB5;"/>
+		<conv:BoolToStringConverter x:Key="BoolToPlayIcon" TrueValue="&#xEAD1;" FalseValue="&#xEB2C;"/>
 	</Window.Resources>
 
 	<Window.Styles>
@@ -83,9 +83,9 @@
 							</MenuFlyout>
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
-							<TextBlock Text="&#x1F4C2;" FontSize="14" VerticalAlignment="Center"/>
+							<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 							<TextBlock Text="Open" FontSize="12" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
-							<TextBlock Text="&#x25BE;" FontSize="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
+							<TextBlock Text="&#xEAB4;" FontFamily="{StaticResource Codicon}" FontSize="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
@@ -94,44 +94,44 @@
                             Command="{Binding SelectToolCommand}" CommandParameter="Pan"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Pan}"
                             ToolTip.Tip="Pan / Zoom">
-						<TextBlock Text="&#x270B;" FontSize="13" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEB22;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn"
                             Command="{Binding SelectToolCommand}" CommandParameter="WindowLevel"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=WindowLevel}"
                             ToolTip.Tip="Window/Level">
-						<TextBlock Text="&#x25D0;" FontSize="13" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn"
                             Command="{Binding SelectToolCommand}" CommandParameter="Measure"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Measure}"
                             ToolTip.Tip="Measure">
-						<TextBlock Text="&#x1F4CF;" FontSize="13" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEA96;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn"
                             Command="{Binding SelectToolCommand}" CommandParameter="Annotate"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Annotate}"
                             ToolTip.Tip="Annotate">
-						<TextBlock Text="&#x270F;&#xFE0F;" FontSize="13" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEA73;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
 
 					<Button Classes="IconBtn" Command="{Binding RotateCCWCommand}" ToolTip.Tip="Rotate Counter-Clockwise">
-						<TextBlock Text="&#x21BA;" FontSize="16" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEAE2;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" Command="{Binding RotateCWCommand}" ToolTip.Tip="Rotate Clockwise">
-						<TextBlock Text="&#x21BB;" FontSize="16" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEBB0;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" Command="{Binding FlipHCommand}" ToolTip.Tip="Flip Horizontal">
-						<TextBlock Text="&#x21D4;" FontSize="16" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEA99;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" Command="{Binding FlipVCommand}" ToolTip.Tip="Flip Vertical">
-						<TextBlock Text="&#x21D5;" FontSize="16" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEA69;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" Command="{Binding ToggleInvertCommand}"
                             Classes.Active="{Binding InvertColors}"
                             ToolTip.Tip="Invert Colors (I)">
-						<TextBlock Text="&#x2298;" FontSize="14" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEABD;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
 
@@ -148,7 +148,7 @@
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
 							<TextBlock Text="Presets" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
-							<TextBlock Text="&#x25BE;" FontSize="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
+							<TextBlock Text="&#xEAB4;" FontFamily="{StaticResource Codicon}" FontSize="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
@@ -178,7 +178,7 @@
 												<Button Grid.Column="2" Classes="DangerBtn" Command="{Binding ClearDefaultDirectoryCommand}"
 												        Width="30" Height="30" Margin="4,0,0,0"
 												        IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-													<TextBlock Text="&#x2715;" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+													<TextBlock Text="&#xEA76;" FontFamily="{StaticResource Codicon}" FontSize="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 												</Button>
 											</Grid>
 											<TextBlock Text="This directory will be loaded automatically on startup."
@@ -189,7 +189,7 @@
 							</Flyout>
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
-							<TextBlock Text="&#x2699;" FontSize="14" VerticalAlignment="Center"/>
+							<TextBlock Text="&#xEAF8;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 							<TextBlock Text="Settings" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
 						</StackPanel>
 					</Button>
@@ -210,14 +210,14 @@
 				<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="0" VerticalAlignment="Stretch">
 					<StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center" Margin="0,0,2,0">
 						<Button Classes="IconBtn" Command="{Binding ZoomOutCommand}" ToolTip.Tip="Zoom Out (-)">
-							<TextBlock Text="&#x2212;" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+							<TextBlock Text="&#xEB82;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 						</Button>
 						<Border Background="#1C1C28" CornerRadius="4" Padding="8,4" MinWidth="58" VerticalAlignment="Center">
 							<TextBlock Text="{Binding ZoomLevel, StringFormat={}{0:P0}}" Foreground="#8888A8"
                                        FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 						</Border>
 						<Button Classes="IconBtn" Command="{Binding ZoomInCommand}" ToolTip.Tip="Zoom In (+)">
-							<TextBlock Text="+" FontSize="16" FontWeight="Bold" VerticalAlignment="Center"/>
+							<TextBlock Text="&#xEB81;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 						</Button>
 						<Button Classes="ToolbarBtn" Command="{Binding FitToWindowCommand}" ToolTip.Tip="Fit to Window (F)" UseLayoutRounding="True">
 							<TextBlock Text="Fit" FontSize="12" VerticalAlignment="Center" Height="16" LineHeight="16"/>
@@ -229,28 +229,28 @@
 						<Button Classes="IconBtn" Command="{Binding ToggleOverlayCommand}"
                             Classes.Active="{Binding ShowOverlay}"
                             ToolTip.Tip="Toggle Overlay">
-							<TextBlock Text="&#x2139;" FontSize="14" VerticalAlignment="Center"/>
+							<TextBlock Text="&#xEA74;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 						</Button>
 						<Button Classes="IconBtn" Command="{Binding ToggleMiniFramesCommand}"
                             Classes.Active="{Binding ShowMiniFrames}"
                             ToolTip.Tip="Toggle Filmstrip">
-							<TextBlock Text="&#x25A6;" FontSize="14" VerticalAlignment="Center"/>
+							<TextBlock Text="&#xEB84;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 						</Button>
 						<Button Classes="IconBtn" Command="{Binding ToggleRightPanelCommand}"
                             Classes.Active="{Binding IsRightPanelVisible}"
                             ToolTip.Tip="Toggle File Panel">
-							<TextBlock Text="&#x2630;" FontSize="14" VerticalAlignment="Center"/>
+							<TextBlock Text="&#xEB94;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 						</Button>
 					</StackPanel>
 					<Rectangle Width="1" Fill="#2A2A3A" VerticalAlignment="Stretch" Margin="2,0"/>
 					<Button x:Name="BtnMinimise" Classes="WinBtn" ToolTip.Tip="Minimise">
-						<TextBlock Text="&#xE921;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#8888A8"/>
+						<TextBlock Text="&#xEABA;" FontFamily="{StaticResource Codicon}" FontSize="14" Foreground="#8888A8"/>
 					</Button>
 					<Button x:Name="BtnMaximise" Classes="WinBtn" ToolTip.Tip="Maximise / Restore">
-						<TextBlock x:Name="MaximiseIcon" Text="&#xE922;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#8888A8"/>
+						<TextBlock x:Name="MaximiseIcon" Text="&#xEAB9;" FontFamily="{StaticResource Codicon}" FontSize="14" Foreground="#8888A8"/>
 					</Button>
 					<Button x:Name="BtnClose" Classes="WinBtn WinBtnClose" ToolTip.Tip="Close">
-						<TextBlock Text="&#xE8BB;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="#8888A8"/>
+						<TextBlock Text="&#xEAB8;" FontFamily="{StaticResource Codicon}" FontSize="14" Foreground="#8888A8"/>
 					</Button>
 				</StackPanel>
 
@@ -290,7 +290,7 @@
                                             Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CloseFileCommand}"
                                             CommandParameter="{Binding}"
                                             Width="16" Height="16" Padding="0" VerticalAlignment="Center">
-										<TextBlock Text="&#x2715;" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+										<TextBlock Text="&#xEA76;" FontFamily="{StaticResource Codicon}" FontSize="9" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 									</Button>
 								</StackPanel>
 							</Border>
@@ -350,7 +350,7 @@
 
 				<Border IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNull}}" IsHitTestVisible="False">
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
-						<TextBlock Text="&#x1F4C2;" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
+						<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="48" HorizontalAlignment="Center" Opacity="0.3"/>
 						<TextBlock Text="No DICOM file loaded" Foreground="#555570" FontSize="16"
                                    FontWeight="SemiBold" HorizontalAlignment="Center"/>
 						<TextBlock Text="Open a file or drag &amp; drop to begin" Foreground="#444460"
@@ -380,7 +380,7 @@
 
 				<Border Name="DropOverlay" Background="#CC000000" IsVisible="False" IsHitTestVisible="False">
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
-						<TextBlock Text="&#x1F4C2;" FontSize="80" HorizontalAlignment="Center" Opacity="0.8"/>
+						<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="80" HorizontalAlignment="Center" Opacity="0.8"/>
 						<TextBlock Text="Drop DICOM files here to open" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
 					</StackPanel>
 				</Border>
@@ -392,6 +392,7 @@
                     ToolTip.Tip="{Binding IsRightPanelVisible, Converter={StaticResource BoolToFilePanelTip}}"
                     PointerPressed="OnRightPanelHandlePressed">
 				<TextBlock FontSize="11" Foreground="#555570"
+                           FontFamily="{StaticResource Codicon}"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
                            Text="{Binding IsRightPanelVisible, Converter={StaticResource BoolToRightArrow}}"/>
 			</Border>
@@ -410,7 +411,7 @@
 							</StackPanel>
 							<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding OpenFileCommand}" Padding="10,5">
 								<StackPanel Orientation="Horizontal" Spacing="4">
-									<TextBlock Text="+" FontSize="14" FontWeight="Bold"/>
+									<TextBlock Text="&#xEA60;" FontFamily="{StaticResource Codicon}" FontSize="14"/>
 									<TextBlock Text="Add" FontSize="11"/>
 								</StackPanel>
 							</Button>
@@ -431,9 +432,14 @@
 													<Setter Property="Background" Value="#1C1C30"/>
 												</Style>
 											</Border.Styles>
-											<StackPanel Orientation="Horizontal" Spacing="6">
+											<StackPanel Orientation="Horizontal" Spacing="4">
 												<TextBlock Text="{Binding Icon}" FontSize="10" Foreground="#555570"
+                                                           FontFamily="{StaticResource Codicon}"
                                                            VerticalAlignment="Center" Width="12"/>
+												<TextBlock Text="{Binding FolderIcon}" FontSize="12" Foreground="#6A9FD6"
+                                                           FontFamily="{StaticResource Codicon}"
+                                                           VerticalAlignment="Center" Width="14"
+                                                           IsVisible="{Binding IsDirectory}"/>
 												<TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold"
                                                            Foreground="#E8E8F0" TextTrimming="CharacterEllipsis"
                                                            VerticalAlignment="Center"/>
@@ -452,9 +458,14 @@
 																	<Setter Property="Background" Value="#1C1C30"/>
 																</Style>
 															</Border.Styles>
-															<StackPanel Orientation="Horizontal" Spacing="6">
+															<StackPanel Orientation="Horizontal" Spacing="4">
 																<TextBlock Text="{Binding Icon}" FontSize="10"
+                                                                           FontFamily="{StaticResource Codicon}"
                                                                            Foreground="#555570" VerticalAlignment="Center" Width="12"/>
+																<TextBlock Text="{Binding FolderIcon}" FontSize="12" Foreground="#6A9FD6"
+                                                                           FontFamily="{StaticResource Codicon}"
+                                                                           VerticalAlignment="Center" Width="14"
+                                                                           IsVisible="{Binding IsDirectory}"/>
 																<TextBlock Text="{Binding Name}" FontSize="11"
                                                                            Foreground="{Binding IsDirectory, Converter={StaticResource BoolToWhite}}"
                                                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
@@ -472,9 +483,14 @@
 																				<Setter Property="Background" Value="#1C1C30"/>
 																			</Style>
 																		</Border.Styles>
-																		<StackPanel Orientation="Horizontal" Spacing="6">
+																		<StackPanel Orientation="Horizontal" Spacing="4">
 																			<TextBlock Text="{Binding Icon}" FontSize="10"
+                                                                                       FontFamily="{StaticResource Codicon}"
                                                                                        Foreground="#555570" VerticalAlignment="Center" Width="12"/>
+																			<TextBlock Text="{Binding FolderIcon}" FontSize="12" Foreground="#6A9FD6"
+                                                                                       FontFamily="{StaticResource Codicon}"
+                                                                                       VerticalAlignment="Center" Width="14"
+                                                                                       IsVisible="{Binding IsDirectory}"/>
 																			<TextBlock Text="{Binding Name}" FontSize="11"
                                                                                        Foreground="#8888A8"
                                                                                        TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
@@ -496,10 +512,10 @@
 					<!-- NO DIRECTORY PLACEHOLDER -->
 					<Border Grid.Row="1" IsVisible="{Binding !HasDirectoryLoaded}" Padding="12">
 						<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
-							<TextBlock Text="&#x1F4C1;" FontSize="28" HorizontalAlignment="Center" Opacity="0.3"/>
+							<TextBlock Text="&#xEA83;" FontFamily="{StaticResource Codicon}" FontSize="28" HorizontalAlignment="Center" Opacity="0.3"/>
 							<TextBlock Text="No directory loaded" Foreground="#444460" FontSize="11"
                                        HorizontalAlignment="Center"/>
-							<TextBlock Text="Use Open &#x25B8; Open Directory" Foreground="#333350" FontSize="10"
+							<TextBlock Text="Use Open > Open Directory" Foreground="#333350" FontSize="10"
                                        HorizontalAlignment="Center"/>
 						</StackPanel>
 					</Border>
@@ -538,7 +554,7 @@
 											<Button Grid.Column="1" Classes="DangerBtn"
                                                     Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CloseFileCommand}"
                                                     CommandParameter="{Binding}" VerticalAlignment="Center">
-												<TextBlock Text="&#x2715;" FontSize="10"/>
+												<TextBlock Text="&#xEA76;" FontFamily="{StaticResource Codicon}" FontSize="10"/>
 											</Button>
 										</Grid>
 									</Border>
@@ -560,6 +576,7 @@
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
 				<TextBlock FontSize="9" Foreground="#444460" Text="FILMSTRIP"/>
 				<TextBlock FontSize="9" Foreground="#555570"
+                           FontFamily="{StaticResource Codicon}"
                            Text="{Binding ShowMiniFrames, Converter={StaticResource BoolToCollapseArrow}}"/>
 			</StackPanel>
 		</Border>
@@ -569,13 +586,13 @@
 			<Grid ColumnDefinitions="Auto,*,Auto">
 				<Button Grid.Column="0" Classes="IconBtn" Command="{Binding PreviousFrameCommand}"
                         VerticalAlignment="Center" Margin="4,0">
-					<TextBlock Text="&#x25C4;" FontSize="16"/>
+					<TextBlock Text="&#xEAB5;" FontFamily="{StaticResource Codicon}" FontSize="16"/>
 				</Button>
 				<Grid Grid.Column="1">
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                                 Orientation="Horizontal" Spacing="8"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNull}}">
-						<TextBlock Text="&#x1F4C2;" FontSize="16" VerticalAlignment="Center" Opacity="0.4"/>
+						<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center" Opacity="0.4"/>
 						<TextBlock Text="No file loaded — open a DICOM file to see frames"
                                    Foreground="#444460" FontSize="11" VerticalAlignment="Center"/>
 					</StackPanel>
@@ -599,7 +616,7 @@
 										</Border.BorderBrush>
 										<Grid Width="74" Height="74">
 											<Border Background="#1C1C28" CornerRadius="2">
-												<TextBlock Text="&#x2B1B;" FontSize="20"
+												<TextBlock Text="&#xEAEA;" FontFamily="{StaticResource Codicon}" FontSize="20"
                                                            HorizontalAlignment="Center" VerticalAlignment="Center"
                                                            Foreground="#333355"
                                                            IsVisible="{Binding Thumbnail, Converter={x:Static ObjectConverters.IsNull}}"/>
@@ -620,7 +637,7 @@
 				</Grid>
 				<Button Grid.Column="2" Classes="IconBtn" Command="{Binding NextFrameCommand}"
                         VerticalAlignment="Center" Margin="4,0">
-					<TextBlock Text="&#x25BA;" FontSize="16"/>
+					<TextBlock Text="&#xEAB6;" FontFamily="{StaticResource Codicon}" FontSize="16"/>
 				</Button>
 			</Grid>
 		</Border>
@@ -633,33 +650,34 @@
 				<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
                             Command="{Binding FirstFrameCommand}" ToolTip.Tip="First Frame">
-						<TextBlock Text="&#x23EE;" FontSize="14" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEB6F;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
                             Command="{Binding PreviousFrameCommand}" ToolTip.Tip="Previous Frame">
-						<TextBlock Text="&#x23F4;" FontSize="14" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEAB5;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="AccentBtn" Command="{Binding TogglePlayCommand}"
                             Width="36" Height="30" Padding="0"
                             VerticalAlignment="Center" VerticalContentAlignment="Center"
                             ToolTip.Tip="Play / Pause (Space)">
 						<TextBlock Text="{Binding IsPlaying, Converter={StaticResource BoolToPlayIcon}}"
-                                   FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                   FontFamily="{StaticResource Codicon}"
+                                   FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
                             Command="{Binding NextFrameCommand}" ToolTip.Tip="Next Frame">
-						<TextBlock Text="&#x23F5;" FontSize="14" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEAB6;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
                             Command="{Binding LastFrameCommand}" ToolTip.Tip="Last Frame">
-						<TextBlock Text="&#x23ED;" FontSize="14" VerticalAlignment="Center"/>
+						<TextBlock Text="&#xEB70;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
 					</Button>
 					<ToggleButton IsChecked="{Binding LoopPlayback}" Padding="6,0"
                                   Width="30" Height="30"
                                   Background="Transparent" BorderThickness="0" Cursor="Hand"
                                   VerticalAlignment="Center" VerticalContentAlignment="Center"
                                   ToolTip.Tip="Loop Playback">
-						<TextBlock Text="&#x27F2;" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"
+						<TextBlock Text="&#xEB37;" FontFamily="{StaticResource Codicon}" FontSize="14" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Foreground="{Binding LoopPlayback, Converter={StaticResource BoolToWhite}}"/>
 					</ToggleButton>
 				</StackPanel>
