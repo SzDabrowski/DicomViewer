@@ -63,7 +63,7 @@ public class BoolToPlayIconConverter : IValueConverter
     public static readonly BoolToPlayIconConverter Instance = new();
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is true ? "⏸" : "▶";
+        => value is true ? "\uEAD1" : "\uEB2C";
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotImplementedException();
@@ -138,11 +138,25 @@ public class ProgressToWidthConverter : IValueConverter
 
 public class BoolToStringConverter : IValueConverter
 {
-    public string TrueValue { get; set; } = "▲";
-    public string FalseValue { get; set; } = "▼";
+    public string TrueValue { get; set; } = "\uEAB7";
+    public string FalseValue { get; set; } = "\uEAB4";
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value is true ? TrueValue : FalseValue;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+// ── Bool → White/Muted (for toggle icons like loop) ─────────────────────────
+public class BoolToWhiteConverter : IValueConverter
+{
+    public static readonly BoolToWhiteConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is true
+            ? new SolidColorBrush(Colors.White)
+            : new SolidColorBrush(Color.FromRgb(85, 85, 112)); // TextMuted
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotImplementedException();

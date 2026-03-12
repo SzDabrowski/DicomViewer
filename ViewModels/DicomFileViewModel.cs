@@ -1,15 +1,24 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using DicomViewer.Models;
 using DicomViewer.Services;
+using System;
 
 namespace DicomViewer.ViewModels;
 
 public partial class DicomFileViewModel : ViewModelBase
 {
     private readonly DicomFile _model;
+
     [ObservableProperty] private bool _isSelected;
+
+    // IsActive = alias for IsSelected, used by XAML tab/list highlighting
     public bool IsActive => IsSelected;
-    partial void OnIsSelectedChanged(bool value) => OnPropertyChanged(nameof(IsActive));
+
+    partial void OnIsSelectedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsActive));
+    }
+
     public DicomFile Model => _model;
     public string FilePath => _model.FilePath;
     public string FileName => _model.FileName;
@@ -19,22 +28,66 @@ public partial class DicomFileViewModel : ViewModelBase
     public string StudyDate => _model.StudyDate;
     public string SeriesDescription => _model.SeriesDescription;
     public int TotalFrames => _model.TotalFrames;
-    public string DisplayName => string.IsNullOrEmpty(PatientName) || PatientName == "Unknown" ? FileName : PatientName;
-    public DicomFileViewModel(DicomFile model) { _model = model; }
+
+    public string DisplayName => string.IsNullOrEmpty(PatientName) || PatientName == "Unknown"
+        ? FileName
+        : PatientName;
+
+    public DicomFileViewModel(DicomFile model)
+    {
+        _model = model;
+    }
+
     public static DicomFileViewModel Create(string filePath)
     {
+        if (ImageService.IsSupported(filePath))
+        {
+            var imgSvc = new ImageService();
+            var imgMeta = imgSvc.GetMetadata(filePath);
+            return new DicomFileViewModel(new DicomFile
+            {
+                FilePath = filePath,
+                Modality = "IMG",
+                SeriesDescription = System.IO.Path.GetExtension(filePath).ToUpperInvariant().TrimStart('.'),
+                TotalFrames = imgMeta.TotalFrames,
+                Rows = imgMeta.Height,
+                Columns = imgMeta.Width,
+                WindowCenter = 32768,
+                WindowWidth = 65535,
+                IsLoaded = true
+            });
+        }
+
+        if (VideoService.IsSupported(filePath))
+        {
+            var vidSvc = new VideoService();
+            var vidMeta = vidSvc.GetMetadata(filePath);
+            return new DicomFileViewModel(new DicomFile
+            {
+                FilePath = filePath,
+                Modality = "VID",
+                SeriesDescription = System.IO.Path.GetExtension(filePath).ToUpperInvariant().TrimStart('.'),
+                TotalFrames = Math.Max(1, vidMeta.TotalFrames),
+                Rows = vidMeta.Height,
+                Columns = vidMeta.Width,
+                WindowCenter = 32768,
+                WindowWidth = 65535,
+                IsLoaded = true
+            });
+        }
+
         var svc = new DicomService();
-        var model = new DicomFile
+        var meta = svc.GetMetadata(filePath);
+        return new DicomFileViewModel(new DicomFile
         {
             FilePath = filePath,
-            PatientName = svc.GetPatientName(filePath),
-            PatientId = svc.GetPatientId(filePath),
-            StudyDate = svc.GetStudyDate(filePath),
-            Modality = svc.GetModality(filePath),
-            SeriesDescription = svc.GetSeriesDescription(filePath),
-            TotalFrames = svc.GetTotalFrames(filePath),
+            PatientName = meta.PatientName,
+            PatientId = meta.PatientId,
+            StudyDate = meta.StudyDate,
+            Modality = meta.Modality,
+            SeriesDescription = meta.SeriesDescription,
+            TotalFrames = meta.TotalFrames,
             IsLoaded = true
-        };
-        return new DicomFileViewModel(model);
+        });
     }
 }

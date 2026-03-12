@@ -15,6 +15,14 @@ public enum MouseTool { None, Pan, WindowLevel, Measure, Annotate, Rotate }
 public partial class MainWindowViewModel : ViewModelBase
 {
     public Func<Task>? RequestOpenFile { get; set; }
+    public Func<Task>? RequestOpenDirectory { get; set; }
+    public Func<Task<string?>>? RequestBrowseDirectory { get; set; }
+
+    private readonly SettingsService _settingsService = new();
+    private AppSettings _appSettings = new();
+
+    [ObservableProperty] private string _defaultDirectory = string.Empty;
+    [ObservableProperty] private bool _isSettingsOpen;
 
     [ObservableProperty] private MouseTool _activeTool = MouseTool.None;
     [ObservableProperty] private bool _toolPan;
@@ -60,6 +68,17 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public ObservableCollection<DicomFileViewModel> OpenFiles { get; } = new();
     public ObservableCollection<ThumbnailViewModel> Thumbnails { get; } = new();
+    public ObservableCollection<FileTreeNodeViewModel> DirectoryTree { get; } = new();
+
+    [ObservableProperty] private bool _hasDirectoryLoaded;
+
+    public void LoadDirectoryTree(string dirPath)
+    {
+        DirectoryTree.Clear();
+        var root = new FileTreeNodeViewModel(dirPath, true) { IsExpanded = true };
+        DirectoryTree.Add(root);
+        HasDirectoryLoaded = true;
+    }
 
     [RelayCommand]
     private void SelectTool(string tool)
@@ -92,6 +111,57 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (RequestOpenFile != null)
             await RequestOpenFile();
+    }
+
+    [RelayCommand]
+    private async Task OpenDirectory()
+    {
+        if (RequestOpenDirectory != null)
+            await RequestOpenDirectory();
+    }
+
+    [RelayCommand]
+    private void ToggleSettings() => IsSettingsOpen = !IsSettingsOpen;
+
+    [RelayCommand]
+    private async Task BrowseDefaultDirectory()
+    {
+        if (RequestBrowseDirectory != null)
+        {
+            var dir = await RequestBrowseDirectory();
+            if (!string.IsNullOrEmpty(dir))
+            {
+                DefaultDirectory = dir;
+                SaveSettings();
+                LoadDirectoryTree(dir);
+                IsRightPanelVisible = true;
+            }
+        }
+    }
+
+    [RelayCommand]
+    private void ClearDefaultDirectory()
+    {
+        DefaultDirectory = string.Empty;
+        SaveSettings();
+    }
+
+    public void LoadSettings()
+    {
+        _appSettings = _settingsService.Load();
+        DefaultDirectory = _appSettings.DefaultDirectory;
+
+        if (!string.IsNullOrEmpty(DefaultDirectory) && System.IO.Directory.Exists(DefaultDirectory))
+        {
+            LoadDirectoryTree(DefaultDirectory);
+            IsRightPanelVisible = true;
+        }
+    }
+
+    private void SaveSettings()
+    {
+        _appSettings.DefaultDirectory = DefaultDirectory;
+        _settingsService.Save(_appSettings);
     }
 
     public async Task OpenFilesFromPaths(string[] paths)
