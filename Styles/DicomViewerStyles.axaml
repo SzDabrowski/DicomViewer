@@ -199,4 +199,74 @@
 		<Setter Property="Foreground" Value="{StaticResource AccentBlueBrush}"/>
 	</Style>
 
+	<!-- MenuFlyout presenter (the popup container) -->
+	<Style Selector="MenuFlyoutPresenter">
+		<Setter Property="Background" Value="{StaticResource BgPanelBrush}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="CornerRadius" Value="8"/>
+		<Setter Property="Padding" Value="4"/>
+	</Style>
+
+	<!-- MenuItem styling -->
+	<Style Selector="MenuItem">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+		<Setter Property="Padding" Value="10,7"/>
+		<Setter Property="CornerRadius" Value="5"/>
+		<Setter Property="FontSize" Value="12"/>
+		<Setter Property="Cursor" Value="Hand"/>
+	</Style>
+	<Style Selector="MenuItem:pointerover /template/ Border#PART_LayoutRoot">
+		<Setter Property="Background" Value="{StaticResource BgHoverBrush}"/>
+	</Style>
+	<Style Selector="MenuItem:pointerover">
+		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+	</Style>
+	<Style Selector="MenuItem:pressed /template/ Border#PART_LayoutRoot">
+		<Setter Property="Background" Value="{StaticResource BorderActiveBrush}"/>
+	</Style>
+
+	<!-- Settings category button -->
+	<Style Selector="Button.SettingsCategoryBtn">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+		<Setter Property="BorderThickness" Value="0"/>
+		<Setter Property="Padding" Value="14,10"/>
+		<Setter Property="HorizontalAlignment" Value="Stretch"/>
+		<Setter Property="HorizontalContentAlignment" Value="Left"/>
+		<Setter Property="Cursor" Value="Hand"/>
+		<Setter Property="CornerRadius" Value="0"/>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border Background="{TemplateBinding Background}"
+				        BorderBrush="{TemplateBinding BorderBrush}"
+				        BorderThickness="{TemplateBinding BorderThickness}"
+				        Padding="{TemplateBinding Padding}">
+					<ContentPresenter Content="{TemplateBinding Content}"
+					                  ContentTemplate="{TemplateBinding ContentTemplate}"
+					                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+					                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</Style>
+	<Style Selector="Button.SettingsCategoryBtn:pointerover">
+		<Setter Property="Background" Value="{StaticResource BgHoverBrush}"/>
+		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+	</Style>
+	<Style Selector="Button.SettingsCategoryBtn:pressed">
+		<Setter Property="Background" Value="{StaticResource BorderActiveBrush}"/>
+	</Style>
+	<Style Selector="Button.SettingsCategoryBtn.Active">
+		<Setter Property="Background" Value="#0D1A2E"/>
+		<Setter Property="Foreground" Value="{StaticResource AccentBlueBrush}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource AccentBlueBrush}"/>
+		<Setter Property="BorderThickness" Value="3,0,0,0"/>
+	</Style>
+	<Style Selector="Button.SettingsCategoryBtn.Active:pointerover">
+		<Setter Property="Background" Value="#122240"/>
+		<Setter Property="Foreground" Value="{StaticResource AccentBlueHoverBrush}"/>
+	</Style>
+
 </Styles>

@@ -76,8 +76,22 @@
 					<Button Classes="ToolbarBtn" ToolTip.Tip="Open File or Directory (Ctrl+O)" UseLayoutRounding="True">
 						<Button.Flyout>
 							<MenuFlyout Placement="BottomEdgeAlignedLeft">
-								<MenuItem Header="Open File(s)..."  Command="{Binding OpenFileCommand}"/>
-								<MenuItem Header="Open Directory..." Command="{Binding OpenDirectoryCommand}"/>
+								<MenuItem Command="{Binding OpenFileCommand}">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
+											<TextBlock Text="Open File(s)..." VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding OpenDirectoryCommand}">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEA83;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
+											<TextBlock Text="Open Directory..." VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
 							</MenuFlyout>
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
@@ -136,12 +150,60 @@
 					<Button Classes="ToolbarBtn" ToolTip.Tip="Window Presets" UseLayoutRounding="True">
 						<Button.Flyout>
 							<MenuFlyout Placement="BottomEdgeAlignedLeft">
-								<MenuItem Header="Brain  (C:40 W:80)"        Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Brain"/>
-								<MenuItem Header="Lung  (C:-600 W:1500)"     Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Lung"/>
-								<MenuItem Header="Bone  (C:400 W:1800)"      Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Bone"/>
-								<MenuItem Header="Abdomen  (C:60 W:400)"     Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Abdomen"/>
-								<MenuItem Header="Mediastinum  (C:40 W:400)" Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Mediastinum"/>
-								<MenuItem Header="Liver  (C:60 W:150)"       Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Liver"/>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Brain">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#C084FC"/>
+											<TextBlock Text="Brain" VerticalAlignment="Center"/>
+											<TextBlock Text="C:40 W:80" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Lung">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#60A5FA"/>
+											<TextBlock Text="Lung" VerticalAlignment="Center"/>
+											<TextBlock Text="C:-600 W:1500" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Bone">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#F9F9F9"/>
+											<TextBlock Text="Bone" VerticalAlignment="Center"/>
+											<TextBlock Text="C:400 W:1800" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Abdomen">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#FB923C"/>
+											<TextBlock Text="Abdomen" VerticalAlignment="Center"/>
+											<TextBlock Text="C:60 W:400" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Mediastinum">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#F87171"/>
+											<TextBlock Text="Mediastinum" VerticalAlignment="Center"/>
+											<TextBlock Text="C:40 W:400" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Liver">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#A3E635"/>
+											<TextBlock Text="Liver" VerticalAlignment="Center"/>
+											<TextBlock Text="C:60 W:150" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
 							</MenuFlyout>
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
@@ -150,42 +212,8 @@
 						</StackPanel>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
-					<Button Classes="ToolbarBtn" ToolTip.Tip="Settings" UseLayoutRounding="True">
-						<Button.Flyout>
-							<Flyout Placement="BottomEdgeAlignedLeft" ShowMode="TransientWithDismissOnPointerMoveAway">
-								<Border Background="#16161F" CornerRadius="8" Padding="16,14" Width="320"
-								        BorderBrush="#2A2A3A" BorderThickness="1">
-									<StackPanel Spacing="12">
-										<TextBlock Text="SETTINGS" Foreground="#555570" FontSize="10" FontWeight="SemiBold"/>
-										<StackPanel Spacing="6">
-											<TextBlock Text="Default Directory" Foreground="#8888A8" FontSize="11"/>
-											<Grid ColumnDefinitions="*,Auto,Auto" Height="30">
-												<Border Grid.Column="0" Background="#1C1C28" CornerRadius="5" Padding="8,0"
-												        VerticalAlignment="Stretch">
-													<TextBlock Text="{Binding DefaultDirectory}" Foreground="#E8E8F0" FontSize="11"
-													           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
-													           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
-												</Border>
-												<TextBlock Grid.Column="0" Text="Not set" Foreground="#444460" FontSize="11"
-												           VerticalAlignment="Center" Margin="8,0"
-												           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
-												<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding BrowseDefaultDirectoryCommand}"
-												        Padding="8,0" Height="30" Margin="6,0,0,0">
-													<TextBlock Text="Browse" FontSize="11"/>
-												</Button>
-												<Button Grid.Column="2" Classes="DangerBtn" Command="{Binding ClearDefaultDirectoryCommand}"
-												        Width="30" Height="30" Margin="4,0,0,0"
-												        IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-													<iconPacks:PackIconCodicons Kind="Close" Width="10" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-												</Button>
-											</Grid>
-											<TextBlock Text="This directory will be loaded automatically on startup."
-											           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
-										</StackPanel>
-									</StackPanel>
-								</Border>
-							</Flyout>
-						</Button.Flyout>
+					<Button Classes="ToolbarBtn" ToolTip.Tip="Settings" UseLayoutRounding="True"
+					        x:Name="SettingsBtn">
 						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
 							<iconPacks:PackIconCodicons Kind="Gear" Width="14" Height="14" VerticalAlignment="Center"/>
 							<TextBlock Text="Settings" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
@@ -681,7 +709,7 @@
 
 				<Grid Grid.Column="1" Margin="12,0" VerticalAlignment="Center">
 					<Grid ColumnDefinitions="*,Auto">
-						<Slider Grid.Column="0" Minimum="0" Maximum="{Binding TotalFrames}"
+						<Slider Name="FrameSlider" Grid.Column="0" Minimum="0" Maximum="{Binding TotalFrames}"
                                 Value="{Binding CurrentFrameIndex}"
                                 VerticalAlignment="Center"
                                 IsSnapToTickEnabled="True" TickFrequency="1"/>
@@ -697,20 +725,20 @@
 				<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
 					<StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
 						<TextBlock Text="FPS:" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
-						<Slider Minimum="1" Maximum="60" Value="{Binding PlaybackFps}" Width="70" VerticalAlignment="Center"/>
+						<Slider Name="FpsSlider" Minimum="1" Maximum="60" Value="{Binding PlaybackFps}" Width="70" VerticalAlignment="Center"/>
 						<TextBlock Text="{Binding PlaybackFps, StringFormat={}{0} fps}"
                                    Foreground="#E8E8F0" FontSize="11" VerticalAlignment="Center" MinWidth="38"/>
 					</StackPanel>
 					<Rectangle Width="1" Height="20" Fill="#2A2A3A" VerticalAlignment="Center"/>
 					<StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
 						<TextBlock Text="C:" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
-						<Slider Minimum="0" Maximum="65535" Value="{Binding WindowCenter}" Width="70" VerticalAlignment="Center"/>
+						<Slider Name="WindowCenterSlider" Minimum="0" Maximum="65535" Value="{Binding WindowCenter}" Width="70" VerticalAlignment="Center"/>
 						<TextBlock Text="{Binding WindowCenter, StringFormat={}{0:F0}}"
                                    Foreground="#E8E8F0" FontSize="11" VerticalAlignment="Center" MinWidth="34"/>
 					</StackPanel>
 					<StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
 						<TextBlock Text="W:" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
-						<Slider Minimum="1" Maximum="65535" Value="{Binding WindowWidth}" Width="70" VerticalAlignment="Center"/>
+						<Slider Name="WindowWidthSlider" Minimum="1" Maximum="65535" Value="{Binding WindowWidth}" Width="70" VerticalAlignment="Center"/>
 						<TextBlock Text="{Binding WindowWidth, StringFormat={}{0:F0}}"
                                    Foreground="#E8E8F0" FontSize="11" VerticalAlignment="Center" MinWidth="34"/>
 					</StackPanel>
