@@ -5,6 +5,7 @@ using Avalonia.Platform.Storage;
 using DicomViewer.ViewModels;
 using DicomViewer.Controls;
 using DicomViewer.Services;
+using IconPacks.Avalonia.Codicons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,13 +31,13 @@ namespace DicomViewer.Views
             this.FindControl<Button>("BtnMinimise")!.Click += (_, _)
                 => WindowState = WindowState.Minimized;
 
-            var maxIcon = this.FindControl<TextBlock>("MaximiseIcon")!;
+            var maxIcon = this.FindControl<PackIconCodicons>("MaximiseIcon")!;
             this.FindControl<Button>("BtnMaximise")!.Click += (_, _) =>
             {
                 WindowState = WindowState == WindowState.Maximized
                     ? WindowState.Normal
                     : WindowState.Maximized;
-                maxIcon.Text = WindowState == WindowState.Maximized ? "\uEABB" : "\uEAB9";
+                maxIcon.Kind = WindowState == WindowState.Maximized ? PackIconCodiconsKind.ChromeRestore : PackIconCodiconsKind.ChromeMaximize;
             };
 
             this.FindControl<Button>("BtnClose")!.Click += (_, _)
