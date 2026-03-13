@@ -57,18 +57,6 @@ public class BoolToCardColorConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-// ── Bool → Play Icon ──────────────────────────────────────────────────────────────────────────────
-public class BoolToPlayIconConverter : IValueConverter
-{
-    public static readonly BoolToPlayIconConverter Instance = new();
-
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is true ? "\uEAD1" : "\uEB2C";
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotImplementedException();
-}
-
 // ── Bool → Highlight background ───────────────────────────────────────────────────────────────────
 public class BoolToHighlightConverter : IValueConverter
 {
@@ -138,8 +126,8 @@ public class ProgressToWidthConverter : IValueConverter
 
 public class BoolToStringConverter : IValueConverter
 {
-    public string TrueValue { get; set; } = "\uEAB7";
-    public string FalseValue { get; set; } = "\uEAB4";
+    public string TrueValue { get; set; } = "";
+    public string FalseValue { get; set; } = "";
 
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value is true ? TrueValue : FalseValue;
