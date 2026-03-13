@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using IconPacks.Avalonia.Codicons;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -20,8 +21,8 @@ public partial class FileTreeNodeViewModel : ViewModelBase
     public string Name { get; }
     public string FullPath { get; }
     public bool IsDirectory { get; }
-    public string Icon => IsDirectory ? (IsExpanded ? "\uEAB4" : "\uEAB6") : GetFileIcon();
-    public string? FolderIcon => IsDirectory ? (IsExpanded ? "\uEAF7" : "\uEA83") : null;
+    public PackIconCodiconsKind IconKind => IsDirectory ? (IsExpanded ? PackIconCodiconsKind.ChevronDown : PackIconCodiconsKind.ChevronRight) : GetFileIconKind();
+    public PackIconCodiconsKind FolderIconKind => IsDirectory ? (IsExpanded ? PackIconCodiconsKind.FolderOpened : PackIconCodiconsKind.Folder) : PackIconCodiconsKind.File;
     public ObservableCollection<FileTreeNodeViewModel> Children { get; } = new();
 
     public FileTreeNodeViewModel(string path, bool isDirectory)
@@ -36,8 +37,8 @@ public partial class FileTreeNodeViewModel : ViewModelBase
 
     partial void OnIsExpandedChanged(bool value)
     {
-        OnPropertyChanged(nameof(Icon));
-        OnPropertyChanged(nameof(FolderIcon));
+        OnPropertyChanged(nameof(IconKind));
+        OnPropertyChanged(nameof(FolderIconKind));
     }
 
     private void LoadChildren()
@@ -78,15 +79,15 @@ public partial class FileTreeNodeViewModel : ViewModelBase
         catch { return false; }
     }
 
-    private string GetFileIcon()
+    private PackIconCodiconsKind GetFileIconKind()
     {
         var ext = Path.GetExtension(FullPath).ToLowerInvariant();
         return ext switch
         {
-            ".dcm" or ".dicom" => "\uEB05",   // heart (medical)
-            ".avi" or ".mp4" or ".mkv" or ".mov" or ".wmv" => "\uEB2C",  // play (video)
-            ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif" or ".webp" => "\uEAEA",  // file-media (image)
-            _ => "\uEA7B"  // file (generic)
+            ".dcm" or ".dicom" => PackIconCodiconsKind.Heart,
+            ".avi" or ".mp4" or ".mkv" or ".mov" or ".wmv" => PackIconCodiconsKind.Play,
+            ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif" or ".webp" => PackIconCodiconsKind.FileMedia,
+            _ => PackIconCodiconsKind.File
         };
     }
 }
