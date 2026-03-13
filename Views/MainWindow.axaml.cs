@@ -42,6 +42,8 @@ namespace DicomViewer.Views
             this.FindControl<Button>("BtnClose")!.Click += (_, _)
                 => Close();
 
+            this.FindControl<Button>("SettingsBtn")!.Click += async (_, _) => await OpenSettingsWindow();
+
             // Drag & Drop
             AddHandler(DragDrop.DropEvent, OnDrop);
             AddHandler(DragDrop.DragOverEvent, OnDragOver);
@@ -222,6 +224,23 @@ namespace DicomViewer.Views
                     else VM.PreviousFrameCommand.Execute(null);
                 }
             };
+
+            // Wire scroll-wheel on playback bar sliders
+            var frameSlider = this.FindControl<Slider>("FrameSlider");
+            if (frameSlider != null)
+                frameSlider.AddHandler(PointerWheelChangedEvent, OnFrameSliderWheel, RoutingStrategies.Tunnel, handledEventsToo: true);
+
+            var fpsSlider = this.FindControl<Slider>("FpsSlider");
+            if (fpsSlider != null)
+                fpsSlider.AddHandler(PointerWheelChangedEvent, OnFpsSliderWheel, RoutingStrategies.Tunnel, handledEventsToo: true);
+
+            var wcSlider = this.FindControl<Slider>("WindowCenterSlider");
+            if (wcSlider != null)
+                wcSlider.AddHandler(PointerWheelChangedEvent, OnWindowCenterSliderWheel, RoutingStrategies.Tunnel, handledEventsToo: true);
+
+            var wwSlider = this.FindControl<Slider>("WindowWidthSlider");
+            if (wwSlider != null)
+                wwSlider.AddHandler(PointerWheelChangedEvent, OnWindowWidthSliderWheel, RoutingStrategies.Tunnel, handledEventsToo: true);
         }
 
         private void OnKeyDown(object? sender, KeyEventArgs e)
@@ -246,6 +265,67 @@ namespace DicomViewer.Views
                         _ = VM.OpenFileCommand.ExecuteAsync(null);
                     break;
             }
+        }
+
+        // ── Settings Window ──────────────────────────────────────────────────
+        private async Task OpenSettingsWindow()
+        {
+            var vm = new ViewModels.SettingsViewModel();
+            vm.RequestBrowseDirectory = async () =>
+            {
+                var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+                {
+                    Title = "Select Default Directory",
+                    AllowMultiple = false
+                });
+                if (folder.Count > 0)
+                    return folder[0].TryGetLocalPath();
+                return null;
+            };
+
+            var settingsWindow = new SettingsWindow { DataContext = vm };
+            await settingsWindow.ShowDialog(this);
+
+            // Sync back to main VM
+            if (VM != null && VM.DefaultDirectory != vm.DefaultDirectory)
+            {
+                VM.DefaultDirectory = vm.DefaultDirectory;
+                if (!string.IsNullOrEmpty(vm.DefaultDirectory) && System.IO.Directory.Exists(vm.DefaultDirectory))
+                {
+                    VM.LoadDirectoryTree(vm.DefaultDirectory);
+                    VM.IsRightPanelVisible = true;
+                }
+            }
+        }
+
+        // ── Slider scroll-wheel handlers ─────────────────────────────────────
+        private void OnFrameSliderWheel(object? sender, PointerWheelEventArgs e)
+        {
+            if (VM == null) return;
+            if (e.Delta.Y > 0) VM.PreviousFrameCommand.Execute(null);
+            else VM.NextFrameCommand.Execute(null);
+            e.Handled = true;
+        }
+
+        private void OnFpsSliderWheel(object? sender, PointerWheelEventArgs e)
+        {
+            if (VM == null) return;
+            VM.PlaybackFps = Math.Clamp(VM.PlaybackFps + (e.Delta.Y > 0 ? 1 : -1), 1, 60);
+            e.Handled = true;
+        }
+
+        private void OnWindowCenterSliderWheel(object? sender, PointerWheelEventArgs e)
+        {
+            if (VM == null) return;
+            VM.WindowCenter = Math.Clamp(VM.WindowCenter + (e.Delta.Y > 0 ? 10 : -10), 0, 65535);
+            e.Handled = true;
+        }
+
+        private void OnWindowWidthSliderWheel(object? sender, PointerWheelEventArgs e)
+        {
+            if (VM == null) return;
+            VM.WindowWidth = Math.Clamp(VM.WindowWidth + (e.Delta.Y > 0 ? 10 : -10), 1, 65535);
+            e.Handled = true;
         }
 
         // ── Filmstrip vertical scroll → horizontal scroll ───────────────────

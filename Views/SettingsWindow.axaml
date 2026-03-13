@@ -1,0 +1,187 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DicomViewer.ViewModels"
+        x:Class="DicomViewer.Views.SettingsWindow"
+        x:DataType="vm:SettingsViewModel"
+        Width="700" Height="500"
+        MinWidth="500" MinHeight="400"
+        WindowStartupLocation="CenterOwner"
+        ExtendClientAreaToDecorationsHint="True"
+        SystemDecorations="BorderOnly"
+        Background="#0A0A0E"
+        Title="Settings"
+        CanResize="False">
+
+	<Window.Styles>
+		<!-- Window control buttons -->
+		<Style Selector="Button.WinBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#8888A8"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Width" Value="46"/>
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+						<ContentPresenter Content="{TemplateBinding Content}"
+						                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+						                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+		<Style Selector="Button.WinBtnClose:pointerover">
+			<Setter Property="Background" Value="#C42B1C"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="36,*">
+
+		<!-- TITLE BAR -->
+		<Border Grid.Row="0" Background="#111118" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
+			<Grid ColumnDefinitions="*,Auto">
+				<Border Grid.Column="0" x:Name="TitleBarDragArea" IsHitTestVisible="True">
+					<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="14,0">
+						<TextBlock Text="&#xEAF8;" FontFamily="{StaticResource Codicon}" FontSize="14"
+						           Foreground="#8888A8" VerticalAlignment="Center"/>
+						<TextBlock Text="Settings" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
+					</StackPanel>
+				</Border>
+				<Button Grid.Column="1" Classes="WinBtn WinBtnClose" x:Name="CloseBtn">
+					<TextBlock Text="&#xEA76;" FontFamily="{StaticResource Codicon}" FontSize="11"/>
+				</Button>
+			</Grid>
+		</Border>
+
+		<!-- MAIN CONTENT -->
+		<Grid Grid.Row="1" ColumnDefinitions="200,*">
+
+			<!-- LEFT: Category Navigation -->
+			<Border Grid.Column="0" Background="#111118" BorderBrush="#2A2A3A" BorderThickness="0,0,1,0">
+				<StackPanel Margin="0,8">
+					<Button Classes="SettingsCategoryBtn"
+					        Classes.Active="{Binding IsGeneralSelected}"
+					        Command="{Binding SelectCategoryCommand}" CommandParameter="General">
+						<StackPanel Orientation="Horizontal" Spacing="10">
+							<TextBlock Text="&#xEB52;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
+							<TextBlock Text="General" FontSize="13" VerticalAlignment="Center"/>
+						</StackPanel>
+					</Button>
+					<Button Classes="SettingsCategoryBtn"
+					        Classes.Active="{Binding IsControlsSelected}"
+					        Command="{Binding SelectCategoryCommand}" CommandParameter="Controls">
+						<StackPanel Orientation="Horizontal" Spacing="10">
+							<TextBlock Text="&#xEA65;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
+							<TextBlock Text="Controls" FontSize="13" VerticalAlignment="Center"/>
+						</StackPanel>
+					</Button>
+				</StackPanel>
+			</Border>
+
+			<!-- RIGHT: Content Area -->
+			<ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+				<Grid>
+					<!-- General Page -->
+					<StackPanel IsVisible="{Binding IsGeneralSelected}" Margin="28,24" Spacing="28">
+
+						<!-- Language Setting -->
+						<StackPanel Spacing="10">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<TextBlock Text="&#xEA7C;" FontFamily="{StaticResource Codicon}" FontSize="14"
+								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
+								<TextBlock Text="LANGUAGE" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+							</StackPanel>
+							<StackPanel Spacing="6">
+								<TextBlock Text="Display Language" Foreground="#8888A8" FontSize="11"/>
+								<Grid ColumnDefinitions="*,Auto" Height="34">
+									<Border Grid.Column="0" Background="#1C1C28" CornerRadius="6" Padding="12,0"
+									        BorderBrush="#2A2A3A" BorderThickness="1" VerticalAlignment="Stretch"
+									        MaxWidth="250" HorizontalAlignment="Left">
+										<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+											<TextBlock Text="English" Foreground="#E8E8F0" FontSize="12" VerticalAlignment="Center"/>
+											<TextBlock Text="&#xEAB4;" FontFamily="{StaticResource Codicon}" FontSize="9"
+											           Foreground="#555570" VerticalAlignment="Center"/>
+										</StackPanel>
+									</Border>
+								</Grid>
+								<TextBlock Text="Language selection will be available in a future update."
+								           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
+							</StackPanel>
+						</StackPanel>
+
+						<Rectangle Height="1" Fill="#2A2A3A"/>
+
+						<!-- Default Folder Setting -->
+						<StackPanel Spacing="10">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<TextBlock Text="&#xEA83;" FontFamily="{StaticResource Codicon}" FontSize="14"
+								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
+								<TextBlock Text="DEFAULT FOLDER" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+							</StackPanel>
+							<StackPanel Spacing="6">
+								<TextBlock Text="Startup Directory" Foreground="#8888A8" FontSize="11"/>
+								<Grid ColumnDefinitions="*,Auto,Auto" Height="34">
+									<Border Grid.Column="0" Background="#1C1C28" CornerRadius="6" Padding="12,0"
+									        BorderBrush="#2A2A3A" BorderThickness="1" VerticalAlignment="Stretch">
+										<TextBlock Text="{Binding DefaultDirectory}" Foreground="#E8E8F0" FontSize="12"
+										           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
+										           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+									</Border>
+									<TextBlock Grid.Column="0" Text="Not set" Foreground="#444460" FontSize="12"
+									           VerticalAlignment="Center" Margin="12,0"
+									           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+									<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding BrowseDefaultDirectoryCommand}"
+									        Padding="12,0" Height="34" Margin="8,0,0,0">
+										<StackPanel Orientation="Horizontal" Spacing="6">
+											<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="12" VerticalAlignment="Center"/>
+											<TextBlock Text="Browse" FontSize="11" VerticalAlignment="Center"/>
+										</StackPanel>
+									</Button>
+									<Button Grid.Column="2" Classes="DangerBtn" Command="{Binding ClearDefaultDirectoryCommand}"
+									        Width="34" Height="34" Margin="4,0,0,0"
+									        IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+										<TextBlock Text="&#xEA76;" FontFamily="{StaticResource Codicon}" FontSize="11"
+										           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+									</Button>
+								</Grid>
+								<TextBlock Text="This directory will be loaded automatically on startup."
+								           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
+							</StackPanel>
+						</StackPanel>
+
+					</StackPanel>
+
+					<!-- Controls Page -->
+					<StackPanel IsVisible="{Binding IsControlsSelected}" Margin="28,24" Spacing="28">
+
+						<StackPanel Spacing="10">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<TextBlock Text="&#xEA65;" FontFamily="{StaticResource Codicon}" FontSize="14"
+								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
+								<TextBlock Text="KEYBOARD SHORTCUTS" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+							</StackPanel>
+
+							<Border Background="#1C1C28" CornerRadius="8" Padding="20,16" BorderBrush="#2A2A3A" BorderThickness="1">
+								<StackPanel Spacing="8" HorizontalAlignment="Center">
+									<TextBlock Text="&#xEA65;" FontFamily="{StaticResource Codicon}" FontSize="28"
+									           Foreground="#555570" HorizontalAlignment="Center"/>
+									<TextBlock Text="Keyboard shortcuts and control preferences"
+									           Foreground="#8888A8" FontSize="12" HorizontalAlignment="Center"/>
+									<TextBlock Text="will be available in a future update."
+									           Foreground="#555570" FontSize="11" HorizontalAlignment="Center"/>
+								</StackPanel>
+							</Border>
+						</StackPanel>
+
+					</StackPanel>
+				</Grid>
+			</ScrollViewer>
+
+		</Grid>
+	</Grid>
+
+</Window>
