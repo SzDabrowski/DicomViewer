@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DicomViewer.Models;
 using DicomViewer.Services;
+using Avalonia.Threading;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -71,6 +72,55 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<DicomFileViewModel> OpenFiles { get; } = new();
     public ObservableCollection<ThumbnailViewModel> Thumbnails { get; } = new();
     public ObservableCollection<FileTreeNodeViewModel> DirectoryTree { get; } = new();
+    public ObservableCollection<NotificationViewModel> Notifications { get; } = new();
+
+    private const int MaxVisibleNotifications = 3;
+
+    public void AddNotification(NotificationSeverity severity, string message, string details = "")
+    {
+        var notification = NotificationViewModel.Create(severity, message, details);
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            Notifications.Insert(0, notification);
+
+            // Trim excess notifications
+            while (Notifications.Count > MaxVisibleNotifications)
+                Notifications.RemoveAt(Notifications.Count - 1);
+
+            // Schedule auto-dismiss if applicable
+            if (notification.AutoDismissMs > 0)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(notification.AutoDismissMs);
+                    Dispatcher.UIThread.Post(() => DismissNotification(notification));
+                });
+            }
+        });
+    }
+
+    [RelayCommand]
+    private void DismissNotification(NotificationViewModel? notification)
+    {
+        if (notification != null)
+            Notifications.Remove(notification);
+    }
+
+    [RelayCommand]
+    private void CopyNotificationDetails(NotificationViewModel? notification)
+    {
+        if (notification == null) return;
+        var text = string.IsNullOrEmpty(notification.Details)
+            ? notification.Message
+            : $"{notification.Message}\n\n{notification.Details}";
+        _clipboardText = text;
+        OnPropertyChanged(nameof(ClipboardText));
+    }
+
+    // Exposed so the View can copy to clipboard (Avalonia clipboard requires TopLevel)
+    private string? _clipboardText;
+    public string? ClipboardText => _clipboardText;
 
     [ObservableProperty] private bool _hasDirectoryLoaded;
 
@@ -215,6 +265,9 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             LoadingProgress = 0;
             StatusMessage = $"Error: {ex.Message}";
+            AddNotification(NotificationSeverity.Error,
+                $"Failed to open {System.IO.Path.GetFileName(path)}",
+                $"{ex.Message}\n{ex.StackTrace}");
         }
         finally
         {

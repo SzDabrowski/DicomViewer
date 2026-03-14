@@ -160,6 +160,90 @@ public class BoolToWhiteConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+// ── NotificationSeverity → Background Color ───────────────────────────────────────────
+public class SeverityToBackgroundConverter : IValueConverter
+{
+    public static readonly SeverityToBackgroundConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is DicomViewer.ViewModels.NotificationSeverity severity ? severity switch
+        {
+            DicomViewer.ViewModels.NotificationSeverity.Info    => new SolidColorBrush(Color.FromArgb(230, 16, 30, 50)),
+            DicomViewer.ViewModels.NotificationSeverity.Warning => new SolidColorBrush(Color.FromArgb(230, 50, 40, 10)),
+            DicomViewer.ViewModels.NotificationSeverity.Error   => new SolidColorBrush(Color.FromArgb(230, 50, 16, 24)),
+            _ => new SolidColorBrush(Color.FromArgb(230, 16, 30, 50)),
+        } : new SolidColorBrush(Color.FromArgb(230, 16, 30, 50));
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+// ── NotificationSeverity → Border Color ───────────────────────────────────────────────
+public class SeverityToBorderConverter : IValueConverter
+{
+    public static readonly SeverityToBorderConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is DicomViewer.ViewModels.NotificationSeverity severity ? severity switch
+        {
+            DicomViewer.ViewModels.NotificationSeverity.Info    => new SolidColorBrush(Color.FromRgb(74, 158, 255)),
+            DicomViewer.ViewModels.NotificationSeverity.Warning => new SolidColorBrush(Color.FromRgb(255, 180, 50)),
+            DicomViewer.ViewModels.NotificationSeverity.Error   => new SolidColorBrush(Color.FromRgb(255, 74, 106)),
+            _ => new SolidColorBrush(Color.FromRgb(74, 158, 255)),
+        } : new SolidColorBrush(Color.FromRgb(74, 158, 255));
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+// ── NotificationSeverity → Icon Color ─────────────────────────────────────────────────
+public class SeverityToIconColorConverter : IValueConverter
+{
+    public static readonly SeverityToIconColorConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is DicomViewer.ViewModels.NotificationSeverity severity ? severity switch
+        {
+            DicomViewer.ViewModels.NotificationSeverity.Info    => new SolidColorBrush(Color.FromRgb(74, 158, 255)),
+            DicomViewer.ViewModels.NotificationSeverity.Warning => new SolidColorBrush(Color.FromRgb(255, 180, 50)),
+            DicomViewer.ViewModels.NotificationSeverity.Error   => new SolidColorBrush(Color.FromRgb(255, 74, 106)),
+            _ => new SolidColorBrush(Color.FromRgb(74, 158, 255)),
+        } : new SolidColorBrush(Color.FromRgb(74, 158, 255));
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+// ── NotificationSeverity → Codicon Kind Name ──────────────────────────────────────────
+public class SeverityToIconConverter : IValueConverter
+{
+    public static readonly SeverityToIconConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is DicomViewer.ViewModels.NotificationSeverity severity ? severity switch
+        {
+            DicomViewer.ViewModels.NotificationSeverity.Info    => IconPacks.Avalonia.Codicons.PackIconCodiconsKind.Info,
+            DicomViewer.ViewModels.NotificationSeverity.Warning => IconPacks.Avalonia.Codicons.PackIconCodiconsKind.Warning,
+            DicomViewer.ViewModels.NotificationSeverity.Error   => IconPacks.Avalonia.Codicons.PackIconCodiconsKind.Error,
+            _ => IconPacks.Avalonia.Codicons.PackIconCodiconsKind.Info,
+        } : IconPacks.Avalonia.Codicons.PackIconCodiconsKind.Info;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+// ── Has Details → Visibility ──────────────────────────────────────────────────────────
+public class HasDetailsConverter : IValueConverter
+{
+    public static readonly HasDetailsConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is string s && !string.IsNullOrEmpty(s);
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 // MouseTool → accent blue when a tool is active, muted grey when None
 public class ActiveToolColorConverter : IValueConverter
 {

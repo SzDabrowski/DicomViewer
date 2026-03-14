@@ -27,6 +27,11 @@
 		<conv:BoolToStringConverter x:Key="BoolToFilmstripTip" TrueValue="Collapse Filmstrip" FalseValue="Expand Filmstrip"/>
 		<conv:BoolToStringConverter x:Key="BoolToFilePanelTip" TrueValue="Hide File Panel" FalseValue="Show File Panel"/>
 		<conv:BoolToTooltipDelayConverter x:Key="BoolToTooltipDelay"/>
+		<conv:SeverityToBackgroundConverter x:Key="SeverityToBackground"/>
+		<conv:SeverityToBorderConverter x:Key="SeverityToBorder"/>
+		<conv:SeverityToIconColorConverter x:Key="SeverityToIconColor"/>
+		<conv:SeverityToIconConverter x:Key="SeverityToIcon"/>
+		<conv:HasDetailsConverter x:Key="HasDetails"/>
 	</Window.Resources>
 
 	<Window.Styles>
@@ -406,6 +411,67 @@
                                    FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
 					</StackPanel>
 				</Border>
+
+				<!-- NOTIFICATION BAR -->
+				<ItemsControl ItemsSource="{Binding Notifications}"
+				              HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+				              Margin="16,0,16,12">
+					<ItemsControl.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Spacing="6"/>
+						</ItemsPanelTemplate>
+					</ItemsControl.ItemsPanel>
+					<ItemsControl.ItemTemplate>
+						<DataTemplate x:DataType="vm:NotificationViewModel">
+							<Border Background="{Binding Severity, Converter={StaticResource SeverityToBackground}}"
+							        BorderBrush="{Binding Severity, Converter={StaticResource SeverityToBorder}}"
+							        BorderThickness="1" CornerRadius="8" Padding="12,8"
+							        BoxShadow="0 4 16 #40000000">
+								<Grid ColumnDefinitions="Auto,*,Auto,Auto">
+									<!-- Icon -->
+									<iconPacks:PackIconCodicons Grid.Column="0"
+									                            Kind="{Binding Severity, Converter={StaticResource SeverityToIcon}}"
+									                            Width="16" Height="16"
+									                            Foreground="{Binding Severity, Converter={StaticResource SeverityToIconColor}}"
+									                            VerticalAlignment="Center" Margin="0,0,10,0"/>
+
+									<!-- Message + Label -->
+									<StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="{Binding SeverityLabel}" FontSize="9" FontWeight="Bold"
+											           Foreground="{Binding Severity, Converter={StaticResource SeverityToIconColor}}"
+											           VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding Message}" Foreground="#E8E8F0" FontSize="12"
+											           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+										</StackPanel>
+										<TextBlock Text="{Binding Details}" Foreground="#8888A8" FontSize="10"
+										           MaxLines="2" TextTrimming="CharacterEllipsis"
+										           IsVisible="{Binding Details, Converter={StaticResource HasDetails}}"/>
+									</StackPanel>
+
+									<!-- Copy button -->
+									<Button Grid.Column="2" Classes="IconBtn"
+									        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyNotificationDetailsCommand}"
+									        CommandParameter="{Binding}"
+									        ToolTip.Tip="Copy error details"
+									        IsVisible="{Binding Details, Converter={StaticResource HasDetails}}"
+									        VerticalAlignment="Center" Margin="6,0">
+										<iconPacks:PackIconCodicons Kind="Copy" Width="13" Height="13"/>
+									</Button>
+
+									<!-- Dismiss button -->
+									<Button Grid.Column="3" Classes="IconBtn"
+									        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).DismissNotificationCommand}"
+									        CommandParameter="{Binding}"
+									        ToolTip.Tip="Dismiss"
+									        VerticalAlignment="Center">
+										<iconPacks:PackIconCodicons Kind="Close" Width="13" Height="13"/>
+									</Button>
+								</Grid>
+							</Border>
+						</DataTemplate>
+					</ItemsControl.ItemTemplate>
+				</ItemsControl>
 
 				<Border Name="DropOverlay" Background="#CC000000" IsVisible="False" IsHitTestVisible="False">
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">

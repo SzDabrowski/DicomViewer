@@ -118,6 +118,9 @@ namespace DicomViewer.Views
 
                     if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         ScrollFilmstripToCurrentFrame();
+
+                    if (args.PropertyName == nameof(MainWindowViewModel.ClipboardText) && VM.ClipboardText != null)
+                        _ = Clipboard?.SetTextAsync(VM.ClipboardText);
                 };
 
                 VM.LoadSettings();
@@ -152,23 +155,32 @@ namespace DicomViewer.Views
             if (canvas == null) return;
             var filePath = VM.ActiveFile.FilePath;
 
-            if (ImageService.IsSupported(filePath))
+            try
             {
-                var imgSvc = new ImageService();
-                var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
-                canvas.SetPixels(pixels, w, h);
+                if (ImageService.IsSupported(filePath))
+                {
+                    var imgSvc = new ImageService();
+                    var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
+                    canvas.SetPixels(pixels, w, h);
+                }
+                else if (VideoService.IsSupported(filePath))
+                {
+                    var vidSvc = new VideoService();
+                    var pixels = vidSvc.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                    canvas.SetPixels(pixels, w, h);
+                }
+                else
+                {
+                    var svc = new DicomService();
+                    var pixels = svc.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                    canvas.SetPixels(pixels, w, h);
+                }
             }
-            else if (VideoService.IsSupported(filePath))
+            catch (Exception ex)
             {
-                var vidSvc = new VideoService();
-                var pixels = vidSvc.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
-                canvas.SetPixels(pixels, w, h);
-            }
-            else
-            {
-                var svc = new DicomService();
-                var pixels = svc.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
-                canvas.SetPixels(pixels, w, h);
+                VM.AddNotification(ViewModels.NotificationSeverity.Error,
+                    $"Failed to render frame {VM.CurrentFrameIndex}",
+                    ex.Message);
             }
         }
 
