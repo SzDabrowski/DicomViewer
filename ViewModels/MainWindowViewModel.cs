@@ -22,6 +22,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private AppSettings _appSettings = new();
 
     [ObservableProperty] private string _defaultDirectory = string.Empty;
+    [ObservableProperty] private bool _showTooltips = true;
     [ObservableProperty] private bool _isSettingsOpen;
 
     [ObservableProperty] private MouseTool _activeTool = MouseTool.None;
@@ -150,6 +151,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         _appSettings = _settingsService.Load();
         DefaultDirectory = _appSettings.DefaultDirectory;
+        ShowTooltips = _appSettings.ShowTooltips;
 
         if (!string.IsNullOrEmpty(DefaultDirectory) && System.IO.Directory.Exists(DefaultDirectory))
         {

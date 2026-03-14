@@ -7,6 +7,7 @@ namespace DicomViewer.Services;
 public class AppSettings
 {
     public string DefaultDirectory { get; set; } = string.Empty;
+    public bool ShowTooltips { get; set; } = true;
 }
 
 public class SettingsService

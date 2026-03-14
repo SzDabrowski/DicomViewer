@@ -124,6 +124,16 @@ public class ProgressToWidthConverter : IValueConverter
 }
 
 
+// ── Bool → Tooltip delay (true = normal 400ms, false = effectively disabled) ─────────────────
+public class BoolToTooltipDelayConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is true ? 400 : int.MaxValue;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 public class BoolToStringConverter : IValueConverter
 {
     public string TrueValue { get; set; } = "";
