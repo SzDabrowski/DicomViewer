@@ -1,13 +1,23 @@
 using System;
 using System.IO;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace DicomViewer.Services;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum StartupWindowMode
+{
+    Windowed,
+    Maximized,
+    Fullscreen
+}
 
 public class AppSettings
 {
     public string DefaultDirectory { get; set; } = string.Empty;
     public bool ShowTooltips { get; set; } = true;
+    public StartupWindowMode StartupWindowMode { get; set; } = StartupWindowMode.Windowed;
 }
 
 public class SettingsService
