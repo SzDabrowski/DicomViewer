@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DicomViewer.ViewModels"
+        xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
         x:Class="DicomViewer.Views.SettingsWindow"
         x:DataType="vm:SettingsViewModel"
         Width="700" Height="500"
@@ -46,13 +47,13 @@
 			<Grid ColumnDefinitions="*,Auto">
 				<Border Grid.Column="0" x:Name="TitleBarDragArea" IsHitTestVisible="True">
 					<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="14,0">
-						<TextBlock Text="&#xEAF8;" FontFamily="{StaticResource Codicon}" FontSize="14"
+						<iconPacks:PackIconCodicons Kind="SettingsGear" Width="14" Height="14"
 						           Foreground="#8888A8" VerticalAlignment="Center"/>
 						<TextBlock Text="Settings" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
 					</StackPanel>
 				</Border>
 				<Button Grid.Column="1" Classes="WinBtn WinBtnClose" x:Name="CloseBtn">
-					<TextBlock Text="&#xEA76;" FontFamily="{StaticResource Codicon}" FontSize="11"/>
+					<iconPacks:PackIconCodicons Kind="ChromeClose" Width="11" Height="11"/>
 				</Button>
 			</Grid>
 		</Border>
@@ -67,7 +68,7 @@
 					        Classes.Active="{Binding IsGeneralSelected}"
 					        Command="{Binding SelectCategoryCommand}" CommandParameter="General">
 						<StackPanel Orientation="Horizontal" Spacing="10">
-							<TextBlock Text="&#xEB52;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
+							<iconPacks:PackIconCodicons Kind="Settings" Width="16" Height="16" VerticalAlignment="Center"/>
 							<TextBlock Text="General" FontSize="13" VerticalAlignment="Center"/>
 						</StackPanel>
 					</Button>
@@ -75,7 +76,7 @@
 					        Classes.Active="{Binding IsControlsSelected}"
 					        Command="{Binding SelectCategoryCommand}" CommandParameter="Controls">
 						<StackPanel Orientation="Horizontal" Spacing="10">
-							<TextBlock Text="&#xEA65;" FontFamily="{StaticResource Codicon}" FontSize="16" VerticalAlignment="Center"/>
+							<iconPacks:PackIconCodicons Kind="Record" Width="16" Height="16" VerticalAlignment="Center"/>
 							<TextBlock Text="Controls" FontSize="13" VerticalAlignment="Center"/>
 						</StackPanel>
 					</Button>
@@ -91,7 +92,7 @@
 						<!-- Language Setting -->
 						<StackPanel Spacing="10">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<TextBlock Text="&#xEA7C;" FontFamily="{StaticResource Codicon}" FontSize="14"
+								<iconPacks:PackIconCodicons Kind="Globe" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
 								<TextBlock Text="LANGUAGE" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
@@ -103,7 +104,7 @@
 									        MaxWidth="250" HorizontalAlignment="Left">
 										<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
 											<TextBlock Text="English" Foreground="#E8E8F0" FontSize="12" VerticalAlignment="Center"/>
-											<TextBlock Text="&#xEAB4;" FontFamily="{StaticResource Codicon}" FontSize="9"
+											<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9"
 											           Foreground="#555570" VerticalAlignment="Center"/>
 										</StackPanel>
 									</Border>
@@ -118,7 +119,7 @@
 						<!-- Default Folder Setting -->
 						<StackPanel Spacing="10">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<TextBlock Text="&#xEA83;" FontFamily="{StaticResource Codicon}" FontSize="14"
+								<iconPacks:PackIconCodicons Kind="Folder" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
 								<TextBlock Text="DEFAULT FOLDER" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
@@ -137,20 +138,41 @@
 									<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding BrowseDefaultDirectoryCommand}"
 									        Padding="12,0" Height="34" Margin="8,0,0,0">
 										<StackPanel Orientation="Horizontal" Spacing="6">
-											<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="12" VerticalAlignment="Center"/>
+											<iconPacks:PackIconCodicons Kind="FolderOpened" Width="12" Height="12" VerticalAlignment="Center"/>
 											<TextBlock Text="Browse" FontSize="11" VerticalAlignment="Center"/>
 										</StackPanel>
 									</Button>
 									<Button Grid.Column="2" Classes="DangerBtn" Command="{Binding ClearDefaultDirectoryCommand}"
 									        Width="34" Height="34" Margin="4,0,0,0"
 									        IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
-										<TextBlock Text="&#xEA76;" FontFamily="{StaticResource Codicon}" FontSize="11"
+										<iconPacks:PackIconCodicons Kind="Close" Width="11" Height="11"
 										           HorizontalAlignment="Center" VerticalAlignment="Center"/>
 									</Button>
 								</Grid>
 								<TextBlock Text="This directory will be loaded automatically on startup."
 								           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
 							</StackPanel>
+						</StackPanel>
+
+						<Rectangle Height="1" Fill="#2A2A3A"/>
+
+						<!-- Show Tooltips Setting -->
+						<StackPanel Spacing="10">
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<iconPacks:PackIconCodicons Kind="Info" Width="14" Height="14"
+								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
+								<TextBlock Text="INTERFACE" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+							</StackPanel>
+							<Grid ColumnDefinitions="*,Auto" Height="34">
+								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+									<TextBlock Text="Show Tooltips on Hover" Foreground="#E8E8F0" FontSize="12"/>
+									<TextBlock Text="Display helpful tips when hovering over buttons and controls."
+									           Foreground="#444460" FontSize="10"/>
+								</StackPanel>
+								<ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowTooltips}"
+								              OnContent="" OffContent=""
+								              VerticalAlignment="Center"/>
+							</Grid>
 						</StackPanel>
 
 					</StackPanel>
@@ -160,14 +182,14 @@
 
 						<StackPanel Spacing="10">
 							<StackPanel Orientation="Horizontal" Spacing="8">
-								<TextBlock Text="&#xEA65;" FontFamily="{StaticResource Codicon}" FontSize="14"
+								<iconPacks:PackIconCodicons Kind="Record" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
 								<TextBlock Text="KEYBOARD SHORTCUTS" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
 
 							<Border Background="#1C1C28" CornerRadius="8" Padding="20,16" BorderBrush="#2A2A3A" BorderThickness="1">
 								<StackPanel Spacing="8" HorizontalAlignment="Center">
-									<TextBlock Text="&#xEA65;" FontFamily="{StaticResource Codicon}" FontSize="28"
+									<iconPacks:PackIconCodicons Kind="Record" Width="28" Height="28"
 									           Foreground="#555570" HorizontalAlignment="Center"/>
 									<TextBlock Text="Keyboard shortcuts and control preferences"
 									           Foreground="#8888A8" FontSize="12" HorizontalAlignment="Center"/>

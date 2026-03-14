@@ -288,13 +288,18 @@ namespace DicomViewer.Views
             await settingsWindow.ShowDialog(this);
 
             // Sync back to main VM
-            if (VM != null && VM.DefaultDirectory != vm.DefaultDirectory)
+            if (VM != null)
             {
-                VM.DefaultDirectory = vm.DefaultDirectory;
-                if (!string.IsNullOrEmpty(vm.DefaultDirectory) && System.IO.Directory.Exists(vm.DefaultDirectory))
+                VM.ShowTooltips = vm.ShowTooltips;
+
+                if (VM.DefaultDirectory != vm.DefaultDirectory)
                 {
-                    VM.LoadDirectoryTree(vm.DefaultDirectory);
-                    VM.IsRightPanelVisible = true;
+                    VM.DefaultDirectory = vm.DefaultDirectory;
+                    if (!string.IsNullOrEmpty(vm.DefaultDirectory) && System.IO.Directory.Exists(vm.DefaultDirectory))
+                    {
+                        VM.LoadDirectoryTree(vm.DefaultDirectory);
+                        VM.IsRightPanelVisible = true;
+                    }
                 }
             }
         }

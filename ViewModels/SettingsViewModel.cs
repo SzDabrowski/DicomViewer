@@ -16,6 +16,7 @@ public partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty] private string _selectedCategory = "General";
     [ObservableProperty] private string _defaultDirectory = string.Empty;
+    [ObservableProperty] private bool _showTooltips = true;
     [ObservableProperty] private bool _isGeneralSelected = true;
     [ObservableProperty] private bool _isControlsSelected;
 
@@ -23,6 +24,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         _appSettings = _settingsService.Load();
         _defaultDirectory = _appSettings.DefaultDirectory;
+        _showTooltips = _appSettings.ShowTooltips;
     }
 
     [RelayCommand]
@@ -57,9 +59,12 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void Close() => RequestClose?.Invoke();
 
+    partial void OnShowTooltipsChanged(bool value) => SaveSettings();
+
     private void SaveSettings()
     {
         _appSettings.DefaultDirectory = DefaultDirectory;
+        _appSettings.ShowTooltips = ShowTooltips;
         _settingsService.Save(_appSettings);
     }
 }

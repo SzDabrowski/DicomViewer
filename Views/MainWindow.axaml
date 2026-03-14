@@ -26,6 +26,7 @@
 		<conv:ProgressToWidthConverter x:Key="ProgressToWidth"/>
 		<conv:BoolToStringConverter x:Key="BoolToFilmstripTip" TrueValue="Collapse Filmstrip" FalseValue="Expand Filmstrip"/>
 		<conv:BoolToStringConverter x:Key="BoolToFilePanelTip" TrueValue="Hide File Panel" FalseValue="Show File Panel"/>
+		<conv:BoolToTooltipDelayConverter x:Key="BoolToTooltipDelay"/>
 	</Window.Resources>
 
 	<Window.Styles>
@@ -62,6 +63,9 @@
 		</Style>
 		<Style Selector="Button.WinBtnClose:pointerover TextBlock">
 			<Setter Property="Foreground" Value="White"/>
+		</Style>
+		<Style Selector=":is(Button)">
+			<Setter Property="ToolTip.ShowDelay" Value="{Binding ShowTooltips, Converter={StaticResource BoolToTooltipDelay}}"/>
 		</Style>
 	</Window.Styles>
 
