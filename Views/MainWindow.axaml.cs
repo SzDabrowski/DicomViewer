@@ -121,6 +121,7 @@ namespace DicomViewer.Views
                 };
 
                 VM.LoadSettings();
+                ApplyStartupWindowMode(VM.StartupWindowMode);
             };
         }
 
@@ -265,7 +266,50 @@ namespace DicomViewer.Views
                     if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
                         _ = VM.OpenFileCommand.ExecuteAsync(null);
                     break;
+                case Key.F11:
+                    ToggleFullscreen();
+                    break;
             }
+        }
+
+        private void ApplyStartupWindowMode(StartupWindowMode mode)
+        {
+            switch (mode)
+            {
+                case StartupWindowMode.Maximized:
+                    WindowState = WindowState.Maximized;
+                    break;
+                case StartupWindowMode.Fullscreen:
+                    WindowState = WindowState.FullScreen;
+                    _isFullscreen = true;
+                    break;
+            }
+            var maxIcon = this.FindControl<PackIconCodicons>("MaximiseIcon");
+            if (maxIcon != null)
+                maxIcon.Kind = WindowState == WindowState.Maximized ? PackIconCodiconsKind.ChromeRestore : PackIconCodiconsKind.ChromeMaximize;
+        }
+
+        private bool _isFullscreen;
+        private WindowState _preFullscreenState;
+
+        private void ToggleFullscreen()
+        {
+            var maxIcon = this.FindControl<PackIconCodicons>("MaximiseIcon");
+            if (_isFullscreen)
+            {
+                WindowState = _preFullscreenState;
+                SystemDecorations = SystemDecorations.BorderOnly;
+                ExtendClientAreaToDecorationsHint = true;
+                _isFullscreen = false;
+            }
+            else
+            {
+                _preFullscreenState = WindowState == WindowState.FullScreen ? WindowState.Normal : WindowState;
+                WindowState = WindowState.FullScreen;
+                _isFullscreen = true;
+            }
+            if (maxIcon != null)
+                maxIcon.Kind = WindowState == WindowState.Maximized ? PackIconCodiconsKind.ChromeRestore : PackIconCodiconsKind.ChromeMaximize;
         }
 
         // ── Settings Window ──────────────────────────────────────────────────

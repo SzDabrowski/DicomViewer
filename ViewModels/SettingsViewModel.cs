@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DicomViewer.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace DicomViewer.ViewModels;
@@ -17,14 +18,18 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _selectedCategory = "General";
     [ObservableProperty] private string _defaultDirectory = string.Empty;
     [ObservableProperty] private bool _showTooltips = true;
+    [ObservableProperty] private int _selectedWindowModeIndex;
     [ObservableProperty] private bool _isGeneralSelected = true;
     [ObservableProperty] private bool _isControlsSelected;
+
+    public List<string> WindowModeOptions { get; } = new() { "Windowed", "Maximized", "Fullscreen" };
 
     public SettingsViewModel()
     {
         _appSettings = _settingsService.Load();
         _defaultDirectory = _appSettings.DefaultDirectory;
         _showTooltips = _appSettings.ShowTooltips;
+        _selectedWindowModeIndex = (int)_appSettings.StartupWindowMode;
     }
 
     [RelayCommand]
@@ -60,11 +65,15 @@ public partial class SettingsViewModel : ViewModelBase
     private void Close() => RequestClose?.Invoke();
 
     partial void OnShowTooltipsChanged(bool value) => SaveSettings();
+    partial void OnSelectedWindowModeIndexChanged(int value) => SaveSettings();
+
+    public StartupWindowMode StartupWindowMode => (StartupWindowMode)SelectedWindowModeIndex;
 
     private void SaveSettings()
     {
         _appSettings.DefaultDirectory = DefaultDirectory;
         _appSettings.ShowTooltips = ShowTooltips;
+        _appSettings.StartupWindowMode = StartupWindowMode;
         _settingsService.Save(_appSettings);
     }
 }
