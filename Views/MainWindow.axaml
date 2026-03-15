@@ -117,13 +117,13 @@
                             Command="{Binding SelectToolCommand}" CommandParameter="Pan"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Pan}"
                             ToolTip.Tip="Pan / Zoom">
-						<iconPacks:PackIconCodicons Kind="Grabber" Width="16" Height="16" VerticalAlignment="Center"/>
+						<iconPacks:PackIconCodicons Kind="Move" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn"
                             Command="{Binding SelectToolCommand}" CommandParameter="WindowLevel"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=WindowLevel}"
                             ToolTip.Tip="Window/Level">
-						<iconPacks:PackIconCodicons Kind="Lightbulb" Width="16" Height="16" VerticalAlignment="Center"/>
+						<iconPacks:PackIconCodicons Kind="Target" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
 					<!-- Annotate tools flyout -->
 					<Button Classes="ToolbarBtn" ToolTip.Tip="Annotate Tools" UseLayoutRounding="True">
@@ -365,7 +365,7 @@
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
 					<Button Classes="IconBtn" ToolTip.Tip="Log Viewer (Ctrl+L)"
-					        Command="{Binding ToggleLogViewerCommand}">
+					        x:Name="LogViewerBtn">
 						<iconPacks:PackIconCodicons Kind="Output" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
@@ -888,78 +888,21 @@
 			</Grid>
 		</Border>
 
-		<!-- ROW 5: LOG VIEWER PANEL -->
+		<!-- ROW 5: ERROR STATUS BAR -->
 		<Border Grid.Row="5" Background="#0D0D14" BorderBrush="#2A2A3A" BorderThickness="0,1,0,0"
-		        IsVisible="{Binding IsLogViewerOpen}" MaxHeight="220">
-			<Grid RowDefinitions="Auto,*">
-				<!-- Log viewer header -->
-				<Border Grid.Row="0" Padding="8,4" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
-					<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
-						<TextBlock Grid.Column="0" Text="LOG" Classes="SectionHeader" VerticalAlignment="Center" Margin="4,0,8,0"/>
-						<Button Grid.Column="1" Classes="IconBtn" Padding="6,3"
-						        Command="{Binding LogViewer.SetFilterCommand}" CommandParameter="Debug"
-						        ToolTip.Tip="Show all">
-							<TextBlock Text="ALL" FontSize="9" Foreground="#646482"/>
-						</Button>
-						<Button Grid.Column="2" Classes="IconBtn" Padding="6,3"
-						        Command="{Binding LogViewer.SetFilterCommand}" CommandParameter="Info"
-						        ToolTip.Tip="Info and above">
-							<TextBlock Text="INF" FontSize="9" Foreground="#4A9EFF"/>
-						</Button>
-						<Button Grid.Column="3" Classes="IconBtn" Padding="6,3"
-						        Command="{Binding LogViewer.SetFilterCommand}" CommandParameter="Warning"
-						        ToolTip.Tip="Warnings and errors">
-							<TextBlock Text="WRN" FontSize="9" Foreground="#FFB432"/>
-						</Button>
-						<Button Grid.Column="4" Classes="IconBtn" Padding="6,3"
-						        Command="{Binding LogViewer.SetFilterCommand}" CommandParameter="Error"
-						        ToolTip.Tip="Errors only">
-							<TextBlock Text="ERR" FontSize="9" Foreground="#FF4A6A"/>
-						</Button>
-						<Button Grid.Column="6" Classes="IconBtn" Padding="4,3"
-						        Command="{Binding OpenLogFolderCommand}"
-						        ToolTip.Tip="Open log folder">
-							<iconPacks:PackIconCodicons Kind="FolderOpened" Width="12" Height="12"/>
-						</Button>
-						<Button Grid.Column="7" Classes="IconBtn" Padding="4,3"
-						        Command="{Binding LogViewer.ClearCommand}"
-						        ToolTip.Tip="Clear log view">
-							<iconPacks:PackIconCodicons Kind="ClearAll" Width="12" Height="12"/>
-						</Button>
-						<Button Grid.Column="8" Classes="IconBtn" Padding="4,3"
-						        Command="{Binding ToggleLogViewerCommand}"
-						        ToolTip.Tip="Close log viewer">
-							<iconPacks:PackIconCodicons Kind="Close" Width="12" Height="12"/>
-						</Button>
-					</Grid>
-				</Border>
-
-				<!-- Log entries -->
-				<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
-				              HorizontalScrollBarVisibility="Auto" Padding="4,2">
-					<ItemsControl ItemsSource="{Binding LogViewer.FilteredEntries}">
-						<ItemsControl.ItemTemplate>
-							<DataTemplate x:DataType="svc:LogEntry">
-								<Grid ColumnDefinitions="60,36,70,*" Margin="0,0,0,1">
-									<TextBlock Grid.Column="0" Text="{Binding FormattedTime}" FontSize="10"
-									           Foreground="#555570" FontFamily="Consolas,Courier New,monospace"
-									           VerticalAlignment="Top" Margin="4,1,4,0"/>
-									<TextBlock Grid.Column="1" Text="{Binding LevelLabel}" FontSize="10"
-									           Foreground="{Binding Level, Converter={StaticResource LogLevelToColor}}"
-									           FontWeight="Bold" FontFamily="Consolas,Courier New,monospace"
-									           VerticalAlignment="Top" Margin="0,1,4,0"/>
-									<TextBlock Grid.Column="2" Text="{Binding Category}" FontSize="10"
-									           Foreground="#6A9FD6" FontFamily="Consolas,Courier New,monospace"
-									           TextTrimming="CharacterEllipsis"
-									           VerticalAlignment="Top" Margin="0,1,8,0"/>
-									<TextBlock Grid.Column="3" Text="{Binding Message}" FontSize="10"
-									           Foreground="#C8C8D8" FontFamily="Consolas,Courier New,monospace"
-									           TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,1,4,0"/>
-								</Grid>
-							</DataTemplate>
-						</ItemsControl.ItemTemplate>
-					</ItemsControl>
-				</ScrollViewer>
+		        Height="24" IsVisible="{Binding HasStatusError}" Cursor="Hand"
+		        x:Name="StatusBar">
+			<Grid ColumnDefinitions="Auto,*,Auto" Margin="8,0">
+				<iconPacks:PackIconCodicons Grid.Column="0" Kind="Warning" Width="12" Height="12"
+				           Foreground="#FFB432" VerticalAlignment="Center" Margin="0,0,6,0"/>
+				<TextBlock Grid.Column="1" Text="{Binding ErrorStatusMessage}"
+				           Foreground="#C8C8D8" FontSize="10" VerticalAlignment="Center"
+				           TextTrimming="CharacterEllipsis"
+				           FontFamily="Consolas,Courier New,monospace"/>
+				<Button Grid.Column="2" Classes="IconBtn" Padding="4,2"
+				        Command="{Binding DismissStatusCommand}" ToolTip.Tip="Dismiss">
+					<iconPacks:PackIconCodicons Kind="Close" Width="10" Height="10"/>
+				</Button>
 			</Grid>
 		</Border>
 

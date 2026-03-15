@@ -39,37 +39,43 @@
 			<Setter Property="Foreground" Value="White"/>
 		</Style>
 
-		<!-- Dark ComboBox styling to match app theme -->
-		<Style Selector="ComboBox">
+		<!-- Segmented button styling -->
+		<Style Selector="Button.SegBtn">
 			<Setter Property="Background" Value="#1C1C28"/>
-			<Setter Property="Foreground" Value="#E8E8F0"/>
+			<Setter Property="Foreground" Value="#8888A8"/>
 			<Setter Property="BorderBrush" Value="#2A2A3A"/>
 			<Setter Property="BorderThickness" Value="1"/>
-			<Setter Property="CornerRadius" Value="6"/>
-			<Setter Property="Padding" Value="12,6"/>
-			<Setter Property="FontSize" Value="12"/>
-			<Setter Property="MinHeight" Value="34"/>
-		</Style>
-		<Style Selector="ComboBox:pointerover">
-			<Setter Property="BorderBrush" Value="#3A3A55"/>
-		</Style>
-		<Style Selector="ComboBox:focus">
-			<Setter Property="BorderBrush" Value="#4A9EFF"/>
-		</Style>
-		<Style Selector="ComboBoxItem">
-			<Setter Property="Foreground" Value="#8888A8"/>
-			<Setter Property="Padding" Value="10,7"/>
-			<Setter Property="CornerRadius" Value="5"/>
-			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="Padding" Value="14,6"/>
+			<Setter Property="FontSize" Value="11"/>
+			<Setter Property="MinHeight" Value="30"/>
 			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="CornerRadius" Value="0"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}"
+					        BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+					        Padding="{TemplateBinding Padding}">
+						<ContentPresenter Content="{TemplateBinding Content}"
+						                  HorizontalContentAlignment="Center"
+						                  VerticalContentAlignment="Center"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
 		</Style>
-		<Style Selector="ComboBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+		<Style Selector="Button.SegBtn:pointerover">
 			<Setter Property="Background" Value="#252535"/>
-			<Setter Property="Foreground" Value="#E8E8F0"/>
 		</Style>
-		<Style Selector="ComboBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+		<Style Selector="Button.SegBtn.Active">
 			<Setter Property="Background" Value="#1A3A6A"/>
 			<Setter Property="Foreground" Value="#4A9EFF"/>
+			<Setter Property="BorderBrush" Value="#4A9EFF"/>
+		</Style>
+		<Style Selector="Button.SegBtnLeft">
+			<Setter Property="CornerRadius" Value="6,0,0,6"/>
+		</Style>
+		<Style Selector="Button.SegBtnRight">
+			<Setter Property="CornerRadius" Value="0,6,6,0"/>
+			<Setter Property="BorderThickness" Value="1"/>
 		</Style>
 	</Window.Styles>
 
@@ -200,7 +206,7 @@
 								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
 									<TextBlock Text="Show Tooltips on Hover" Foreground="#E8E8F0" FontSize="12"/>
 									<TextBlock Text="Display helpful tips when hovering over buttons and controls."
-									           Foreground="#444460" FontSize="10"/>
+									           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
 								</StackPanel>
 								<ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowTooltips}"
 								              OnContent="" OffContent=""
@@ -212,11 +218,25 @@
 								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
 									<TextBlock Text="Startup Window Mode" Foreground="#E8E8F0" FontSize="12"/>
 									<TextBlock Text="Choose how the window opens on launch. Press F11 to toggle fullscreen."
-									           Foreground="#444460" FontSize="10"/>
+									           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
 								</StackPanel>
-								<ComboBox Grid.Column="1" ItemsSource="{Binding WindowModeOptions}"
-								          SelectedIndex="{Binding SelectedWindowModeIndex}"
-								          MinWidth="140" VerticalAlignment="Center"/>
+								<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="0" VerticalAlignment="Center">
+									<Button Classes="SegBtn SegBtnLeft"
+									        Classes.Active="{Binding IsWindowedMode}"
+									        Command="{Binding SetWindowModeCommand}" CommandParameter="Windowed">
+										<TextBlock Text="Windowed"/>
+									</Button>
+									<Button Classes="SegBtn"
+									        Classes.Active="{Binding IsMaximizedMode}"
+									        Command="{Binding SetWindowModeCommand}" CommandParameter="Maximized">
+										<TextBlock Text="Maximized"/>
+									</Button>
+									<Button Classes="SegBtn SegBtnRight"
+									        Classes.Active="{Binding IsFullscreenMode}"
+									        Command="{Binding SetWindowModeCommand}" CommandParameter="Fullscreen">
+										<TextBlock Text="Fullscreen"/>
+									</Button>
+								</StackPanel>
 							</Grid>
 						</StackPanel>
 

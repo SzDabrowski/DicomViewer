@@ -1,0 +1,186 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:DicomViewer.ViewModels"
+        xmlns:svc="using:DicomViewer.Services"
+        xmlns:conv="using:DicomViewer.Converters"
+        xmlns:iconPacks="https://github.com/MahApps/IconPacks.Avalonia"
+        x:Class="DicomViewer.Views.LogWindow"
+        x:DataType="vm:LogViewerViewModel"
+        Width="800" Height="500"
+        MinWidth="500" MinHeight="300"
+        WindowStartupLocation="CenterOwner"
+        ExtendClientAreaToDecorationsHint="True"
+        SystemDecorations="BorderOnly"
+        Background="#0A0A0E"
+        Title="Log Viewer">
+
+	<Window.Resources>
+		<conv:LogLevelToColorConverter x:Key="LogLevelToColor"/>
+	</Window.Resources>
+
+	<Window.Styles>
+		<!-- Window control buttons -->
+		<Style Selector="Button.WinBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#8888A8"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Width" Value="46"/>
+			<Setter Property="Height" Value="36"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+						<ContentPresenter Content="{TemplateBinding Content}"
+						                  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+						                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+		<Style Selector="Button.WinBtnClose:pointerover">
+			<Setter Property="Background" Value="#C42B1C"/>
+			<Setter Property="Foreground" Value="White"/>
+		</Style>
+
+		<!-- Filter button styling -->
+		<Style Selector="Button.FilterBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#646482"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="8,4"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="CornerRadius" Value="4"/>
+			<Setter Property="FontSize" Value="10"/>
+			<Setter Property="FontWeight" Value="SemiBold"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Background="{TemplateBinding Background}" CornerRadius="{TemplateBinding CornerRadius}"
+					        Padding="{TemplateBinding Padding}">
+						<ContentPresenter Content="{TemplateBinding Content}"
+						                  HorizontalContentAlignment="Center"
+						                  VerticalContentAlignment="Center"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+		<Style Selector="Button.FilterBtn:pointerover">
+			<Setter Property="Background" Value="#1C1C28"/>
+		</Style>
+
+		<!-- Action button styling -->
+		<Style Selector="Button.ActionBtn">
+			<Setter Property="Background" Value="Transparent"/>
+			<Setter Property="Foreground" Value="#646482"/>
+			<Setter Property="BorderThickness" Value="0"/>
+			<Setter Property="Padding" Value="6,4"/>
+			<Setter Property="Cursor" Value="Hand"/>
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+						<ContentPresenter Content="{TemplateBinding Content}"
+						                  HorizontalContentAlignment="Center"
+						                  VerticalContentAlignment="Center"/>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+		<Style Selector="Button.ActionBtn:pointerover">
+			<Setter Property="Background" Value="#1C1C28"/>
+			<Setter Property="Foreground" Value="#8888A8"/>
+		</Style>
+	</Window.Styles>
+
+	<Grid RowDefinitions="36,Auto,*">
+
+		<!-- TITLE BAR -->
+		<Border Grid.Row="0" Background="#111118" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
+			<Grid ColumnDefinitions="*,Auto">
+				<Border Grid.Column="0" x:Name="TitleBarDragArea" IsHitTestVisible="True">
+					<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="14,0">
+						<iconPacks:PackIconCodicons Kind="Output" Width="14" Height="14"
+						           Foreground="#8888A8" VerticalAlignment="Center"/>
+						<TextBlock Text="Log Viewer" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
+					</StackPanel>
+				</Border>
+				<Button Grid.Column="1" Classes="WinBtn WinBtnClose" x:Name="CloseBtn">
+					<iconPacks:PackIconCodicons Kind="ChromeClose" Width="11" Height="11"/>
+				</Button>
+			</Grid>
+		</Border>
+
+		<!-- TOOLBAR -->
+		<Border Grid.Row="1" Padding="8,4" Background="#0D0D14" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
+			<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
+				<TextBlock Grid.Column="0" Text="LOG" FontSize="10" FontWeight="SemiBold"
+				           Foreground="#555570" VerticalAlignment="Center" Margin="4,0,8,0"/>
+				<Button Grid.Column="1" Classes="FilterBtn"
+				        Command="{Binding SetFilterCommand}" CommandParameter="Debug"
+				        ToolTip.Tip="Show all">
+					<TextBlock Text="ALL" FontSize="9" Foreground="#646482"/>
+				</Button>
+				<Button Grid.Column="2" Classes="FilterBtn"
+				        Command="{Binding SetFilterCommand}" CommandParameter="Info"
+				        ToolTip.Tip="Info and above">
+					<TextBlock Text="INF" FontSize="9" Foreground="#4A9EFF"/>
+				</Button>
+				<Button Grid.Column="3" Classes="FilterBtn"
+				        Command="{Binding SetFilterCommand}" CommandParameter="Warning"
+				        ToolTip.Tip="Warnings and errors">
+					<TextBlock Text="WRN" FontSize="9" Foreground="#FFB432"/>
+				</Button>
+				<Button Grid.Column="4" Classes="FilterBtn"
+				        Command="{Binding SetFilterCommand}" CommandParameter="Error"
+				        ToolTip.Tip="Errors only">
+					<TextBlock Text="ERR" FontSize="9" Foreground="#FF4A6A"/>
+				</Button>
+				<Button Grid.Column="6" Classes="ActionBtn"
+				        Command="{Binding OpenLogFolderCommand}"
+				        ToolTip.Tip="Open log folder">
+					<iconPacks:PackIconCodicons Kind="FolderOpened" Width="12" Height="12"/>
+				</Button>
+				<Button Grid.Column="7" Classes="ActionBtn"
+				        Command="{Binding ClearCommand}"
+				        ToolTip.Tip="Clear log view">
+					<iconPacks:PackIconCodicons Kind="ClearAll" Width="12" Height="12"/>
+				</Button>
+				<Button Grid.Column="8" Classes="ActionBtn"
+				        Command="{Binding RefreshCommand}"
+				        ToolTip.Tip="Refresh">
+					<iconPacks:PackIconCodicons Kind="Refresh" Width="12" Height="12"/>
+				</Button>
+			</Grid>
+		</Border>
+
+		<!-- LOG ENTRIES -->
+		<ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto"
+		              HorizontalScrollBarVisibility="Auto" Padding="4,2"
+		              Background="#0D0D14">
+			<ItemsControl ItemsSource="{Binding FilteredEntries}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="svc:LogEntry">
+						<Grid ColumnDefinitions="60,36,70,*" Margin="0,0,0,1">
+							<TextBlock Grid.Column="0" Text="{Binding FormattedTime}" FontSize="10"
+							           Foreground="#555570" FontFamily="Consolas,Courier New,monospace"
+							           VerticalAlignment="Top" Margin="4,1,4,0"/>
+							<TextBlock Grid.Column="1" Text="{Binding LevelLabel}" FontSize="10"
+							           Foreground="{Binding Level, Converter={StaticResource LogLevelToColor}}"
+							           FontWeight="Bold" FontFamily="Consolas,Courier New,monospace"
+							           VerticalAlignment="Top" Margin="0,1,4,0"/>
+							<TextBlock Grid.Column="2" Text="{Binding Category}" FontSize="10"
+							           Foreground="#6A9FD6" FontFamily="Consolas,Courier New,monospace"
+							           TextTrimming="CharacterEllipsis"
+							           VerticalAlignment="Top" Margin="0,1,8,0"/>
+							<TextBlock Grid.Column="3" Text="{Binding Message}" FontSize="10"
+							           Foreground="#C8C8D8" FontFamily="Consolas,Courier New,monospace"
+							           TextWrapping="Wrap" VerticalAlignment="Top" Margin="0,1,4,0"/>
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</ScrollViewer>
+
+	</Grid>
+
+</Window>
