@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DicomViewer.ViewModels;
 
-public enum MouseTool { None, Pan, WindowLevel, Measure, Annotate, Rotate }
+public enum MouseTool { None, Pan, WindowLevel, Arrow, TextLabel, Freehand, DrawRect, DrawEllipse, DrawLine }
 
 public partial class MainWindowViewModel : ViewModelBase
 {
@@ -31,9 +31,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private MouseTool _activeTool = MouseTool.None;
     [ObservableProperty] private bool _toolPan;
     [ObservableProperty] private bool _toolWindowLevel;
-    [ObservableProperty] private bool _toolMeasure;
-    [ObservableProperty] private bool _toolAnnotate;
-    [ObservableProperty] private bool _toolRotate;
+
+    // Annotation color index into AnnotationColors.All
+    [ObservableProperty] private int _annotationColorIndex;
+    [ObservableProperty] private double _annotationStrokeWidth = 2.0;
+    [ObservableProperty] private double _annotationFontSize = 14.0;
+    [ObservableProperty] private bool _showAnnotations = true;
 
     [ObservableProperty] private double _zoomLevel = 1.0;
     [ObservableProperty] private double _panX;
@@ -138,26 +141,49 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var parsed = Enum.Parse<MouseTool>(tool, true);
 
-        // Clicking the already-active tool deactivates it → No tool selected
+        // Clicking the already-active tool deactivates it
         if (ActiveTool == parsed)
         {
-            ToolPan = ToolWindowLevel = ToolMeasure = ToolAnnotate = ToolRotate = false;
+            ToolPan = ToolWindowLevel = false;
             ActiveTool = MouseTool.None;
             StatusMessage = "No tool selected — scroll to navigate frames";
             return;
         }
 
-        ToolPan = ToolWindowLevel = ToolMeasure = ToolAnnotate = ToolRotate = false;
+        ToolPan = ToolWindowLevel = false;
         ActiveTool = parsed;
-        switch (ActiveTool)
+        StatusMessage = ActiveTool switch
         {
-            case MouseTool.Pan:         ToolPan = true;         StatusMessage = "Pan / Zoom — drag to pan, scroll to zoom"; break;
-            case MouseTool.WindowLevel: ToolWindowLevel = true; StatusMessage = "Window/Level — drag left/right: center, up/down: width"; break;
-            case MouseTool.Measure:     ToolMeasure = true;     StatusMessage = "Measure — click and drag to measure distance"; break;
-            case MouseTool.Annotate:    ToolAnnotate = true;    StatusMessage = "Annotate — click to place annotation"; break;
-            case MouseTool.Rotate:      ToolRotate = true;      StatusMessage = "Rotate — use toolbar buttons or drag"; break;
-        }
+            MouseTool.Pan         => "Pan / Zoom — drag to pan, scroll to zoom",
+            MouseTool.WindowLevel => "Window/Level — drag left/right: center, up/down: width",
+            MouseTool.Arrow       => "Arrow — click and drag to point at structures",
+            MouseTool.TextLabel   => "Text — click to place a text label",
+            MouseTool.Freehand    => "Freehand — draw freely on the image",
+            MouseTool.DrawRect    => "Rectangle — click and drag to draw a rectangle",
+            MouseTool.DrawEllipse => "Ellipse — click and drag to draw an ellipse",
+            MouseTool.DrawLine    => "Line — click and drag to draw a line",
+            _ => "No tool selected"
+        };
+        ToolPan = ActiveTool == MouseTool.Pan;
+        ToolWindowLevel = ActiveTool == MouseTool.WindowLevel;
     }
+
+    [RelayCommand]
+    private void CycleAnnotationColor()
+    {
+        AnnotationColorIndex = (AnnotationColorIndex + 1) % AnnotationColors.All.Length;
+        StatusMessage = $"Annotation color: {AnnotationColors.Names[AnnotationColorIndex]}";
+    }
+
+    [RelayCommand]
+    private void SetAnnotationColor(string indexStr)
+    {
+        if (int.TryParse(indexStr, out int idx) && idx >= 0 && idx < AnnotationColors.All.Length)
+            AnnotationColorIndex = idx;
+    }
+
+    [RelayCommand]
+    private void ToggleAnnotations() => ShowAnnotations = !ShowAnnotations;
 
     [RelayCommand]
     private async Task OpenFile()

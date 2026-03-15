@@ -125,17 +125,158 @@
                             ToolTip.Tip="Window/Level">
 						<iconPacks:PackIconCodicons Kind="SymbolColor" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
-					<Button Classes="IconBtn"
-                            Command="{Binding SelectToolCommand}" CommandParameter="Measure"
-                            Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Measure}"
-                            ToolTip.Tip="Measure">
-						<iconPacks:PackIconCodicons Kind="SymbolRuler" Width="14" Height="14" VerticalAlignment="Center"/>
+					<!-- Annotate tools flyout -->
+					<Button Classes="ToolbarBtn" ToolTip.Tip="Annotate Tools" UseLayoutRounding="True">
+						<Button.Flyout>
+							<MenuFlyout Placement="BottomEdgeAlignedLeft">
+								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="Arrow">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEA9C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#FFD700"/>
+											<TextBlock Text="Arrow" VerticalAlignment="Center"/>
+											<TextBlock Text="A" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="TextLabel">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEA6F;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#00E5FF"/>
+											<TextBlock Text="Text Label" VerticalAlignment="Center"/>
+											<TextBlock Text="T" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="Freehand">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5B;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#44FF44"/>
+											<TextBlock Text="Freehand Draw" VerticalAlignment="Center"/>
+											<TextBlock Text="D" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+							</MenuFlyout>
+						</Button.Flyout>
+						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
+							<iconPacks:PackIconCodicons Kind="Edit" Width="14" Height="14" VerticalAlignment="Center"/>
+							<TextBlock Text="Annotate" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
+						</StackPanel>
 					</Button>
-					<Button Classes="IconBtn"
-                            Command="{Binding SelectToolCommand}" CommandParameter="Annotate"
-                            Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Annotate}"
-                            ToolTip.Tip="Annotate">
-						<iconPacks:PackIconCodicons Kind="Edit" Width="14" Height="14" VerticalAlignment="Center"/>
+					<!-- Draw shapes flyout -->
+					<Button Classes="ToolbarBtn" ToolTip.Tip="Draw Shapes" UseLayoutRounding="True">
+						<Button.Flyout>
+							<MenuFlyout Placement="BottomEdgeAlignedLeft">
+								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="DrawRect">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB01;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#FFD700"/>
+											<TextBlock Text="Rectangle" VerticalAlignment="Center"/>
+											<TextBlock Text="R" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="DrawEllipse">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB10;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#00E5FF"/>
+											<TextBlock Text="Ellipse" VerticalAlignment="Center"/>
+											<TextBlock Text="O" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="DrawLine">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEA61;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#44FF44"/>
+											<TextBlock Text="Line" VerticalAlignment="Center"/>
+											<TextBlock Text="L" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+							</MenuFlyout>
+						</Button.Flyout>
+						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
+							<iconPacks:PackIconCodicons Kind="SymbolMisc" Width="14" Height="14" VerticalAlignment="Center"/>
+							<TextBlock Text="Draw" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
+						</StackPanel>
+					</Button>
+					<!-- Annotation color picker -->
+					<Button Classes="ToolbarBtn" ToolTip.Tip="Annotation Color" UseLayoutRounding="True">
+						<Button.Flyout>
+							<MenuFlyout Placement="BottomEdgeAlignedLeft">
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="0">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#FFD700"/>
+											<TextBlock Text="Yellow" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="1">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#00E5FF"/>
+											<TextBlock Text="Cyan" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="2">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#FF4444"/>
+											<TextBlock Text="Red" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="3">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#44FF44"/>
+											<TextBlock Text="Green" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="4">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#4488FF"/>
+											<TextBlock Text="Blue" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="5">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#FF44FF"/>
+											<TextBlock Text="Magenta" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="6">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#FF8800"/>
+											<TextBlock Text="Orange" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="7">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<Border Width="14" Height="14" CornerRadius="7" Background="#FFFFFF"/>
+											<TextBlock Text="White" VerticalAlignment="Center"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+							</MenuFlyout>
+						</Button.Flyout>
+						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
+							<iconPacks:PackIconCodicons Kind="SymbolColor" Width="14" Height="14" VerticalAlignment="Center"/>
+							<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
+						</StackPanel>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
 
@@ -356,7 +497,11 @@
                                   Rotation="{Binding Rotation}"
                                   IsFlippedH="{Binding IsFlippedH}"
                                   IsFlippedV="{Binding IsFlippedV}"
-                                  ActiveTool="{Binding ActiveTool}"/>
+                                  ActiveTool="{Binding ActiveTool}"
+                                  ShowAnnotations="{Binding ShowAnnotations}"
+                                  AnnotationColorIndex="{Binding AnnotationColorIndex}"
+                                  AnnotationStrokeWidth="{Binding AnnotationStrokeWidth}"
+                                  AnnotationFontSize="{Binding AnnotationFontSize}"/>
 
 				<Grid IsVisible="{Binding ShowOverlay}" IsHitTestVisible="False" Margin="10">
 					<StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Spacing="2"

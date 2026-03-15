@@ -70,7 +70,6 @@ public class DicomViewerControl : Control
     private bool _isDragging;
     private Point _lastPointerPos;
     private readonly List<(Point Start, Point End)> _measurements = new();
-    private Point? _measureStart;
 
     // ── Brushes / Pens ────────────────────────────────────────────────────────
     private static readonly IBrush OverlayBrush = new SolidColorBrush(Color.FromArgb(180, 0, 0, 0));
@@ -187,8 +186,7 @@ public class DicomViewerControl : Control
         _isDragging = true;
         _lastPointerPos = e.GetPosition(this);
 
-        if (ActiveTool == MouseTool.Measure)
-            _measureStart = _lastPointerPos;
+        // Measure tool removed (requires certification)
 
         e.Pointer.Capture(this);
     }
@@ -196,13 +194,7 @@ public class DicomViewerControl : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
-        if (_isDragging && ActiveTool == MouseTool.Measure && _measureStart.HasValue)
-        {
-            var end = e.GetPosition(this);
-            _measurements.Add((_measureStart.Value, end));
-            _measureStart = null;
-            InvalidateVisual();
-        }
+        // Measure tool removed (requires certification)
         _isDragging = false;
         e.Pointer.Capture(null);
     }
@@ -230,9 +222,7 @@ public class DicomViewerControl : Control
                 WindowLevelChanged?.Invoke(this, (WindowCenter, WindowWidth));
                 break;
 
-            case MouseTool.Rotate:
-                Rotation = (Rotation + dx * 0.5 + 360) % 360;
-                break;
+            // Rotate tool removed from enum — rotation handled by toolbar buttons
         }
 
         _lastPointerPos = pos;

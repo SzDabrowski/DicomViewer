@@ -260,6 +260,10 @@ namespace DicomViewer.Views
         private void OnKeyDown(object? sender, KeyEventArgs e)
         {
             if (VM == null) return;
+
+            // Don't intercept single-letter shortcuts while canvas is editing text
+            bool canvasEditing = MainCanvas.Focusable && e.Source == MainCanvas;
+
             switch (e.Key)
             {
                 case Key.Space: VM.TogglePlayCommand.Execute(null); break;
@@ -271,8 +275,6 @@ namespace DicomViewer.Views
                 case Key.OemPlus: VM.ZoomInCommand.Execute(null); break;
                 case Key.Subtract:
                 case Key.OemMinus: VM.ZoomOutCommand.Execute(null); break;
-                case Key.F: VM.FitToWindowCommand.Execute(null); break;
-                case Key.R: VM.ResetViewCommand.Execute(null); break;
                 case Key.I: VM.ToggleInvertCommand.Execute(null); break;
                 case Key.O:
                     if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
@@ -282,8 +284,42 @@ namespace DicomViewer.Views
                     if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
                         VM.ToggleLogViewerCommand.Execute(null);
                     break;
+                case Key.Z:
+                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                    { MainCanvas.UndoAnnotation(); e.Handled = true; }
+                    else if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                    { MainCanvas.RedoAnnotation(); e.Handled = true; }
+                    break;
+                case Key.Y:
+                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                    { MainCanvas.RedoAnnotation(); e.Handled = true; }
+                    break;
                 case Key.F11:
                     ToggleFullscreen();
+                    break;
+                // Annotation tool shortcuts (only when not editing text on canvas)
+                case Key.A:
+                    if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                        VM.SelectToolCommand.Execute("Arrow");
+                    break;
+                case Key.T:
+                    VM.SelectToolCommand.Execute("TextLabel");
+                    break;
+                case Key.D:
+                    VM.SelectToolCommand.Execute("Freehand");
+                    break;
+                case Key.C:
+                    if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                        VM.CycleAnnotationColorCommand.Execute(null);
+                    break;
+                case Key.F:
+                    VM.FitToWindowCommand.Execute(null);
+                    break;
+                case Key.R:
+                    VM.ResetViewCommand.Execute(null);
+                    break;
+                case Key.Escape:
+                    VM.SelectToolCommand.Execute("None");
                     break;
             }
         }
