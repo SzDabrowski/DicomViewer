@@ -20,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public Func<Task<string?>>? RequestBrowseDirectory { get; set; }
 
     private readonly SettingsService _settingsService = new();
+    private readonly LoggingService _log = LoggingService.Instance;
     private AppSettings _appSettings = new();
 
     [ObservableProperty] private string _defaultDirectory = string.Empty;
@@ -198,8 +199,35 @@ public partial class MainWindowViewModel : ViewModelBase
         SaveSettings();
     }
 
+    [ObservableProperty] private bool _isLogViewerOpen;
+
+    public LogViewerViewModel LogViewer { get; } = new();
+
+    [RelayCommand]
+    private void ToggleLogViewer() => IsLogViewerOpen = !IsLogViewerOpen;
+
+    [RelayCommand]
+    private void OpenLogFolder()
+    {
+        var path = _log.GetLogFilePath();
+        var dir = System.IO.Path.GetDirectoryName(path) ?? path;
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = dir,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            _log.Error("LogViewer", "Failed to open log folder", ex);
+        }
+    }
+
     public void LoadSettings()
     {
+        _log.Info("App", "DicomViewer starting up");
         _appSettings = _settingsService.Load();
         DefaultDirectory = _appSettings.DefaultDirectory;
         ShowTooltips = _appSettings.ShowTooltips;
@@ -234,6 +262,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         try
         {
+            _log.Info("FileOpen", $"Opening file: {System.IO.Path.GetFileName(path)}");
             LoadingProgress = 15;
             StatusMessage = "Reading DICOM headers...";
             await Task.Delay(50);
@@ -257,12 +286,14 @@ public partial class MainWindowViewModel : ViewModelBase
             if (vm.TotalFrames > 1)
                 ShowMiniFrames = true;
 
+            _log.Info("FileOpen", $"Loaded {vm.DisplayName} ({vm.TotalFrames} frames)");
             LoadingProgress = 100;
             StatusMessage = $"Ready - {vm.DisplayName}";
             await Task.Delay(300);
         }
         catch (Exception ex)
         {
+            _log.Error("FileOpen", $"Failed to open {System.IO.Path.GetFileName(path)}", ex);
             LoadingProgress = 0;
             StatusMessage = $"Error: {ex.Message}";
             AddNotification(NotificationSeverity.Error,

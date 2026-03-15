@@ -278,6 +278,10 @@ namespace DicomViewer.Views
                     if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
                         _ = VM.OpenFileCommand.ExecuteAsync(null);
                     break;
+                case Key.L:
+                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                        VM.ToggleLogViewerCommand.Execute(null);
+                    break;
                 case Key.F11:
                     ToggleFullscreen();
                     break;

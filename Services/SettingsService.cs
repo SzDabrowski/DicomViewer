@@ -43,9 +43,9 @@ public class SettingsService
                 return JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Corrupted file — return defaults
+            LoggingService.Instance.Warning("Settings", "Failed to load settings, using defaults", ex.Message);
         }
         return new AppSettings();
     }
@@ -58,9 +58,9 @@ public class SettingsService
             var json = JsonSerializer.Serialize(settings, JsonOptions);
             File.WriteAllText(SettingsPath, json);
         }
-        catch
+        catch (Exception ex)
         {
-            // Silently fail — non-critical
+            LoggingService.Instance.Error("Settings", "Failed to save settings", ex);
         }
     }
 }

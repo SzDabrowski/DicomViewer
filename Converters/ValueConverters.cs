@@ -244,6 +244,25 @@ public class HasDetailsConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+// ── LogLevel → Foreground Color ───────────────────────────────────────────────
+public class LogLevelToColorConverter : IValueConverter
+{
+    public static readonly LogLevelToColorConverter Instance = new();
+
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is DicomViewer.Services.LogLevel level ? level switch
+        {
+            DicomViewer.Services.LogLevel.Debug   => new SolidColorBrush(Color.FromRgb(100, 100, 130)),
+            DicomViewer.Services.LogLevel.Info    => new SolidColorBrush(Color.FromRgb(74, 158, 255)),
+            DicomViewer.Services.LogLevel.Warning => new SolidColorBrush(Color.FromRgb(255, 180, 50)),
+            DicomViewer.Services.LogLevel.Error   => new SolidColorBrush(Color.FromRgb(255, 74, 106)),
+            _ => new SolidColorBrush(Color.FromRgb(136, 136, 168)),
+        } : new SolidColorBrush(Color.FromRgb(136, 136, 168));
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 // MouseTool → accent blue when a tool is active, muted grey when None
 public class ActiveToolColorConverter : IValueConverter
 {

@@ -46,9 +46,9 @@ public partial class ThumbnailViewModel : ViewModelBase
                 Thumbnail = bmp;
             });
         }
-        catch
+        catch (Exception ex)
         {
-            // If a frame fails to load, thumbnail stays null (placeholder shown in XAML)
+            DicomViewer.Services.LoggingService.Instance.Warning("Thumbnail", $"Failed to load thumbnail for frame {FrameIndex}", ex.Message);
         }
     }
 
