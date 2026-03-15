@@ -178,6 +178,7 @@ namespace DicomViewer.Views
             }
             catch (Exception ex)
             {
+                LoggingService.Instance.Error("Canvas", $"Failed to render frame {VM.CurrentFrameIndex}", ex);
                 VM.AddNotification(ViewModels.NotificationSeverity.Error,
                     $"Failed to render frame {VM.CurrentFrameIndex}",
                     ex.Message);
