@@ -262,8 +262,17 @@ namespace DicomViewer.Views
         {
             if (VM == null) return;
 
-            // Don't intercept single-letter shortcuts while canvas is editing text
-            bool canvasEditing = MainCanvas.Focusable && e.Source == MainCanvas;
+            // Skip all single-letter shortcuts while canvas is in text editing mode
+            if (MainCanvas.IsEditingText)
+            {
+                // Only allow Escape (to finish editing) and Ctrl+ combos while typing
+                if (e.Key == Key.Escape)
+                {
+                    VM.SelectToolCommand.Execute("None");
+                    e.Handled = true;
+                }
+                return;
+            }
 
             switch (e.Key)
             {
@@ -298,7 +307,7 @@ namespace DicomViewer.Views
                 case Key.F11:
                     ToggleFullscreen();
                     break;
-                // Annotation tool shortcuts (only when not editing text on canvas)
+                // Annotation tool shortcuts
                 case Key.A:
                     if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
                         VM.SelectToolCommand.Execute("Arrow");
