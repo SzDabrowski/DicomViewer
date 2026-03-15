@@ -15,6 +15,8 @@ namespace DicomViewer.Views
 {
     public partial class MainWindow : Window
     {
+        private LogWindow? _logWindow;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -44,6 +46,8 @@ namespace DicomViewer.Views
                 => Close();
 
             this.FindControl<Button>("SettingsBtn")!.Click += async (_, _) => await OpenSettingsWindow();
+            this.FindControl<Button>("LogViewerBtn")!.Click += (_, _) => OpenLogWindow();
+            this.FindControl<Border>("StatusBar")!.PointerPressed += (_, _) => OpenLogWindow();
 
             // Drag & Drop
             AddHandler(DragDrop.DropEvent, OnDrop);
@@ -292,7 +296,7 @@ namespace DicomViewer.Views
                     break;
                 case Key.L:
                     if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
-                        VM.ToggleLogViewerCommand.Execute(null);
+                        OpenLogWindow();
                     break;
                 case Key.Z:
                     if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
@@ -408,6 +412,18 @@ namespace DicomViewer.Views
                     }
                 }
             }
+        }
+
+        private void OpenLogWindow()
+        {
+            if (_logWindow != null && _logWindow.IsVisible)
+            {
+                _logWindow.Activate();
+                return;
+            }
+            _logWindow = new LogWindow { DataContext = VM?.LogViewer };
+            _logWindow.Closed += (_, _) => _logWindow = null;
+            _logWindow.Show(this);
         }
 
         // ── Slider scroll-wheel handlers ─────────────────────────────────────

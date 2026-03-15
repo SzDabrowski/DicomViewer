@@ -225,34 +225,28 @@ public partial class MainWindowViewModel : ViewModelBase
         SaveSettings();
     }
 
-    [ObservableProperty] private bool _isLogViewerOpen;
-
     public LogViewerViewModel LogViewer { get; } = new();
 
-    [RelayCommand]
-    private void ToggleLogViewer() => IsLogViewerOpen = !IsLogViewerOpen;
+    [ObservableProperty] private string? _errorStatusMessage;
+    [ObservableProperty] private bool _hasStatusError;
 
     [RelayCommand]
-    private void OpenLogFolder()
-    {
-        var path = _log.GetLogFilePath();
-        var dir = System.IO.Path.GetDirectoryName(path) ?? path;
-        try
-        {
-            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-            {
-                FileName = dir,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            _log.Error("LogViewer", "Failed to open log folder", ex);
-        }
-    }
+    private void DismissStatus() { HasStatusError = false; ErrorStatusMessage = null; }
 
     public void LoadSettings()
     {
+        _log.LogAdded += entry =>
+        {
+            if (entry.Level >= LogLevel.Warning)
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                {
+                    ErrorStatusMessage = $"[{entry.LevelLabel}] {entry.Category}: {entry.Message}";
+                    HasStatusError = true;
+                });
+            }
+        };
+
         _log.Info("App", "DicomViewer starting up");
         _appSettings = _settingsService.Load();
         DefaultDirectory = _appSettings.DefaultDirectory;

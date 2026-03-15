@@ -64,8 +64,30 @@ public partial class SettingsViewModel : ViewModelBase
     [RelayCommand]
     private void Close() => RequestClose?.Invoke();
 
+    public bool IsWindowedMode => SelectedWindowModeIndex == 0;
+    public bool IsMaximizedMode => SelectedWindowModeIndex == 1;
+    public bool IsFullscreenMode => SelectedWindowModeIndex == 2;
+
+    [RelayCommand]
+    private void SetWindowMode(string mode)
+    {
+        SelectedWindowModeIndex = mode switch
+        {
+            "Maximized" => 1,
+            "Fullscreen" => 2,
+            _ => 0
+        };
+    }
+
     partial void OnShowTooltipsChanged(bool value) => SaveSettings();
-    partial void OnSelectedWindowModeIndexChanged(int value) => SaveSettings();
+
+    partial void OnSelectedWindowModeIndexChanged(int value)
+    {
+        OnPropertyChanged(nameof(IsWindowedMode));
+        OnPropertyChanged(nameof(IsMaximizedMode));
+        OnPropertyChanged(nameof(IsFullscreenMode));
+        SaveSettings();
+    }
 
     public StartupWindowMode StartupWindowMode => (StartupWindowMode)SelectedWindowModeIndex;
 

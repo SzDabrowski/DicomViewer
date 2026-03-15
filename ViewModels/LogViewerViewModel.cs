@@ -72,4 +72,20 @@ public partial class LogViewerViewModel : ViewModelBase
         if (Enum.TryParse<LogLevel>(level, true, out var parsed))
             SelectedFilter = parsed;
     }
+
+    [RelayCommand]
+    private void OpenLogFolder()
+    {
+        var path = _log.GetLogFilePath();
+        var dir = System.IO.Path.GetDirectoryName(path) ?? path;
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = dir,
+                UseShellExecute = true
+            });
+        }
+        catch { }
+    }
 }
