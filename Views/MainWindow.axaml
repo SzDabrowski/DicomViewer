@@ -90,7 +90,7 @@
 								<MenuItem Command="{Binding OpenFileCommand}">
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
-											<TextBlock Text="&#xEAF7;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
+											<iconPacks:PackIconCodicons Kind="File" Width="14" Height="14" VerticalAlignment="Center" Foreground="#4A9EFF"/>
 											<TextBlock Text="Open File(s)..." VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -98,7 +98,7 @@
 								<MenuItem Command="{Binding OpenDirectoryCommand}">
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
-											<TextBlock Text="&#xEA83;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center"/>
+											<iconPacks:PackIconCodicons Kind="FolderOpened" Width="14" Height="14" VerticalAlignment="Center" Foreground="#4A9EFF"/>
 											<TextBlock Text="Open Directory..." VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -117,13 +117,13 @@
                             Command="{Binding SelectToolCommand}" CommandParameter="Pan"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Pan}"
                             ToolTip.Tip="Pan / Zoom">
-						<iconPacks:PackIconCodicons Kind="Move" Width="14" Height="14" VerticalAlignment="Center"/>
+						<iconPacks:PackIconCodicons Kind="Grabber" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn"
                             Command="{Binding SelectToolCommand}" CommandParameter="WindowLevel"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=WindowLevel}"
                             ToolTip.Tip="Window/Level">
-						<iconPacks:PackIconCodicons Kind="SymbolColor" Width="14" Height="14" VerticalAlignment="Center"/>
+						<iconPacks:PackIconCodicons Kind="Lightbulb" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
 					<!-- Annotate tools flyout -->
 					<Button Classes="ToolbarBtn" ToolTip.Tip="Annotate Tools" UseLayoutRounding="True">

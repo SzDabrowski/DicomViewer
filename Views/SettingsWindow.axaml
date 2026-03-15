@@ -38,6 +38,39 @@
 			<Setter Property="Background" Value="#C42B1C"/>
 			<Setter Property="Foreground" Value="White"/>
 		</Style>
+
+		<!-- Dark ComboBox styling to match app theme -->
+		<Style Selector="ComboBox">
+			<Setter Property="Background" Value="#1C1C28"/>
+			<Setter Property="Foreground" Value="#E8E8F0"/>
+			<Setter Property="BorderBrush" Value="#2A2A3A"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="CornerRadius" Value="6"/>
+			<Setter Property="Padding" Value="12,6"/>
+			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="MinHeight" Value="34"/>
+		</Style>
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="BorderBrush" Value="#3A3A55"/>
+		</Style>
+		<Style Selector="ComboBox:focus">
+			<Setter Property="BorderBrush" Value="#4A9EFF"/>
+		</Style>
+		<Style Selector="ComboBoxItem">
+			<Setter Property="Foreground" Value="#8888A8"/>
+			<Setter Property="Padding" Value="10,7"/>
+			<Setter Property="CornerRadius" Value="5"/>
+			<Setter Property="FontSize" Value="12"/>
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="ComboBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#252535"/>
+			<Setter Property="Foreground" Value="#E8E8F0"/>
+		</Style>
+		<Style Selector="ComboBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+			<Setter Property="Background" Value="#1A3A6A"/>
+			<Setter Property="Foreground" Value="#4A9EFF"/>
+		</Style>
 	</Window.Styles>
 
 	<Grid RowDefinitions="36,*">

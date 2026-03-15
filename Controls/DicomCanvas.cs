@@ -103,6 +103,9 @@ public class DicomCanvas : Control
     private bool _isEditingText;
     private TextAnnotation? _editingTextAnnotation;
 
+    /// <summary>Whether the canvas is currently in text annotation editing mode.</summary>
+    public bool IsEditingText => _isEditingText;
+
     // ── Static ctor ────────────────────────────────────────────────────────────────────────
     static DicomCanvas()
     {
