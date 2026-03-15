@@ -62,8 +62,14 @@ public partial class FileTreeNodeViewModel : ViewModelBase
                 Children.Add(new FileTreeNodeViewModel(file, false));
             }
         }
-        catch (UnauthorizedAccessException) { }
-        catch (IOException) { }
+        catch (UnauthorizedAccessException ex)
+        {
+            Services.LoggingService.Instance.Warning("FileTree", $"Access denied: {FullPath}", ex.Message);
+        }
+        catch (IOException ex)
+        {
+            Services.LoggingService.Instance.Warning("FileTree", $"IO error reading: {FullPath}", ex.Message);
+        }
     }
 
     private static bool HasSupportedFiles(string dirPath)
@@ -76,7 +82,11 @@ public partial class FileTreeNodeViewModel : ViewModelBase
 
             return Directory.GetDirectories(dirPath).Any(HasSupportedFiles);
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            Services.LoggingService.Instance.Debug("FileTree", $"Cannot scan {dirPath}: {ex.Message}");
+            return false;
+        }
     }
 
     private PackIconCodiconsKind GetFileIconKind()

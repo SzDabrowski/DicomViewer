@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DicomViewer.Models;
 using DicomViewer.Services;
+using Avalonia.Threading;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DicomViewer.ViewModels;
 
-public enum MouseTool { None, Pan, WindowLevel, Measure, Annotate, Rotate }
+public enum MouseTool { None, Pan, WindowLevel, Arrow, TextLabel, Freehand, DrawRect, DrawEllipse, DrawLine }
 
 public partial class MainWindowViewModel : ViewModelBase
 {
@@ -19,6 +20,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public Func<Task<string?>>? RequestBrowseDirectory { get; set; }
 
     private readonly SettingsService _settingsService = new();
+    private readonly LoggingService _log = LoggingService.Instance;
     private AppSettings _appSettings = new();
 
     [ObservableProperty] private string _defaultDirectory = string.Empty;
@@ -29,9 +31,12 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private MouseTool _activeTool = MouseTool.None;
     [ObservableProperty] private bool _toolPan;
     [ObservableProperty] private bool _toolWindowLevel;
-    [ObservableProperty] private bool _toolMeasure;
-    [ObservableProperty] private bool _toolAnnotate;
-    [ObservableProperty] private bool _toolRotate;
+
+    // Annotation color index into AnnotationColors.All
+    [ObservableProperty] private int _annotationColorIndex;
+    [ObservableProperty] private double _annotationStrokeWidth = 2.0;
+    [ObservableProperty] private double _annotationFontSize = 14.0;
+    [ObservableProperty] private bool _showAnnotations = true;
 
     [ObservableProperty] private double _zoomLevel = 1.0;
     [ObservableProperty] private double _panX;
@@ -71,6 +76,55 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<DicomFileViewModel> OpenFiles { get; } = new();
     public ObservableCollection<ThumbnailViewModel> Thumbnails { get; } = new();
     public ObservableCollection<FileTreeNodeViewModel> DirectoryTree { get; } = new();
+    public ObservableCollection<NotificationViewModel> Notifications { get; } = new();
+
+    private const int MaxVisibleNotifications = 3;
+
+    public void AddNotification(NotificationSeverity severity, string message, string details = "")
+    {
+        var notification = NotificationViewModel.Create(severity, message, details);
+
+        Dispatcher.UIThread.Post(() =>
+        {
+            Notifications.Insert(0, notification);
+
+            // Trim excess notifications
+            while (Notifications.Count > MaxVisibleNotifications)
+                Notifications.RemoveAt(Notifications.Count - 1);
+
+            // Schedule auto-dismiss if applicable
+            if (notification.AutoDismissMs > 0)
+            {
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(notification.AutoDismissMs);
+                    Dispatcher.UIThread.Post(() => DismissNotification(notification));
+                });
+            }
+        });
+    }
+
+    [RelayCommand]
+    private void DismissNotification(NotificationViewModel? notification)
+    {
+        if (notification != null)
+            Notifications.Remove(notification);
+    }
+
+    [RelayCommand]
+    private void CopyNotificationDetails(NotificationViewModel? notification)
+    {
+        if (notification == null) return;
+        var text = string.IsNullOrEmpty(notification.Details)
+            ? notification.Message
+            : $"{notification.Message}\n\n{notification.Details}";
+        _clipboardText = text;
+        OnPropertyChanged(nameof(ClipboardText));
+    }
+
+    // Exposed so the View can copy to clipboard (Avalonia clipboard requires TopLevel)
+    private string? _clipboardText;
+    public string? ClipboardText => _clipboardText;
 
     [ObservableProperty] private bool _hasDirectoryLoaded;
 
@@ -87,26 +141,49 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         var parsed = Enum.Parse<MouseTool>(tool, true);
 
-        // Clicking the already-active tool deactivates it → No tool selected
+        // Clicking the already-active tool deactivates it
         if (ActiveTool == parsed)
         {
-            ToolPan = ToolWindowLevel = ToolMeasure = ToolAnnotate = ToolRotate = false;
+            ToolPan = ToolWindowLevel = false;
             ActiveTool = MouseTool.None;
             StatusMessage = "No tool selected — scroll to navigate frames";
             return;
         }
 
-        ToolPan = ToolWindowLevel = ToolMeasure = ToolAnnotate = ToolRotate = false;
+        ToolPan = ToolWindowLevel = false;
         ActiveTool = parsed;
-        switch (ActiveTool)
+        StatusMessage = ActiveTool switch
         {
-            case MouseTool.Pan:         ToolPan = true;         StatusMessage = "Pan / Zoom — drag to pan, scroll to zoom"; break;
-            case MouseTool.WindowLevel: ToolWindowLevel = true; StatusMessage = "Window/Level — drag left/right: center, up/down: width"; break;
-            case MouseTool.Measure:     ToolMeasure = true;     StatusMessage = "Measure — click and drag to measure distance"; break;
-            case MouseTool.Annotate:    ToolAnnotate = true;    StatusMessage = "Annotate — click to place annotation"; break;
-            case MouseTool.Rotate:      ToolRotate = true;      StatusMessage = "Rotate — use toolbar buttons or drag"; break;
-        }
+            MouseTool.Pan         => "Pan / Zoom — drag to pan, scroll to zoom",
+            MouseTool.WindowLevel => "Window/Level — drag left/right: center, up/down: width",
+            MouseTool.Arrow       => "Arrow — click and drag to point at structures",
+            MouseTool.TextLabel   => "Text — click to place a text label",
+            MouseTool.Freehand    => "Freehand — draw freely on the image",
+            MouseTool.DrawRect    => "Rectangle — click and drag to draw a rectangle",
+            MouseTool.DrawEllipse => "Ellipse — click and drag to draw an ellipse",
+            MouseTool.DrawLine    => "Line — click and drag to draw a line",
+            _ => "No tool selected"
+        };
+        ToolPan = ActiveTool == MouseTool.Pan;
+        ToolWindowLevel = ActiveTool == MouseTool.WindowLevel;
     }
+
+    [RelayCommand]
+    private void CycleAnnotationColor()
+    {
+        AnnotationColorIndex = (AnnotationColorIndex + 1) % AnnotationColors.All.Length;
+        StatusMessage = $"Annotation color: {AnnotationColors.Names[AnnotationColorIndex]}";
+    }
+
+    [RelayCommand]
+    private void SetAnnotationColor(string indexStr)
+    {
+        if (int.TryParse(indexStr, out int idx) && idx >= 0 && idx < AnnotationColors.All.Length)
+            AnnotationColorIndex = idx;
+    }
+
+    [RelayCommand]
+    private void ToggleAnnotations() => ShowAnnotations = !ShowAnnotations;
 
     [RelayCommand]
     private async Task OpenFile()
@@ -148,8 +225,35 @@ public partial class MainWindowViewModel : ViewModelBase
         SaveSettings();
     }
 
+    [ObservableProperty] private bool _isLogViewerOpen;
+
+    public LogViewerViewModel LogViewer { get; } = new();
+
+    [RelayCommand]
+    private void ToggleLogViewer() => IsLogViewerOpen = !IsLogViewerOpen;
+
+    [RelayCommand]
+    private void OpenLogFolder()
+    {
+        var path = _log.GetLogFilePath();
+        var dir = System.IO.Path.GetDirectoryName(path) ?? path;
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = dir,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            _log.Error("LogViewer", "Failed to open log folder", ex);
+        }
+    }
+
     public void LoadSettings()
     {
+        _log.Info("App", "DicomViewer starting up");
         _appSettings = _settingsService.Load();
         DefaultDirectory = _appSettings.DefaultDirectory;
         ShowTooltips = _appSettings.ShowTooltips;
@@ -184,6 +288,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         try
         {
+            _log.Info("FileOpen", $"Opening file: {System.IO.Path.GetFileName(path)}");
             LoadingProgress = 15;
             StatusMessage = "Reading DICOM headers...";
             await Task.Delay(50);
@@ -207,14 +312,19 @@ public partial class MainWindowViewModel : ViewModelBase
             if (vm.TotalFrames > 1)
                 ShowMiniFrames = true;
 
+            _log.Info("FileOpen", $"Loaded {vm.DisplayName} ({vm.TotalFrames} frames)");
             LoadingProgress = 100;
             StatusMessage = $"Ready - {vm.DisplayName}";
             await Task.Delay(300);
         }
         catch (Exception ex)
         {
+            _log.Error("FileOpen", $"Failed to open {System.IO.Path.GetFileName(path)}", ex);
             LoadingProgress = 0;
             StatusMessage = $"Error: {ex.Message}";
+            AddNotification(NotificationSeverity.Error,
+                $"Failed to open {System.IO.Path.GetFileName(path)}",
+                $"{ex.Message}\n{ex.StackTrace}");
         }
         finally
         {

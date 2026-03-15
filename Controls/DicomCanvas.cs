@@ -4,16 +4,19 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using DicomViewer.Models;
 using DicomViewer.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace DicomViewer.Controls;
 
 public class DicomCanvas : Control
 {
-    // ── Styled Properties ───────────────────────────────────────────────────────────────────────────
+    // ── Styled Properties ──────────────────────────────────────────────────────────────────
     public static readonly StyledProperty<double> WindowWidthProperty =
         AvaloniaProperty.Register<DicomCanvas, double>(nameof(WindowWidth), 65000);
 
@@ -44,45 +47,70 @@ public class DicomCanvas : Control
     public static readonly StyledProperty<MouseTool> ActiveToolProperty =
         AvaloniaProperty.Register<DicomCanvas, MouseTool>(nameof(ActiveTool), MouseTool.Pan);
 
-    // ── Events back to ViewModel ────────────────────────────────────────────────────────────────
+    public static readonly StyledProperty<bool> ShowAnnotationsProperty =
+        AvaloniaProperty.Register<DicomCanvas, bool>(nameof(ShowAnnotations), true);
+
+    public static readonly StyledProperty<int> AnnotationColorIndexProperty =
+        AvaloniaProperty.Register<DicomCanvas, int>(nameof(AnnotationColorIndex), 0);
+
+    public static readonly StyledProperty<double> AnnotationStrokeWidthProperty =
+        AvaloniaProperty.Register<DicomCanvas, double>(nameof(AnnotationStrokeWidth), 2.0);
+
+    public static readonly StyledProperty<double> AnnotationFontSizeProperty =
+        AvaloniaProperty.Register<DicomCanvas, double>(nameof(AnnotationFontSize), 14.0);
+
+    // ── Events back to ViewModel ───────────────────────────────────────────────────────────
     public event EventHandler<double>? ZoomLevelChanged;
     public event EventHandler<(double X, double Y)>? PanChanged;
     public event EventHandler<(double Center, double Width)>? WindowLevelChanged;
-    public event EventHandler<int>? FrameScrolled; // +1 or -1
+    public event EventHandler<int>? FrameScrolled;
 
-    // ── Public Properties ───────────────────────────────────────────────────────────────────
-    public double WindowWidth   { get => GetValue(WindowWidthProperty);   set => SetValue(WindowWidthProperty, value); }
-    public double WindowCenter  { get => GetValue(WindowCenterProperty);  set => SetValue(WindowCenterProperty, value); }
-    public bool   IsInverted    { get => GetValue(IsInvertedProperty);    set => SetValue(IsInvertedProperty, value); }
-    public double ZoomLevel     { get => GetValue(ZoomLevelProperty);     set => SetValue(ZoomLevelProperty, value); }
-    public double PanX          { get => GetValue(PanXProperty);          set => SetValue(PanXProperty, value); }
-    public double PanY          { get => GetValue(PanYProperty);          set => SetValue(PanYProperty, value); }
-    public double Rotation      { get => GetValue(RotationProperty);      set => SetValue(RotationProperty, value); }
-    public bool   IsFlippedH    { get => GetValue(IsFlippedHProperty);    set => SetValue(IsFlippedHProperty, value); }
-    public bool   IsFlippedV    { get => GetValue(IsFlippedVProperty);    set => SetValue(IsFlippedVProperty, value); }
-    public MouseTool ActiveTool { get => GetValue(ActiveToolProperty);    set => SetValue(ActiveToolProperty, value); }
+    // ── Public Properties ──────────────────────────────────────────────────────────────────
+    public double WindowWidth      { get => GetValue(WindowWidthProperty);      set => SetValue(WindowWidthProperty, value); }
+    public double WindowCenter     { get => GetValue(WindowCenterProperty);     set => SetValue(WindowCenterProperty, value); }
+    public bool   IsInverted       { get => GetValue(IsInvertedProperty);       set => SetValue(IsInvertedProperty, value); }
+    public double ZoomLevel        { get => GetValue(ZoomLevelProperty);        set => SetValue(ZoomLevelProperty, value); }
+    public double PanX             { get => GetValue(PanXProperty);             set => SetValue(PanXProperty, value); }
+    public double PanY             { get => GetValue(PanYProperty);             set => SetValue(PanYProperty, value); }
+    public double Rotation         { get => GetValue(RotationProperty);         set => SetValue(RotationProperty, value); }
+    public bool   IsFlippedH       { get => GetValue(IsFlippedHProperty);       set => SetValue(IsFlippedHProperty, value); }
+    public bool   IsFlippedV       { get => GetValue(IsFlippedVProperty);       set => SetValue(IsFlippedVProperty, value); }
+    public MouseTool ActiveTool    { get => GetValue(ActiveToolProperty);       set => SetValue(ActiveToolProperty, value); }
+    public bool   ShowAnnotations  { get => GetValue(ShowAnnotationsProperty);  set => SetValue(ShowAnnotationsProperty, value); }
+    public int    AnnotationColorIndex  { get => GetValue(AnnotationColorIndexProperty);  set => SetValue(AnnotationColorIndexProperty, value); }
+    public double AnnotationStrokeWidth { get => GetValue(AnnotationStrokeWidthProperty); set => SetValue(AnnotationStrokeWidthProperty, value); }
+    public double AnnotationFontSize    { get => GetValue(AnnotationFontSizeProperty);    set => SetValue(AnnotationFontSizeProperty, value); }
 
-    // ── Private state ───────────────────────────────────────────────────────────────────────────
+    // ── Private state ──────────────────────────────────────────────────────────────────────
     private ushort[]? _pixels;
     private int _imgWidth;
     private int _imgHeight;
     private WriteableBitmap? _bitmap;
 
-    // Interaction
+    // Annotation storage
+    private readonly List<Annotation> _annotationList = new();
+    private readonly Stack<Annotation> _undoStack = new();
+
+    // Interaction state
     private bool _isDragging;
     private Point _lastPointerPos;
-    private readonly List<(Point Start, Point End, double LengthPx)> _measurements = new();
-    private Point? _measureStart;
-    private string? _annotationText;
-    private readonly List<(Point Position, string Text)> _annotations = new();
+    private Point _dragStart;
 
-    // ── Static ctor: which property changes trigger re-render ─────────────────────────────────────
+    // In-progress annotation being drawn
+    private Annotation? _activeAnnotation;
+
+    // Text editing state
+    private bool _isEditingText;
+    private TextAnnotation? _editingTextAnnotation;
+
+    // ── Static ctor ────────────────────────────────────────────────────────────────────────
     static DicomCanvas()
     {
         AffectsRender<DicomCanvas>(
             WindowWidthProperty, WindowCenterProperty, IsInvertedProperty,
             ZoomLevelProperty, PanXProperty, PanYProperty,
-            RotationProperty, IsFlippedHProperty, IsFlippedVProperty);
+            RotationProperty, IsFlippedHProperty, IsFlippedVProperty,
+            ShowAnnotationsProperty);
     }
 
     public DicomCanvas()
@@ -92,7 +120,7 @@ public class DicomCanvas : Control
         Cursor = new Cursor(StandardCursorType.Arrow);
     }
 
-    // ── Public API ──────────────────────────────────────────────────────────────────────────────
+    // ── Public API ─────────────────────────────────────────────────────────────────────────
     public void SetPixels(ushort[] pixels, int width, int height)
     {
         _pixels = pixels;
@@ -102,14 +130,42 @@ public class DicomCanvas : Control
         InvalidateVisual();
     }
 
-    public void ClearMeasurements()
+    public void ClearAnnotations()
     {
-        _measurements.Clear();
-        _annotations.Clear();
+        _annotationList.Clear();
+        _undoStack.Clear();
+        _activeAnnotation = null;
         InvalidateVisual();
     }
 
-    // ── Property change handler ───────────────────────────────────────────────────────────────
+    public void UndoAnnotation()
+    {
+        if (_annotationList.Count > 0)
+        {
+            var last = _annotationList[^1];
+            _annotationList.RemoveAt(_annotationList.Count - 1);
+            _undoStack.Push(last);
+            InvalidateVisual();
+        }
+    }
+
+    public void RedoAnnotation()
+    {
+        if (_undoStack.Count > 0)
+        {
+            _annotationList.Add(_undoStack.Pop());
+            InvalidateVisual();
+        }
+    }
+
+    public int AnnotationCount => _annotationList.Count;
+
+    private Color CurrentColor => AnnotationColors.All[Math.Clamp(AnnotationColorIndex, 0, AnnotationColors.All.Length - 1)];
+
+    private bool IsAnnotationTool => ActiveTool is MouseTool.Arrow or MouseTool.TextLabel
+        or MouseTool.Freehand or MouseTool.DrawRect or MouseTool.DrawEllipse or MouseTool.DrawLine;
+
+    // ── Property change handler ────────────────────────────────────────────────────────────
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
@@ -125,9 +181,11 @@ public class DicomCanvas : Control
             }
         }
 
-        // Update cursor based on active tool
         if (change.Property == ActiveToolProperty)
+        {
+            FinishTextEditing();
             UpdateCursor();
+        }
     }
 
     private void UpdateCursor(bool dragging = false)
@@ -137,13 +195,15 @@ public class DicomCanvas : Control
             MouseTool.None        => new Cursor(StandardCursorType.Arrow),
             MouseTool.Pan         => dragging ? new Cursor(StandardCursorType.SizeAll) : new Cursor(StandardCursorType.Hand),
             MouseTool.WindowLevel => new Cursor(StandardCursorType.SizeWestEast),
-            MouseTool.Measure     => new Cursor(StandardCursorType.Cross),
-            MouseTool.Annotate    => new Cursor(StandardCursorType.Ibeam),
+            MouseTool.TextLabel   => new Cursor(StandardCursorType.Ibeam),
+            MouseTool.Arrow or MouseTool.DrawRect or MouseTool.DrawEllipse
+                or MouseTool.DrawLine => new Cursor(StandardCursorType.Cross),
+            MouseTool.Freehand    => new Cursor(StandardCursorType.Cross),
             _                     => new Cursor(StandardCursorType.Arrow),
         };
     }
 
-    // ── Bitmap rebuild (window/level + invert) ────────────────────────────────────────────────
+    // ── Bitmap rebuild ─────────────────────────────────────────────────────────────────────
     private void RebuildBitmap()
     {
         if (_pixels == null || _imgWidth <= 0 || _imgHeight <= 0) return;
@@ -181,7 +241,7 @@ public class DicomCanvas : Control
         Marshal.Copy(rgba, 0, fb.Address, rgba.Length);
     }
 
-    // ── Rendering ───────────────────────────────────────────────────────────────────────────────
+    // ── Rendering ──────────────────────────────────────────────────────────────────────────
     public override void Render(DrawingContext ctx)
     {
         var bounds = Bounds;
@@ -200,7 +260,6 @@ public class DicomCanvas : Control
         double drawW = _imgWidth  * scale;
         double drawH = _imgHeight * scale;
 
-        // Build transform: rotate + flip around canvas centre + pan
         var transform =
             Matrix.CreateTranslation(-cx, -cy) *
             Matrix.CreateScale(IsFlippedH ? -1 : 1, IsFlippedV ? -1 : 1) *
@@ -212,61 +271,170 @@ public class DicomCanvas : Control
             ctx.DrawImage(_bitmap, new Rect(cx - drawW / 2, cy - drawH / 2, drawW, drawH));
         }
 
-        // Draw measurements on top (in screen space, not transformed)
-        DrawMeasurements(ctx);
-        DrawAnnotations(ctx);
+        // Draw annotations on top (screen space)
+        if (ShowAnnotations)
+        {
+            foreach (var ann in _annotationList)
+                RenderAnnotation(ctx, ann, isPreview: false);
+
+            if (_activeAnnotation != null)
+                RenderAnnotation(ctx, _activeAnnotation, isPreview: true);
+        }
     }
 
-    private static readonly IPen MeasurePen  = new Pen(Brushes.Yellow, 1.5);
-    private static readonly IPen ActivePen   = new Pen(Brushes.Cyan, 1.5, dashStyle: DashStyle.Dash);
     private static readonly Typeface LabelFont = new(FontFamily.Default);
 
-    private void DrawMeasurements(DrawingContext ctx)
+    private void RenderAnnotation(DrawingContext ctx, Annotation ann, bool isPreview)
     {
-        foreach (var (s, e, len) in _measurements)
+        var brush = new SolidColorBrush(ann.StrokeColor);
+        var pen = new Pen(brush, ann.StrokeWidth);
+        var dashPen = isPreview ? new Pen(brush, ann.StrokeWidth, new DashStyle(new double[] { 4, 3 }, 0)) : pen;
+        var usePen = isPreview ? dashPen : pen;
+
+        switch (ann)
         {
-            ctx.DrawLine(MeasurePen, s, e);
-            // Endpoint dot
-            ctx.DrawEllipse(Brushes.Yellow, null, e, 3, 3);
-            var label = new FormattedText($"{len:F1}px",
-                System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight, LabelFont, 10, Brushes.Yellow);
-            ctx.DrawText(label, new Point(e.X + 5, e.Y - 14));
+            case ArrowAnnotation arrow:
+                DrawArrow(ctx, arrow.Tail, arrow.Head, usePen, brush);
+                break;
+
+            case TextAnnotation text:
+                DrawTextLabel(ctx, text, brush);
+                break;
+
+            case FreehandAnnotation freehand:
+                DrawFreehand(ctx, freehand.Points, usePen);
+                break;
+
+            case RectangleAnnotation rect:
+                ctx.DrawRectangle(null, usePen, rect.GetRect());
+                break;
+
+            case EllipseAnnotation ellipse:
+                var er = ellipse.GetRect();
+                ctx.DrawEllipse(null, usePen, er.Center, er.Width / 2, er.Height / 2);
+                break;
+
+            case LineAnnotation line:
+                ctx.DrawLine(usePen, line.Start, line.End);
+                break;
+        }
+
+        // Selection handles
+        if (ann.IsSelected && !isPreview)
+        {
+            var b = ann.GetBounds();
+            var selPen = new Pen(Brushes.White, 1, new DashStyle(new double[] { 3, 3 }, 0));
+            ctx.DrawRectangle(null, selPen, b);
         }
     }
 
-    private void DrawAnnotations(DrawingContext ctx)
+    private static void DrawArrow(DrawingContext ctx, Point tail, Point head, IPen pen, IBrush brush)
     {
-        foreach (var (pos, text) in _annotations)
+        ctx.DrawLine(pen, tail, head);
+
+        // Arrowhead
+        double dx = head.X - tail.X, dy = head.Y - tail.Y;
+        double len = Math.Sqrt(dx * dx + dy * dy);
+        if (len < 3) return;
+        double nx = dx / len, ny = dy / len;
+        double arrowSize = Math.Min(12, len * 0.3);
+
+        var p1 = new Point(head.X - arrowSize * (nx - ny * 0.4),
+                           head.Y - arrowSize * (ny + nx * 0.4));
+        var p2 = new Point(head.X - arrowSize * (nx + ny * 0.4),
+                           head.Y - arrowSize * (ny - nx * 0.4));
+
+        var geo = new StreamGeometry();
+        using (var gc = geo.Open())
         {
-            var ft = new FormattedText(text,
-                System.Globalization.CultureInfo.CurrentCulture,
-                FlowDirection.LeftToRight, LabelFont, 11, Brushes.LimeGreen);
-            ctx.FillRectangle(new SolidColorBrush(Color.FromArgb(140, 0, 0, 0)),
-                new Rect(pos.X - 2, pos.Y - 2, ft.Width + 6, ft.Height + 4));
-            ctx.DrawText(ft, pos);
+            gc.BeginFigure(head, true);
+            gc.LineTo(p1);
+            gc.LineTo(p2);
+            gc.EndFigure(true);
         }
+        ctx.DrawGeometry(brush, null, geo);
     }
 
-    // ── Input Handling ──────────────────────────────────────────────────────────────────────────
+    private void DrawTextLabel(DrawingContext ctx, TextAnnotation text, IBrush brush)
+    {
+        var displayText = text.Text;
+        if (_isEditingText && _editingTextAnnotation == text)
+            displayText += "|"; // cursor
+
+        var ft = new FormattedText(displayText,
+            CultureInfo.CurrentCulture,
+            FlowDirection.LeftToRight, LabelFont, text.FontSize, brush);
+
+        // Background
+        ctx.FillRectangle(new SolidColorBrush(Color.FromArgb(160, 0, 0, 0)),
+            new Rect(text.Position.X - 3, text.Position.Y - 2, ft.Width + 8, ft.Height + 4));
+        ctx.DrawText(ft, text.Position);
+    }
+
+    private static void DrawFreehand(DrawingContext ctx, List<Point> points, IPen pen)
+    {
+        if (points.Count < 2) return;
+
+        var geo = new StreamGeometry();
+        using (var gc = geo.Open())
+        {
+            gc.BeginFigure(points[0], false);
+            for (int i = 1; i < points.Count; i++)
+                gc.LineTo(points[i]);
+            gc.EndFigure(false);
+        }
+        ctx.DrawGeometry(null, pen, geo);
+    }
+
+    // ── Input Handling ─────────────────────────────────────────────────────────────────────
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
         base.OnPointerPressed(e);
-        _lastPointerPos = e.GetPosition(this);
+        Focus();
+        var pos = e.GetPosition(this);
+        _lastPointerPos = pos;
+        _dragStart = pos;
         _isDragging = true;
 
-        if (ActiveTool == MouseTool.None) return; // no tool — ignore all mouse interaction
+        if (ActiveTool == MouseTool.None) return;
 
         if (ActiveTool == MouseTool.Pan)
             UpdateCursor(dragging: true);
 
-        if (ActiveTool == MouseTool.Measure)
-            _measureStart = _lastPointerPos;
-
-        if (ActiveTool == MouseTool.Annotate)
+        // Start creating annotation
+        if (IsAnnotationTool)
         {
-            _annotations.Add((_lastPointerPos, "▶ Annotation"));
-            InvalidateVisual();
+            FinishTextEditing();
+            _activeAnnotation = ActiveTool switch
+            {
+                MouseTool.Arrow => new ArrowAnnotation
+                {
+                    Tail = pos, Head = pos,
+                    StrokeColor = CurrentColor, StrokeWidth = AnnotationStrokeWidth
+                },
+                MouseTool.TextLabel => null, // handled on release
+                MouseTool.Freehand => new FreehandAnnotation
+                {
+                    Points = new List<Point> { pos },
+                    StrokeColor = CurrentColor, StrokeWidth = AnnotationStrokeWidth
+                },
+                MouseTool.DrawRect => new RectangleAnnotation
+                {
+                    TopLeft = pos, BottomRight = pos,
+                    StrokeColor = CurrentColor, StrokeWidth = AnnotationStrokeWidth
+                },
+                MouseTool.DrawEllipse => new EllipseAnnotation
+                {
+                    TopLeft = pos, BottomRight = pos,
+                    StrokeColor = CurrentColor, StrokeWidth = AnnotationStrokeWidth
+                },
+                MouseTool.DrawLine => new LineAnnotation
+                {
+                    Start = pos, End = pos,
+                    StrokeColor = CurrentColor, StrokeWidth = AnnotationStrokeWidth
+                },
+                _ => null
+            };
         }
 
         e.Pointer.Capture(this);
@@ -275,15 +443,38 @@ public class DicomCanvas : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
-        if (_isDragging && ActiveTool == MouseTool.Measure && _measureStart.HasValue)
+        var pos = e.GetPosition(this);
+
+        // Finalize annotation
+        if (_activeAnnotation != null)
         {
-            var end = e.GetPosition(this);
-            var len = Math.Sqrt(Math.Pow(end.X - _measureStart.Value.X, 2) +
-                                Math.Pow(end.Y - _measureStart.Value.Y, 2));
-            _measurements.Add((_measureStart.Value, end, len));
-            _measureStart = null;
+            // Only commit if the user actually dragged (not a micro-click)
+            double dragDist = Math.Sqrt(Math.Pow(pos.X - _dragStart.X, 2) + Math.Pow(pos.Y - _dragStart.Y, 2));
+            if (dragDist > 3)
+            {
+                _annotationList.Add(_activeAnnotation);
+                _undoStack.Clear(); // new action clears redo
+            }
+            _activeAnnotation = null;
             InvalidateVisual();
         }
+        else if (ActiveTool == MouseTool.TextLabel && _isDragging)
+        {
+            // Place text label on click
+            var textAnn = new TextAnnotation
+            {
+                Position = pos,
+                Text = "",
+                FontSize = AnnotationFontSize,
+                StrokeColor = CurrentColor, StrokeWidth = AnnotationStrokeWidth
+            };
+            _annotationList.Add(textAnn);
+            _undoStack.Clear();
+            _isEditingText = true;
+            _editingTextAnnotation = textAnn;
+            InvalidateVisual();
+        }
+
         _isDragging = false;
         if (ActiveTool == MouseTool.Pan)
             UpdateCursor(dragging: false);
@@ -301,7 +492,6 @@ public class DicomCanvas : Control
 
         switch (ActiveTool)
         {
-            // Pan tool: drag moves image; scroll (handled in OnPointerWheelChanged) zooms
             case MouseTool.Pan:
                 PanX += dx;
                 PanY += dy;
@@ -309,11 +499,33 @@ public class DicomCanvas : Control
                 break;
 
             case MouseTool.WindowLevel:
-                // Horizontal = center, vertical = width (standard DICOM convention)
                 WindowCenter += dx * 2.0;
                 WindowWidth   = Math.Max(1, WindowWidth + dy * 4.0);
                 WindowLevelChanged?.Invoke(this, (WindowCenter, WindowWidth));
                 break;
+        }
+
+        // Update in-progress annotation
+        if (_activeAnnotation != null)
+        {
+            switch (_activeAnnotation)
+            {
+                case ArrowAnnotation arrow:
+                    arrow.Head = pos;
+                    break;
+                case FreehandAnnotation freehand:
+                    freehand.Points.Add(pos);
+                    break;
+                case RectangleAnnotation rect:
+                    rect.BottomRight = pos;
+                    break;
+                case EllipseAnnotation ellipse:
+                    ellipse.BottomRight = pos;
+                    break;
+                case LineAnnotation line:
+                    line.End = pos;
+                    break;
+            }
         }
 
         _lastPointerPos = pos;
@@ -326,7 +538,6 @@ public class DicomCanvas : Control
 
         if (ActiveTool == MouseTool.Pan)
         {
-            // Pan tool: scroll zooms, anchored to the pointer position
             double delta = e.Delta.Y > 0 ? 1.12 : 0.89;
             var pos = e.GetPosition(this);
             PanX = pos.X - (pos.X - (Bounds.Width  / 2 + PanX)) * delta - Bounds.Width  / 2;
@@ -337,11 +548,88 @@ public class DicomCanvas : Control
         }
         else
         {
-            // None + all other tools: scroll navigates frames
-            int direction = e.Delta.Y > 0 ? -1 : 1; // scroll up = previous frame
+            int direction = e.Delta.Y > 0 ? -1 : 1;
             FrameScrolled?.Invoke(this, direction);
         }
 
+        InvalidateVisual();
+    }
+
+    // ── Text input for TextLabel ───────────────────────────────────────────────────────────
+    protected override void OnTextInput(TextInputEventArgs e)
+    {
+        base.OnTextInput(e);
+        if (_isEditingText && _editingTextAnnotation != null && !string.IsNullOrEmpty(e.Text))
+        {
+            _editingTextAnnotation.Text += e.Text;
+            InvalidateVisual();
+            e.Handled = true;
+        }
+    }
+
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        // Handle text editing keys
+        if (_isEditingText && _editingTextAnnotation != null)
+        {
+            switch (e.Key)
+            {
+                case Key.Back:
+                    if (_editingTextAnnotation.Text.Length > 0)
+                        _editingTextAnnotation.Text = _editingTextAnnotation.Text[..^1];
+                    InvalidateVisual();
+                    e.Handled = true;
+                    return;
+                case Key.Enter:
+                case Key.Escape:
+                    FinishTextEditing();
+                    e.Handled = true;
+                    return;
+            }
+            // Don't let other keys propagate while editing text
+            if (e.Key != Key.LeftCtrl && e.Key != Key.RightCtrl)
+                e.Handled = true;
+            return;
+        }
+
+        // Ctrl+Z = Undo, Ctrl+Y / Ctrl+Shift+Z = Redo
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+        {
+            if (e.Key == Key.Z && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+            {
+                UndoAnnotation();
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Y || (e.Key == Key.Z && e.KeyModifiers.HasFlag(KeyModifiers.Shift)))
+            {
+                RedoAnnotation();
+                e.Handled = true;
+            }
+        }
+
+        // Delete key removes last annotation
+        if (e.Key == Key.Delete && _annotationList.Count > 0)
+        {
+            var last = _annotationList[^1];
+            _annotationList.RemoveAt(_annotationList.Count - 1);
+            _undoStack.Push(last);
+            InvalidateVisual();
+            e.Handled = true;
+        }
+
+        base.OnKeyDown(e);
+    }
+
+    private void FinishTextEditing()
+    {
+        if (!_isEditingText || _editingTextAnnotation == null) return;
+
+        // Remove empty text annotations
+        if (string.IsNullOrWhiteSpace(_editingTextAnnotation.Text))
+            _annotationList.Remove(_editingTextAnnotation);
+
+        _isEditingText = false;
+        _editingTextAnnotation = null;
         InvalidateVisual();
     }
 }

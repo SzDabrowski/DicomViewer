@@ -38,8 +38,35 @@ public partial class DicomFileViewModel : ViewModelBase
         _model = model;
     }
 
+    private static readonly string[] SupportedExtensions =
+    {
+        ".dcm", ".dicom", ".jpg", ".jpeg", ".png", ".bmp",
+        ".tiff", ".tif", ".gif", ".webp", ".avi", ".mp4", ".mkv", ".mov", ".wmv"
+    };
+
     public static DicomFileViewModel Create(string filePath)
     {
+        var log = LoggingService.Instance;
+
+        // Guard: file must exist
+        if (!System.IO.File.Exists(filePath))
+            throw new System.IO.FileNotFoundException($"File not found: {filePath}");
+
+        // Guard: file must not be empty
+        var fileInfo = new System.IO.FileInfo(filePath);
+        if (fileInfo.Length == 0)
+            throw new InvalidOperationException($"File is empty (0 bytes): {fileInfo.Name}");
+
+        // Guard: file must not be too large (>2 GB)
+        if (fileInfo.Length > 2L * 1024 * 1024 * 1024)
+            log.Warning("FileOpen", $"Very large file ({fileInfo.Length / (1024 * 1024)} MB): {fileInfo.Name}");
+
+        var ext = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
+
+        // Guard: check supported extension
+        if (!Array.Exists(SupportedExtensions, e => e == ext) && ext != "")
+            log.Warning("FileOpen", $"Unrecognized extension '{ext}', attempting DICOM parse");
+
         if (ImageService.IsSupported(filePath))
         {
             var imgSvc = new ImageService();
@@ -48,7 +75,7 @@ public partial class DicomFileViewModel : ViewModelBase
             {
                 FilePath = filePath,
                 Modality = "IMG",
-                SeriesDescription = System.IO.Path.GetExtension(filePath).ToUpperInvariant().TrimStart('.'),
+                SeriesDescription = ext.ToUpperInvariant().TrimStart('.'),
                 TotalFrames = imgMeta.TotalFrames,
                 Rows = imgMeta.Height,
                 Columns = imgMeta.Width,
@@ -66,7 +93,7 @@ public partial class DicomFileViewModel : ViewModelBase
             {
                 FilePath = filePath,
                 Modality = "VID",
-                SeriesDescription = System.IO.Path.GetExtension(filePath).ToUpperInvariant().TrimStart('.'),
+                SeriesDescription = ext.ToUpperInvariant().TrimStart('.'),
                 TotalFrames = Math.Max(1, vidMeta.TotalFrames),
                 Rows = vidMeta.Height,
                 Columns = vidMeta.Width,
@@ -76,6 +103,7 @@ public partial class DicomFileViewModel : ViewModelBase
             });
         }
 
+        // Default: attempt DICOM parse
         var svc = new DicomService();
         var meta = svc.GetMetadata(filePath);
         return new DicomFileViewModel(new DicomFile

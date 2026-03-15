@@ -49,7 +49,10 @@ namespace DicomViewer.Services
                             item.GetSingleValue<int>(DicomTag.PhysicalUnitsXDirection)
                         ));
                     }
-                    catch { /* Ignore malformed regions */ }
+                    catch (Exception ex)
+                    {
+                        LoggingService.Instance.Warning("DicomService", "Skipped malformed US region", ex.Message);
+                    }
                 }
             }
 

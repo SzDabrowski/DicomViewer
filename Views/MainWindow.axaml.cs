@@ -118,6 +118,9 @@ namespace DicomViewer.Views
 
                     if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         ScrollFilmstripToCurrentFrame();
+
+                    if (args.PropertyName == nameof(MainWindowViewModel.ClipboardText) && VM.ClipboardText != null)
+                        _ = Clipboard?.SetTextAsync(VM.ClipboardText);
                 };
 
                 VM.LoadSettings();
@@ -152,23 +155,33 @@ namespace DicomViewer.Views
             if (canvas == null) return;
             var filePath = VM.ActiveFile.FilePath;
 
-            if (ImageService.IsSupported(filePath))
+            try
             {
-                var imgSvc = new ImageService();
-                var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
-                canvas.SetPixels(pixels, w, h);
+                if (ImageService.IsSupported(filePath))
+                {
+                    var imgSvc = new ImageService();
+                    var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
+                    canvas.SetPixels(pixels, w, h);
+                }
+                else if (VideoService.IsSupported(filePath))
+                {
+                    var vidSvc = new VideoService();
+                    var pixels = vidSvc.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                    canvas.SetPixels(pixels, w, h);
+                }
+                else
+                {
+                    var svc = new DicomService();
+                    var pixels = svc.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                    canvas.SetPixels(pixels, w, h);
+                }
             }
-            else if (VideoService.IsSupported(filePath))
+            catch (Exception ex)
             {
-                var vidSvc = new VideoService();
-                var pixels = vidSvc.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
-                canvas.SetPixels(pixels, w, h);
-            }
-            else
-            {
-                var svc = new DicomService();
-                var pixels = svc.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
-                canvas.SetPixels(pixels, w, h);
+                LoggingService.Instance.Error("Canvas", $"Failed to render frame {VM.CurrentFrameIndex}", ex);
+                VM.AddNotification(ViewModels.NotificationSeverity.Error,
+                    $"Failed to render frame {VM.CurrentFrameIndex}",
+                    ex.Message);
             }
         }
 
@@ -248,6 +261,10 @@ namespace DicomViewer.Views
         private void OnKeyDown(object? sender, KeyEventArgs e)
         {
             if (VM == null) return;
+
+            // Don't intercept single-letter shortcuts while canvas is editing text
+            bool canvasEditing = MainCanvas.Focusable && e.Source == MainCanvas;
+
             switch (e.Key)
             {
                 case Key.Space: VM.TogglePlayCommand.Execute(null); break;
@@ -259,15 +276,51 @@ namespace DicomViewer.Views
                 case Key.OemPlus: VM.ZoomInCommand.Execute(null); break;
                 case Key.Subtract:
                 case Key.OemMinus: VM.ZoomOutCommand.Execute(null); break;
-                case Key.F: VM.FitToWindowCommand.Execute(null); break;
-                case Key.R: VM.ResetViewCommand.Execute(null); break;
                 case Key.I: VM.ToggleInvertCommand.Execute(null); break;
                 case Key.O:
                     if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
                         _ = VM.OpenFileCommand.ExecuteAsync(null);
                     break;
+                case Key.L:
+                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                        VM.ToggleLogViewerCommand.Execute(null);
+                    break;
+                case Key.Z:
+                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                    { MainCanvas.UndoAnnotation(); e.Handled = true; }
+                    else if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                    { MainCanvas.RedoAnnotation(); e.Handled = true; }
+                    break;
+                case Key.Y:
+                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                    { MainCanvas.RedoAnnotation(); e.Handled = true; }
+                    break;
                 case Key.F11:
                     ToggleFullscreen();
+                    break;
+                // Annotation tool shortcuts (only when not editing text on canvas)
+                case Key.A:
+                    if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                        VM.SelectToolCommand.Execute("Arrow");
+                    break;
+                case Key.T:
+                    VM.SelectToolCommand.Execute("TextLabel");
+                    break;
+                case Key.D:
+                    VM.SelectToolCommand.Execute("Freehand");
+                    break;
+                case Key.C:
+                    if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                        VM.CycleAnnotationColorCommand.Execute(null);
+                    break;
+                case Key.F:
+                    VM.FitToWindowCommand.Execute(null);
+                    break;
+                case Key.R:
+                    VM.ResetViewCommand.Execute(null);
+                    break;
+                case Key.Escape:
+                    VM.SelectToolCommand.Execute("None");
                     break;
             }
         }
