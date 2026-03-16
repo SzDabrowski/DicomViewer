@@ -47,25 +47,26 @@ public partial class DicomFileViewModel : ViewModelBase
     public static DicomFileViewModel Create(string filePath)
     {
         var log = LoggingService.Instance;
+        var loc = LocalizationService.Instance;
 
         // Guard: file must exist
         if (!System.IO.File.Exists(filePath))
-            throw new System.IO.FileNotFoundException($"File not found: {filePath}");
+            throw new System.IO.FileNotFoundException($"{loc["Err_FileNotFound"]} {filePath}");
 
         // Guard: file must not be empty
         var fileInfo = new System.IO.FileInfo(filePath);
         if (fileInfo.Length == 0)
-            throw new InvalidOperationException($"File is empty (0 bytes): {fileInfo.Name}");
+            throw new InvalidOperationException($"{loc["Err_FileEmpty"]} {fileInfo.Name}");
 
         // Guard: file must not be too large (>2 GB)
         if (fileInfo.Length > 2L * 1024 * 1024 * 1024)
-            log.Warning("FileOpen", $"Very large file ({fileInfo.Length / (1024 * 1024)} MB): {fileInfo.Name}");
+            log.Warning("FileOpen", $"{loc["Err_VeryLargeFile"]} ({fileInfo.Length / (1024 * 1024)} MB): {fileInfo.Name}");
 
         var ext = System.IO.Path.GetExtension(filePath).ToLowerInvariant();
 
         // Guard: check supported extension
         if (!Array.Exists(SupportedExtensions, e => e == ext) && ext != "")
-            log.Warning("FileOpen", $"Unrecognized extension '{ext}', attempting DICOM parse");
+            log.Warning("FileOpen", $"{loc["Err_UnrecognizedExtension"]} '{ext}', {loc["Err_AttemptingDicomParse"]}");
 
         if (ImageService.IsSupported(filePath))
         {

@@ -25,8 +25,6 @@
 		<conv:BoolToAccentConverter x:Key="BoolToAccent"/>
 		<conv:BoolToWhiteConverter x:Key="BoolToWhite"/>
 		<conv:ProgressToWidthConverter x:Key="ProgressToWidth"/>
-		<conv:BoolToStringConverter x:Key="BoolToFilmstripTip" TrueValue="Collapse Filmstrip" FalseValue="Expand Filmstrip"/>
-		<conv:BoolToStringConverter x:Key="BoolToFilePanelTip" TrueValue="Hide File Panel" FalseValue="Show File Panel"/>
 		<conv:BoolToTooltipDelayConverter x:Key="BoolToTooltipDelay"/>
 		<conv:LogLevelToColorConverter x:Key="LogLevelToColor"/>
 		<conv:SeverityToBackgroundConverter x:Key="SeverityToBackground"/>
@@ -84,14 +82,14 @@
 			<Grid ColumnDefinitions="Auto,*,Auto">
 
 				<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="2" VerticalAlignment="Center">
-					<Button Classes="ToolbarBtn" ToolTip.Tip="Open File or Directory (Ctrl+O)" UseLayoutRounding="True">
+					<Button Classes="ToolbarBtn" ToolTip.Tip="{Binding [Tip_OpenFileOrDir], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True">
 						<Button.Flyout>
 							<MenuFlyout Placement="BottomEdgeAlignedLeft">
 								<MenuItem Command="{Binding OpenFileCommand}">
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<iconPacks:PackIconCodicons Kind="File" Width="14" Height="14" VerticalAlignment="Center" Foreground="#4A9EFF"/>
-											<TextBlock Text="Open File(s)..." VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [OpenFiles], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -99,7 +97,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<iconPacks:PackIconCodicons Kind="FolderOpened" Width="14" Height="14" VerticalAlignment="Center" Foreground="#4A9EFF"/>
-											<TextBlock Text="Open Directory..." VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [OpenDirectory], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -107,7 +105,7 @@
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
 							<iconPacks:PackIconCodicons Kind="FolderOpened" Width="14" Height="14" VerticalAlignment="Center"/>
-							<TextBlock Text="Open" FontSize="12" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<TextBlock Text="{Binding [Open], Source={x:Static svc:LocalizationService.Instance}}" FontSize="12" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
 							<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
@@ -116,24 +114,24 @@
 					<Button Classes="IconBtn"
                             Command="{Binding SelectToolCommand}" CommandParameter="Pan"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=Pan}"
-                            ToolTip.Tip="Pan / Zoom">
+                            ToolTip.Tip="{Binding [Tip_PanZoom], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="Move" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn"
                             Command="{Binding SelectToolCommand}" CommandParameter="WindowLevel"
                             Classes.Active="{Binding ActiveTool, Converter={StaticResource ToolToActive}, ConverterParameter=WindowLevel}"
-                            ToolTip.Tip="Window/Level">
+                            ToolTip.Tip="{Binding [Tip_WindowLevel], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="Target" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
 					<!-- Annotate tools flyout -->
-					<Button Classes="ToolbarBtn" ToolTip.Tip="Annotate Tools" UseLayoutRounding="True">
+					<Button Classes="ToolbarBtn" ToolTip.Tip="{Binding [Tip_AnnotateTools], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True">
 						<Button.Flyout>
 							<MenuFlyout Placement="BottomEdgeAlignedLeft">
 								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="Arrow">
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEA9C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#FFD700"/>
-											<TextBlock Text="Arrow" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Arrow], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="A" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -142,7 +140,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEA6F;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#00E5FF"/>
-											<TextBlock Text="Text Label" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [TextLabel], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="T" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -151,7 +149,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB5B;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#44FF44"/>
-											<TextBlock Text="Freehand Draw" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [FreehandDraw], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="D" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -160,19 +158,19 @@
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
 							<iconPacks:PackIconCodicons Kind="Edit" Width="14" Height="14" VerticalAlignment="Center"/>
-							<TextBlock Text="Annotate" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<TextBlock Text="{Binding [Annotate], Source={x:Static svc:LocalizationService.Instance}}" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
 							<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
 					<!-- Draw shapes flyout -->
-					<Button Classes="ToolbarBtn" ToolTip.Tip="Draw Shapes" UseLayoutRounding="True">
+					<Button Classes="ToolbarBtn" ToolTip.Tip="{Binding [Tip_DrawShapes], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True">
 						<Button.Flyout>
 							<MenuFlyout Placement="BottomEdgeAlignedLeft">
 								<MenuItem Command="{Binding SelectToolCommand}" CommandParameter="DrawRect">
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB01;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#FFD700"/>
-											<TextBlock Text="Rectangle" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Rectangle], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="R" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -181,7 +179,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB10;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#00E5FF"/>
-											<TextBlock Text="Ellipse" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Ellipse], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="O" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -190,7 +188,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEA61;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#44FF44"/>
-											<TextBlock Text="Line" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Line], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="L" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -199,19 +197,19 @@
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
 							<iconPacks:PackIconCodicons Kind="SymbolMisc" Width="14" Height="14" VerticalAlignment="Center"/>
-							<TextBlock Text="Draw" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<TextBlock Text="{Binding [Draw], Source={x:Static svc:LocalizationService.Instance}}" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
 							<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
 					<!-- Annotation color picker -->
-					<Button Classes="ToolbarBtn" ToolTip.Tip="Annotation Color" UseLayoutRounding="True">
+					<Button Classes="ToolbarBtn" ToolTip.Tip="{Binding [Tip_AnnotationColor], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True">
 						<Button.Flyout>
 							<MenuFlyout Placement="BottomEdgeAlignedLeft">
 								<MenuItem Command="{Binding SetAnnotationColorCommand}" CommandParameter="0">
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#FFD700"/>
-											<TextBlock Text="Yellow" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Yellow], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -219,7 +217,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#00E5FF"/>
-											<TextBlock Text="Cyan" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Cyan], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -227,7 +225,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#FF4444"/>
-											<TextBlock Text="Red" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Red], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -235,7 +233,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#44FF44"/>
-											<TextBlock Text="Green" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Green], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -243,7 +241,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#4488FF"/>
-											<TextBlock Text="Blue" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Blue], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -251,7 +249,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#FF44FF"/>
-											<TextBlock Text="Magenta" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Magenta], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -259,7 +257,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#FF8800"/>
-											<TextBlock Text="Orange" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Orange], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -267,7 +265,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<Border Width="14" Height="14" CornerRadius="7" Background="#FFFFFF"/>
-											<TextBlock Text="White" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [White], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
@@ -280,33 +278,33 @@
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
 
-					<Button Classes="IconBtn" Command="{Binding RotateCCWCommand}" ToolTip.Tip="Rotate Counter-Clockwise">
+					<Button Classes="IconBtn" Command="{Binding RotateCCWCommand}" ToolTip.Tip="{Binding [Tip_RotateCCW], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="Discard" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
-					<Button Classes="IconBtn" Command="{Binding RotateCWCommand}" ToolTip.Tip="Rotate Clockwise">
+					<Button Classes="IconBtn" Command="{Binding RotateCWCommand}" ToolTip.Tip="{Binding [Tip_RotateCW], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="Redo" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
-					<Button Classes="IconBtn" Command="{Binding FlipHCommand}" ToolTip.Tip="Flip Horizontal">
+					<Button Classes="IconBtn" Command="{Binding FlipHCommand}" ToolTip.Tip="{Binding [Tip_FlipH], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="ArrowBoth" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
-					<Button Classes="IconBtn" Command="{Binding FlipVCommand}" ToolTip.Tip="Flip Vertical">
+					<Button Classes="IconBtn" Command="{Binding FlipVCommand}" ToolTip.Tip="{Binding [Tip_FlipV], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="Mirror" Width="16" Height="16" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" Command="{Binding ToggleInvertCommand}"
                             Classes.Active="{Binding InvertColors}"
-                            ToolTip.Tip="Invert Colors (I)">
+                            ToolTip.Tip="{Binding [Tip_InvertColors], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="CircleSlash" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
 
-					<Button Classes="ToolbarBtn" ToolTip.Tip="Window Presets" UseLayoutRounding="True">
+					<Button Classes="ToolbarBtn" ToolTip.Tip="{Binding [Tip_WindowPresets], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True">
 						<Button.Flyout>
 							<MenuFlyout Placement="BottomEdgeAlignedLeft">
 								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Brain">
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#C084FC"/>
-											<TextBlock Text="Brain" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Brain], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="C:40 W:80" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -315,7 +313,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#60A5FA"/>
-											<TextBlock Text="Lung" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Lung], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="C:-600 W:1500" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -324,7 +322,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#F9F9F9"/>
-											<TextBlock Text="Bone" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Bone], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="C:400 W:1800" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -333,7 +331,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#FB923C"/>
-											<TextBlock Text="Abdomen" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Abdomen], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="C:60 W:400" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -342,7 +340,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#F87171"/>
-											<TextBlock Text="Mediastinum" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Mediastinum], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="C:40 W:400" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -351,7 +349,7 @@
 									<MenuItem.Header>
 										<StackPanel Orientation="Horizontal" Spacing="8">
 											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#A3E635"/>
-											<TextBlock Text="Liver" VerticalAlignment="Center"/>
+											<TextBlock Text="{Binding [Liver], Source={x:Static svc:LocalizationService.Instance}}" VerticalAlignment="Center"/>
 											<TextBlock Text="C:60 W:150" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
 										</StackPanel>
 									</MenuItem.Header>
@@ -359,21 +357,21 @@
 							</MenuFlyout>
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
-							<TextBlock Text="Presets" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<TextBlock Text="{Binding [Presets], Source={x:Static svc:LocalizationService.Instance}}" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
 							<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" VerticalAlignment="Center" Margin="0,1,0,0"/>
 						</StackPanel>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
-					<Button Classes="IconBtn" ToolTip.Tip="Log Viewer (Ctrl+L)"
+					<Button Classes="IconBtn" ToolTip.Tip="{Binding [Tip_LogViewer], Source={x:Static svc:LocalizationService.Instance}}"
 					        x:Name="LogViewerBtn">
 						<iconPacks:PackIconCodicons Kind="Output" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
 					<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
-					<Button Classes="ToolbarBtn" ToolTip.Tip="Settings" UseLayoutRounding="True"
+					<Button Classes="ToolbarBtn" ToolTip.Tip="{Binding [Settings], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True"
 					        x:Name="SettingsBtn">
 						<StackPanel Orientation="Horizontal" Spacing="5" UseLayoutRounding="True">
 							<iconPacks:PackIconCodicons Kind="Gear" Width="14" Height="14" VerticalAlignment="Center"/>
-							<TextBlock Text="Settings" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
+							<TextBlock Text="{Binding [Settings], Source={x:Static svc:LocalizationService.Instance}}" FontSize="11" VerticalAlignment="Center" Height="16" Padding="0" LineHeight="16"/>
 						</StackPanel>
 					</Button>
 				</StackPanel>
@@ -384,7 +382,7 @@
                                    VerticalAlignment="Center" HorizontalAlignment="Center"
                                    TextTrimming="CharacterEllipsis" Margin="12,0"
                                    IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}"/>
-						<TextBlock Text="DICOM Viewer" Foreground="#444460" FontSize="11"
+						<TextBlock Text="{Binding [DicomViewer], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#444460" FontSize="11"
                                    VerticalAlignment="Center" HorizontalAlignment="Center"
                                    IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNull}}"/>
 					</Grid>
@@ -392,47 +390,47 @@
 
 				<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="0" VerticalAlignment="Stretch">
 					<StackPanel Orientation="Horizontal" Spacing="2" VerticalAlignment="Center" Margin="0,0,2,0">
-						<Button Classes="IconBtn" Command="{Binding ZoomOutCommand}" ToolTip.Tip="Zoom Out (-)">
+						<Button Classes="IconBtn" Command="{Binding ZoomOutCommand}" ToolTip.Tip="{Binding [Tip_ZoomOut], Source={x:Static svc:LocalizationService.Instance}}">
 							<iconPacks:PackIconCodicons Kind="ZoomOut" Width="14" Height="14" VerticalAlignment="Center"/>
 						</Button>
 						<Border Background="#1C1C28" CornerRadius="4" Padding="8,4" MinWidth="58" VerticalAlignment="Center">
 							<TextBlock Text="{Binding ZoomLevel, StringFormat={}{0:P0}}" Foreground="#8888A8"
                                        FontSize="11" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 						</Border>
-						<Button Classes="IconBtn" Command="{Binding ZoomInCommand}" ToolTip.Tip="Zoom In (+)">
+						<Button Classes="IconBtn" Command="{Binding ZoomInCommand}" ToolTip.Tip="{Binding [Tip_ZoomIn], Source={x:Static svc:LocalizationService.Instance}}">
 							<iconPacks:PackIconCodicons Kind="ZoomIn" Width="14" Height="14" VerticalAlignment="Center"/>
 						</Button>
-						<Button Classes="ToolbarBtn" Command="{Binding FitToWindowCommand}" ToolTip.Tip="Fit to Window (F)" UseLayoutRounding="True">
-							<TextBlock Text="Fit" FontSize="12" VerticalAlignment="Center" Height="16" LineHeight="16"/>
+						<Button Classes="ToolbarBtn" Command="{Binding FitToWindowCommand}" ToolTip.Tip="{Binding [Tip_FitToWindow], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True">
+							<TextBlock Text="{Binding [Fit], Source={x:Static svc:LocalizationService.Instance}}" FontSize="12" VerticalAlignment="Center" Height="16" LineHeight="16"/>
 						</Button>
-						<Button Classes="ToolbarBtn" Command="{Binding ResetViewCommand}" ToolTip.Tip="Reset View (R)" UseLayoutRounding="True">
-							<TextBlock Text="Reset" FontSize="12" VerticalAlignment="Center" Height="16" LineHeight="16"/>
+						<Button Classes="ToolbarBtn" Command="{Binding ResetViewCommand}" ToolTip.Tip="{Binding [Tip_ResetView], Source={x:Static svc:LocalizationService.Instance}}" UseLayoutRounding="True">
+							<TextBlock Text="{Binding [Reset], Source={x:Static svc:LocalizationService.Instance}}" FontSize="12" VerticalAlignment="Center" Height="16" LineHeight="16"/>
 						</Button>
 						<Rectangle Width="1" Height="22" Fill="#2A2A3A" Margin="4,0"/>
 						<Button Classes="IconBtn" Command="{Binding ToggleOverlayCommand}"
                             Classes.Active="{Binding ShowOverlay}"
-                            ToolTip.Tip="Toggle Overlay">
+                            ToolTip.Tip="{Binding [Tip_ToggleOverlay], Source={x:Static svc:LocalizationService.Instance}}">
 							<iconPacks:PackIconCodicons Kind="Info" Width="14" Height="14" VerticalAlignment="Center"/>
 						</Button>
 						<Button Classes="IconBtn" Command="{Binding ToggleMiniFramesCommand}"
                             Classes.Active="{Binding ShowMiniFrames}"
-                            ToolTip.Tip="Toggle Filmstrip">
+                            ToolTip.Tip="{Binding [Tip_ToggleFilmstrip], Source={x:Static svc:LocalizationService.Instance}}">
 							<iconPacks:PackIconCodicons Kind="ListFlat" Width="14" Height="14" VerticalAlignment="Center"/>
 						</Button>
 						<Button Classes="IconBtn" Command="{Binding ToggleRightPanelCommand}"
                             Classes.Active="{Binding IsRightPanelVisible}"
-                            ToolTip.Tip="Toggle File Panel">
+                            ToolTip.Tip="{Binding [Tip_ToggleFilePanel], Source={x:Static svc:LocalizationService.Instance}}">
 							<iconPacks:PackIconCodicons Kind="Menu" Width="14" Height="14" VerticalAlignment="Center"/>
 						</Button>
 					</StackPanel>
 					<Rectangle Width="1" Fill="#2A2A3A" VerticalAlignment="Stretch" Margin="2,0"/>
-					<Button x:Name="BtnMinimise" Classes="WinBtn" ToolTip.Tip="Minimise">
+					<Button x:Name="BtnMinimise" Classes="WinBtn" ToolTip.Tip="{Binding [Tip_Minimise], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="ChromeMinimize" Width="14" Height="14" Foreground="#8888A8"/>
 					</Button>
-					<Button x:Name="BtnMaximise" Classes="WinBtn" ToolTip.Tip="Maximise / Restore">
+					<Button x:Name="BtnMaximise" Classes="WinBtn" ToolTip.Tip="{Binding [Tip_MaximiseRestore], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons x:Name="MaximiseIcon" Kind="ChromeMaximize" Width="14" Height="14" Foreground="#8888A8"/>
 					</Button>
-					<Button x:Name="BtnClose" Classes="WinBtn WinBtnClose" ToolTip.Tip="Close">
+					<Button x:Name="BtnClose" Classes="WinBtn WinBtnClose" ToolTip.Tip="{Binding [Tip_Close], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="ChromeClose" Width="14" Height="14" Foreground="#8888A8"/>
 					</Button>
 				</StackPanel>
@@ -525,7 +523,7 @@
 					<StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="2"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}">
 						<TextBlock HorizontalAlignment="Right" Foreground="#DDDDDD" FontSize="10">
-							<Run Text="Frame "/>
+							<Run Text="{Binding [Frame], Source={x:Static svc:LocalizationService.Instance}}"/><Run Text=" "/>
 							<Run Text="{Binding CurrentFrameDisplay}"/>
 							<Run Text=" / "/>
 							<Run Text="{Binding TotalFrames}"/>
@@ -537,11 +535,11 @@
 				<Border IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNull}}" IsHitTestVisible="False">
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
 						<iconPacks:PackIconCodicons Kind="FolderOpened" Width="48" Height="48" HorizontalAlignment="Center" Opacity="0.3"/>
-						<TextBlock Text="No DICOM file loaded" Foreground="#555570" FontSize="16"
+						<TextBlock Text="{Binding [NoFileLoaded], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#555570" FontSize="16"
                                    FontWeight="SemiBold" HorizontalAlignment="Center"/>
-						<TextBlock Text="Open a file or drag &amp; drop to begin" Foreground="#444460"
+						<TextBlock Text="{Binding [OpenOrDragDrop], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#444460"
                                    FontSize="12" HorizontalAlignment="Center"/>
-						<TextBlock Text="Ctrl+O to open  |  Drag &amp; drop supported" Foreground="#333350"
+						<TextBlock Text="{Binding [CtrlODragDrop], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#333350"
                                    FontSize="11" HorizontalAlignment="Center" Margin="0,8,0,0"/>
 					</StackPanel>
 				</Border>
@@ -551,7 +549,7 @@
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
 						<Border Width="56" Height="56" HorizontalAlignment="Center" CornerRadius="28"
                                 BorderBrush="#4A9EFF" BorderThickness="4"/>
-						<TextBlock Text="Loading DICOM File" Foreground="#E8E8F0" FontSize="16"
+						<TextBlock Text="{Binding [LoadingDicomFile], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#E8E8F0" FontSize="16"
                                    FontWeight="SemiBold" HorizontalAlignment="Center"/>
 						<TextBlock Text="{Binding StatusMessage}" Foreground="#8888A8" FontSize="12"
                                    HorizontalAlignment="Center" MaxWidth="320" TextWrapping="Wrap" TextAlignment="Center"/>
@@ -605,7 +603,7 @@
 									<Button Grid.Column="2" Classes="IconBtn"
 									        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).CopyNotificationDetailsCommand}"
 									        CommandParameter="{Binding}"
-									        ToolTip.Tip="Copy error details"
+									        ToolTip.Tip="{Binding [Tip_CopyErrorDetails], Source={x:Static svc:LocalizationService.Instance}}"
 									        IsVisible="{Binding Details, Converter={StaticResource HasDetails}}"
 									        VerticalAlignment="Center" Margin="6,0">
 										<iconPacks:PackIconCodicons Kind="Copy" Width="13" Height="13"/>
@@ -615,7 +613,7 @@
 									<Button Grid.Column="3" Classes="IconBtn"
 									        Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).DismissNotificationCommand}"
 									        CommandParameter="{Binding}"
-									        ToolTip.Tip="Dismiss"
+									        ToolTip.Tip="{Binding [Tip_Dismiss], Source={x:Static svc:LocalizationService.Instance}}"
 									        VerticalAlignment="Center">
 										<iconPacks:PackIconCodicons Kind="Close" Width="13" Height="13"/>
 									</Button>
@@ -628,7 +626,7 @@
 				<Border Name="DropOverlay" Background="#CC000000" IsVisible="False" IsHitTestVisible="False">
 					<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
 						<iconPacks:PackIconCodicons Kind="FolderOpened" Width="80" Height="80" HorizontalAlignment="Center" Opacity="0.8"/>
-						<TextBlock Text="Drop DICOM files here to open" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
+						<TextBlock Text="{Binding [DropFilesHere], Source={x:Static svc:LocalizationService.Instance}}" Foreground="White" FontSize="24" FontWeight="SemiBold"/>
 					</StackPanel>
 				</Border>
 			</Grid>
@@ -657,13 +655,13 @@
 							</Border>
 							<StackPanel Grid.Column="1" Spacing="2" Cursor="Hand"
 							            PointerPressed="OnBrowserCollapsePressed">
-								<TextBlock Text="BROWSER" Classes="SectionHeader"/>
-								<TextBlock Foreground="#555570" FontSize="10" Text="Files &amp; directories"/>
+								<TextBlock Text="{Binding [Browser], Source={x:Static svc:LocalizationService.Instance}}" Classes="SectionHeader"/>
+								<TextBlock Foreground="#555570" FontSize="10" Text="{Binding [FilesAndDirectories], Source={x:Static svc:LocalizationService.Instance}}"/>
 							</StackPanel>
 							<Button Grid.Column="2" Classes="AccentBtn" Command="{Binding OpenFileCommand}" Padding="10,5">
 								<StackPanel Orientation="Horizontal" Spacing="4">
 									<iconPacks:PackIconCodicons Kind="Add" Width="14" Height="14"/>
-									<TextBlock Text="Add" FontSize="11"/>
+									<TextBlock Text="{Binding [Add], Source={x:Static svc:LocalizationService.Instance}}" FontSize="11"/>
 								</StackPanel>
 							</Button>
 						</Grid>
@@ -759,9 +757,9 @@
 					<Border IsVisible="{Binding !HasDirectoryLoaded}" Padding="12">
 						<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
 							<iconPacks:PackIconCodicons Kind="Folder" Width="28" Height="28" HorizontalAlignment="Center" Opacity="0.3"/>
-							<TextBlock Text="No directory loaded" Foreground="#444460" FontSize="11"
+							<TextBlock Text="{Binding [NoDirectoryLoaded], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#444460" FontSize="11"
                                        HorizontalAlignment="Center"/>
-							<TextBlock Text="Use Open > Open Directory" Foreground="#333350" FontSize="10"
+							<TextBlock Text="{Binding [UseOpenDirectory], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#333350" FontSize="10"
                                        HorizontalAlignment="Center"/>
 						</StackPanel>
 					</Border>
@@ -770,7 +768,7 @@
 					<!-- OPEN FILES SECTION (only when multiple files) -->
 					<Border Grid.Row="2" Padding="12,8" BorderBrush="#2A2A3A" BorderThickness="0,1,0,0"
                             IsVisible="{Binding HasMultipleFiles}">
-						<TextBlock Text="OPEN FILES" Classes="SectionHeader" Margin="0"/>
+						<TextBlock Text="{Binding [OpenFilesPanel], Source={x:Static svc:LocalizationService.Instance}}" Classes="SectionHeader" Margin="0"/>
 					</Border>
 					<ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto" Padding="6,0,6,4"
                                   MaxHeight="200" IsVisible="{Binding HasMultipleFiles}">
@@ -818,10 +816,10 @@
 		<Border Grid.Row="3" Height="16" Background="#0A0A12"
                 BorderBrush="#2A2A3A" BorderThickness="0,1,0,0"
                 Cursor="Hand"
-                ToolTip.Tip="{Binding ShowMiniFrames, Converter={StaticResource BoolToFilmstripTip}}"
+                ToolTip.Tip="{Binding [Tip_ToggleFilmstrip], Source={x:Static svc:LocalizationService.Instance}}"
                 PointerPressed="OnFilmstripHandlePressed">
 			<StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
-				<TextBlock FontSize="9" Foreground="#444460" Text="FILMSTRIP"/>
+				<TextBlock FontSize="9" Foreground="#444460" Text="{Binding [Filmstrip], Source={x:Static svc:LocalizationService.Instance}}"/>
 				<Panel>
 					<iconPacks:PackIconCodicons Kind="ChevronDown" Width="9" Height="9" Foreground="#555570"
 					                            IsVisible="{Binding ShowMiniFrames}"/>
@@ -843,7 +841,7 @@
                                 Orientation="Horizontal" Spacing="8"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNull}}">
 						<iconPacks:PackIconCodicons Kind="FolderOpened" Width="16" Height="16" VerticalAlignment="Center" Opacity="0.4"/>
-						<TextBlock Text="No file loaded — open a DICOM file to see frames"
+						<TextBlock Text="{Binding [NoFileOpenFrames], Source={x:Static svc:LocalizationService.Instance}}"
                                    Foreground="#444460" FontSize="11" VerticalAlignment="Center"/>
 					</StackPanel>
 					<ScrollViewer HorizontalScrollBarVisibility="Auto"
@@ -904,7 +902,7 @@
 				           TextTrimming="CharacterEllipsis"
 				           FontFamily="Consolas,Courier New,monospace"/>
 				<Button Grid.Column="2" Classes="IconBtn" Padding="4,2"
-				        Command="{Binding DismissStatusCommand}" ToolTip.Tip="Dismiss">
+				        Command="{Binding DismissStatusCommand}" ToolTip.Tip="{Binding [Tip_Dismiss], Source={x:Static svc:LocalizationService.Instance}}">
 					<iconPacks:PackIconCodicons Kind="Close" Width="10" Height="10"/>
 				</Button>
 			</Grid>
@@ -917,35 +915,35 @@
 
 				<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
-                            Command="{Binding FirstFrameCommand}" ToolTip.Tip="First Frame">
+                            Command="{Binding FirstFrameCommand}" ToolTip.Tip="{Binding [Tip_FirstFrame], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="TriangleLeft" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
-                            Command="{Binding PreviousFrameCommand}" ToolTip.Tip="Previous Frame">
+                            Command="{Binding PreviousFrameCommand}" ToolTip.Tip="{Binding [Tip_PreviousFrame], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="ChevronLeft" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="AccentBtn" Command="{Binding TogglePlayCommand}"
                             Width="36" Height="30" Padding="0"
                             VerticalAlignment="Center" VerticalContentAlignment="Center"
-                            ToolTip.Tip="Play / Pause (Space)">
+                            ToolTip.Tip="{Binding [Tip_PlayPause], Source={x:Static svc:LocalizationService.Instance}}">
 						<Panel HorizontalAlignment="Center" VerticalAlignment="Center">
 							<iconPacks:PackIconCodicons Kind="DebugPause" Width="14" Height="14" IsVisible="{Binding IsPlaying}"/>
 							<iconPacks:PackIconCodicons Kind="Play" Width="14" Height="14" IsVisible="{Binding !IsPlaying}"/>
 						</Panel>
 					</Button>
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
-                            Command="{Binding NextFrameCommand}" ToolTip.Tip="Next Frame">
+                            Command="{Binding NextFrameCommand}" ToolTip.Tip="{Binding [Tip_NextFrame], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="ChevronRight" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
 					<Button Classes="IconBtn" VerticalAlignment="Center" VerticalContentAlignment="Center"
-                            Command="{Binding LastFrameCommand}" ToolTip.Tip="Last Frame">
+                            Command="{Binding LastFrameCommand}" ToolTip.Tip="{Binding [Tip_LastFrame], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="TriangleRight" Width="14" Height="14" VerticalAlignment="Center"/>
 					</Button>
 					<ToggleButton IsChecked="{Binding LoopPlayback}" Padding="6,0"
                                   Width="30" Height="30"
                                   Background="Transparent" BorderThickness="0" Cursor="Hand"
                                   VerticalAlignment="Center" VerticalContentAlignment="Center"
-                                  ToolTip.Tip="Loop Playback">
+                                  ToolTip.Tip="{Binding [Tip_LoopPlayback], Source={x:Static svc:LocalizationService.Instance}}">
 						<iconPacks:PackIconCodicons Kind="Refresh" Width="14" Height="14" HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Foreground="{Binding LoopPlayback, Converter={StaticResource BoolToWhite}}"/>
 					</ToggleButton>
@@ -968,7 +966,7 @@
 
 				<StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
 					<StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
-						<TextBlock Text="FPS:" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
+						<TextBlock Text="{Binding [FPS], Source={x:Static svc:LocalizationService.Instance}}" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
 						<Slider Name="FpsSlider" Minimum="1" Maximum="60" Value="{Binding PlaybackFps}" Width="70" VerticalAlignment="Center"/>
 						<TextBlock Text="{Binding PlaybackFps, StringFormat={}{0} fps}"
                                    Foreground="#E8E8F0" FontSize="11" VerticalAlignment="Center" MinWidth="38"/>

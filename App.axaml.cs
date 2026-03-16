@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using DicomViewer.Services;
 using DicomViewer.ViewModels;
 using DicomViewer.Views;
 using FellowOakDicom;
@@ -25,6 +26,10 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            var settings = new SettingsService();
+            var appSettings = settings.Load();
+            LocalizationService.Instance.SetLanguage(appSettings.Language);
+
             desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel()

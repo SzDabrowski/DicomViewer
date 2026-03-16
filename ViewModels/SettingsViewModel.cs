@@ -19,16 +19,23 @@ public partial class KeyBindingRowViewModel : ObservableObject
     [ObservableProperty] private bool _hasConflict;
     [ObservableProperty] private string _conflictMessage = string.Empty;
 
+    public string LabelKey { get; }
     public string PropertyName { get; }
     public KeyBinding Binding { get; }
 
-    public KeyBindingRowViewModel(string label, string propertyName, KeyBinding binding, Action onChanged)
+    public KeyBindingRowViewModel(string labelKey, string propertyName, KeyBinding binding, Action onChanged)
     {
-        _label = label;
+        LabelKey = labelKey;
+        _label = LocalizationService.Instance[labelKey];
         PropertyName = propertyName;
         Binding = binding;
         _displayString = binding.DisplayString;
         _onChanged = onChanged;
+    }
+
+    public void RefreshLabel()
+    {
+        Label = LocalizationService.Instance[LabelKey];
     }
 
     public void StartRecording() => IsRecording = true;
@@ -59,6 +66,7 @@ public partial class SettingsViewModel : ViewModelBase
     public Action? RequestClose { get; set; }
 
     private readonly SettingsService _settingsService = new();
+    private readonly LocalizationService _loc = LocalizationService.Instance;
     private AppSettings _appSettings = new();
 
     [ObservableProperty] private string _selectedCategory = "General";
@@ -67,8 +75,10 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private int _selectedWindowModeIndex;
     [ObservableProperty] private bool _isGeneralSelected = true;
     [ObservableProperty] private bool _isControlsSelected;
+    [ObservableProperty] private int _selectedLanguageIndex;
 
     public List<string> WindowModeOptions { get; } = new() { "Windowed", "Maximized", "Fullscreen" };
+    public List<string> LanguageOptions { get; } = new() { "English", "Polski" };
 
     public ObservableCollection<KeyBindingRowViewModel> PlaybackBindings { get; } = new();
     public ObservableCollection<KeyBindingRowViewModel> ViewBindings { get; } = new();
@@ -82,6 +92,7 @@ public partial class SettingsViewModel : ViewModelBase
         _defaultDirectory = _appSettings.DefaultDirectory;
         _showTooltips = _appSettings.ShowTooltips;
         _selectedWindowModeIndex = (int)_appSettings.StartupWindowMode;
+        _selectedLanguageIndex = _appSettings.Language == "pl" ? 1 : 0;
         BuildKeyBindingRows();
     }
 
@@ -90,30 +101,30 @@ public partial class SettingsViewModel : ViewModelBase
         var kb = _appSettings.KeyBindings;
         Action save = () => { SaveSettings(); CheckForConflicts(); };
 
-        PlaybackBindings.Add(new("Play / Pause", "TogglePlay", kb.TogglePlay, save));
-        PlaybackBindings.Add(new("Previous Frame", "PreviousFrame", kb.PreviousFrame, save));
-        PlaybackBindings.Add(new("Next Frame", "NextFrame", kb.NextFrame, save));
-        PlaybackBindings.Add(new("First Frame", "FirstFrame", kb.FirstFrame, save));
-        PlaybackBindings.Add(new("Last Frame", "LastFrame", kb.LastFrame, save));
+        PlaybackBindings.Add(new("Controls_PlayPause", "TogglePlay", kb.TogglePlay, save));
+        PlaybackBindings.Add(new("Controls_PreviousFrame", "PreviousFrame", kb.PreviousFrame, save));
+        PlaybackBindings.Add(new("Controls_NextFrame", "NextFrame", kb.NextFrame, save));
+        PlaybackBindings.Add(new("Controls_FirstFrame", "FirstFrame", kb.FirstFrame, save));
+        PlaybackBindings.Add(new("Controls_LastFrame", "LastFrame", kb.LastFrame, save));
 
-        ViewBindings.Add(new("Zoom In", "ZoomIn", kb.ZoomIn, save));
-        ViewBindings.Add(new("Zoom Out", "ZoomOut", kb.ZoomOut, save));
-        ViewBindings.Add(new("Fit to Window", "FitToWindow", kb.FitToWindow, save));
-        ViewBindings.Add(new("Reset View", "ResetView", kb.ResetView, save));
-        ViewBindings.Add(new("Toggle Invert", "ToggleInvert", kb.ToggleInvert, save));
-        ViewBindings.Add(new("Toggle Fullscreen", "ToggleFullscreen", kb.ToggleFullscreen, save));
+        ViewBindings.Add(new("Controls_ZoomIn", "ZoomIn", kb.ZoomIn, save));
+        ViewBindings.Add(new("Controls_ZoomOut", "ZoomOut", kb.ZoomOut, save));
+        ViewBindings.Add(new("Controls_FitToWindow", "FitToWindow", kb.FitToWindow, save));
+        ViewBindings.Add(new("Controls_ResetView", "ResetView", kb.ResetView, save));
+        ViewBindings.Add(new("Controls_ToggleInvert", "ToggleInvert", kb.ToggleInvert, save));
+        ViewBindings.Add(new("Controls_ToggleFullscreen", "ToggleFullscreen", kb.ToggleFullscreen, save));
 
-        ToolBindings.Add(new("Arrow Tool", "ToolArrow", kb.ToolArrow, save));
-        ToolBindings.Add(new("Text Tool", "ToolText", kb.ToolText, save));
-        ToolBindings.Add(new("Freehand Tool", "ToolFreehand", kb.ToolFreehand, save));
-        ToolBindings.Add(new("Cycle Color", "CycleColor", kb.CycleColor, save));
-        ToolBindings.Add(new("Deselect Tool", "DeselectTool", kb.DeselectTool, save));
+        ToolBindings.Add(new("Controls_ArrowTool", "ToolArrow", kb.ToolArrow, save));
+        ToolBindings.Add(new("Controls_TextTool", "ToolText", kb.ToolText, save));
+        ToolBindings.Add(new("Controls_FreehandTool", "ToolFreehand", kb.ToolFreehand, save));
+        ToolBindings.Add(new("Controls_CycleColor", "CycleColor", kb.CycleColor, save));
+        ToolBindings.Add(new("Controls_DeselectTool", "DeselectTool", kb.DeselectTool, save));
 
-        FileBindings.Add(new("Open File", "OpenFile", kb.OpenFile, save));
-        FileBindings.Add(new("Open Logs", "OpenLogs", kb.OpenLogs, save));
+        FileBindings.Add(new("Controls_OpenFile", "OpenFile", kb.OpenFile, save));
+        FileBindings.Add(new("Controls_OpenLogs", "OpenLogs", kb.OpenLogs, save));
 
-        EditBindings.Add(new("Undo", "Undo", kb.Undo, save));
-        EditBindings.Add(new("Redo", "Redo", kb.Redo, save));
+        EditBindings.Add(new("Controls_Undo", "Undo", kb.Undo, save));
+        EditBindings.Add(new("Controls_Redo", "Redo", kb.Redo, save));
 
         CheckForConflicts();
     }
@@ -181,6 +192,17 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnShowTooltipsChanged(bool value) => SaveSettings();
 
+    partial void OnSelectedLanguageIndexChanged(int value)
+    {
+        var lang = value == 1 ? "pl" : "en";
+        _loc.SetLanguage(lang);
+        SaveSettings();
+
+        // Refresh all key binding labels
+        foreach (var row in PlaybackBindings.Concat(ViewBindings).Concat(ToolBindings).Concat(FileBindings).Concat(EditBindings))
+            row.RefreshLabel();
+    }
+
     partial void OnSelectedWindowModeIndexChanged(int value)
     {
         OnPropertyChanged(nameof(IsWindowedMode));
@@ -212,7 +234,7 @@ public partial class SettingsViewModel : ViewModelBase
 
             row.HasConflict = duplicates.Count > 0;
             row.ConflictMessage = duplicates.Count > 0
-                ? $"Conflicts with: {string.Join(", ", duplicates.Select(d => d.Label))}"
+                ? $"{_loc["Controls_ConflictsWith"]} {string.Join(", ", duplicates.Select(d => d.Label))}"
                 : string.Empty;
         }
     }
@@ -222,6 +244,7 @@ public partial class SettingsViewModel : ViewModelBase
         _appSettings.DefaultDirectory = DefaultDirectory;
         _appSettings.ShowTooltips = ShowTooltips;
         _appSettings.StartupWindowMode = StartupWindowMode;
+        _appSettings.Language = SelectedLanguageIndex == 1 ? "pl" : "en";
         _settingsService.Save(_appSettings);
     }
 }

@@ -106,7 +106,7 @@
 					<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="14,0">
 						<iconPacks:PackIconCodicons Kind="Output" Width="14" Height="14"
 						           Foreground="#8888A8" VerticalAlignment="Center"/>
-						<TextBlock Text="Log Viewer" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
+						<TextBlock Text="{Binding [Log_Title], Source={x:Static svc:LocalizationService.Instance}}" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
 					</StackPanel>
 				</Border>
 				<Button Grid.Column="1" Classes="WinBtn" x:Name="BtnMinimise">
@@ -124,41 +124,41 @@
 		<!-- TOOLBAR -->
 		<Border Grid.Row="1" Padding="8,4" Background="#0D0D14" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
 			<Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
-				<TextBlock Grid.Column="0" Text="LOG" FontSize="10" FontWeight="SemiBold"
+				<TextBlock Grid.Column="0" Text="{Binding [Log_Log], Source={x:Static svc:LocalizationService.Instance}}" FontSize="10" FontWeight="SemiBold"
 				           Foreground="#555570" VerticalAlignment="Center" Margin="4,0,8,0"/>
 				<Button Grid.Column="1" Classes="FilterBtn"
 				        Command="{Binding SetFilterCommand}" CommandParameter="Debug"
-				        ToolTip.Tip="Show all">
-					<TextBlock Text="ALL" FontSize="9" Foreground="#646482"/>
+				        ToolTip.Tip="{Binding [Log_ShowAll], Source={x:Static svc:LocalizationService.Instance}}">
+					<TextBlock Text="{Binding [Log_All], Source={x:Static svc:LocalizationService.Instance}}" FontSize="9" Foreground="#646482"/>
 				</Button>
 				<Button Grid.Column="2" Classes="FilterBtn"
 				        Command="{Binding SetFilterCommand}" CommandParameter="Info"
-				        ToolTip.Tip="Info and above">
+				        ToolTip.Tip="{Binding [Log_InfoAbove], Source={x:Static svc:LocalizationService.Instance}}">
 					<TextBlock Text="INF" FontSize="9" Foreground="#4A9EFF"/>
 				</Button>
 				<Button Grid.Column="3" Classes="FilterBtn"
 				        Command="{Binding SetFilterCommand}" CommandParameter="Warning"
-				        ToolTip.Tip="Warnings and errors">
+				        ToolTip.Tip="{Binding [Log_WarningsErrors], Source={x:Static svc:LocalizationService.Instance}}">
 					<TextBlock Text="WRN" FontSize="9" Foreground="#FFB432"/>
 				</Button>
 				<Button Grid.Column="4" Classes="FilterBtn"
 				        Command="{Binding SetFilterCommand}" CommandParameter="Error"
-				        ToolTip.Tip="Errors only">
+				        ToolTip.Tip="{Binding [Log_ErrorsOnly], Source={x:Static svc:LocalizationService.Instance}}">
 					<TextBlock Text="ERR" FontSize="9" Foreground="#FF4A6A"/>
 				</Button>
 				<Button Grid.Column="6" Classes="ActionBtn"
 				        Command="{Binding OpenLogFolderCommand}"
-				        ToolTip.Tip="Open log folder">
+				        ToolTip.Tip="{Binding [Log_OpenFolder], Source={x:Static svc:LocalizationService.Instance}}">
 					<iconPacks:PackIconCodicons Kind="FolderOpened" Width="12" Height="12"/>
 				</Button>
 				<Button Grid.Column="7" Classes="ActionBtn"
 				        Command="{Binding ClearCommand}"
-				        ToolTip.Tip="Clear log view">
+				        ToolTip.Tip="{Binding [Log_ClearView], Source={x:Static svc:LocalizationService.Instance}}">
 					<iconPacks:PackIconCodicons Kind="ClearAll" Width="12" Height="12"/>
 				</Button>
 				<Button Grid.Column="8" Classes="ActionBtn"
 				        Command="{Binding RefreshCommand}"
-				        ToolTip.Tip="Refresh">
+				        ToolTip.Tip="{Binding [Log_Refresh], Source={x:Static svc:LocalizationService.Instance}}">
 					<iconPacks:PackIconCodicons Kind="Refresh" Width="12" Height="12"/>
 				</Button>
 			</Grid>

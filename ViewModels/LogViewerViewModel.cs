@@ -86,7 +86,7 @@ public partial class LogViewerViewModel : ViewModelBase, IDisposable
                 UseShellExecute = true
             });
         }
-        catch (Exception ex) { _log.Warning("LogViewer", $"Could not open log folder: {ex.Message}"); }
+        catch (Exception ex) { _log.Warning("LogViewer", $"{LocalizationService.Instance["Err_CouldNotOpenLogFolder"]} {ex.Message}"); }
     }
 
     public void Dispose()

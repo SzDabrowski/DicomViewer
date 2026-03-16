@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using DicomViewer.Services;
 using System;
 
 namespace DicomViewer.ViewModels;
@@ -11,6 +12,8 @@ public partial class NotificationViewModel : ObservableObject
     [ObservableProperty] private NotificationSeverity _severity = NotificationSeverity.Info;
     [ObservableProperty] private string _details = string.Empty;
     [ObservableProperty] private bool _isVisible = true;
+
+    private readonly LocalizationService _loc = LocalizationService.Instance;
 
     public DateTime Timestamp { get; } = DateTime.Now;
 
@@ -25,10 +28,10 @@ public partial class NotificationViewModel : ObservableObject
 
     public string SeverityLabel => Severity switch
     {
-        NotificationSeverity.Info => "INFO",
-        NotificationSeverity.Warning => "WARNING",
-        NotificationSeverity.Error => "ERROR",
-        _ => "INFO",
+        NotificationSeverity.Info => _loc["Notif_Info"],
+        NotificationSeverity.Warning => _loc["Notif_Warning"],
+        NotificationSeverity.Error => _loc["Notif_Error"],
+        _ => _loc["Notif_Info"],
     };
 
     public static NotificationViewModel Create(NotificationSeverity severity, string message, string details = "")
