@@ -3,9 +3,55 @@ using CommunityToolkit.Mvvm.Input;
 using DicomViewer.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace DicomViewer.ViewModels;
+
+public partial class KeyBindingRowViewModel : ObservableObject
+{
+    private readonly Action _onChanged;
+
+    [ObservableProperty] private string _label;
+    [ObservableProperty] private string _displayString;
+    [ObservableProperty] private bool _isRecording;
+    [ObservableProperty] private bool _hasConflict;
+    [ObservableProperty] private string _conflictMessage = string.Empty;
+
+    public string PropertyName { get; }
+    public KeyBinding Binding { get; }
+
+    public KeyBindingRowViewModel(string label, string propertyName, KeyBinding binding, Action onChanged)
+    {
+        _label = label;
+        PropertyName = propertyName;
+        Binding = binding;
+        _displayString = binding.DisplayString;
+        _onChanged = onChanged;
+    }
+
+    public void StartRecording() => IsRecording = true;
+
+    public void ApplyKey(Avalonia.Input.Key key, Avalonia.Input.KeyModifiers modifiers)
+    {
+        // Ignore bare modifier keys
+        if (key is Avalonia.Input.Key.LeftCtrl or Avalonia.Input.Key.RightCtrl
+            or Avalonia.Input.Key.LeftShift or Avalonia.Input.Key.RightShift
+            or Avalonia.Input.Key.LeftAlt or Avalonia.Input.Key.RightAlt)
+            return;
+
+        Binding.Key = key.ToString();
+        Binding.Ctrl = modifiers.HasFlag(Avalonia.Input.KeyModifiers.Control);
+        Binding.Shift = modifiers.HasFlag(Avalonia.Input.KeyModifiers.Shift);
+        Binding.Alt = modifiers.HasFlag(Avalonia.Input.KeyModifiers.Alt);
+        DisplayString = Binding.DisplayString;
+        IsRecording = false;
+        _onChanged();
+    }
+
+    public void CancelRecording() => IsRecording = false;
+}
 
 public partial class SettingsViewModel : ViewModelBase
 {
@@ -24,12 +70,66 @@ public partial class SettingsViewModel : ViewModelBase
 
     public List<string> WindowModeOptions { get; } = new() { "Windowed", "Maximized", "Fullscreen" };
 
+    public ObservableCollection<KeyBindingRowViewModel> PlaybackBindings { get; } = new();
+    public ObservableCollection<KeyBindingRowViewModel> ViewBindings { get; } = new();
+    public ObservableCollection<KeyBindingRowViewModel> ToolBindings { get; } = new();
+    public ObservableCollection<KeyBindingRowViewModel> FileBindings { get; } = new();
+    public ObservableCollection<KeyBindingRowViewModel> EditBindings { get; } = new();
+
     public SettingsViewModel()
     {
         _appSettings = _settingsService.Load();
         _defaultDirectory = _appSettings.DefaultDirectory;
         _showTooltips = _appSettings.ShowTooltips;
         _selectedWindowModeIndex = (int)_appSettings.StartupWindowMode;
+        BuildKeyBindingRows();
+    }
+
+    private void BuildKeyBindingRows()
+    {
+        var kb = _appSettings.KeyBindings;
+        Action save = () => { SaveSettings(); CheckForConflicts(); };
+
+        PlaybackBindings.Add(new("Play / Pause", "TogglePlay", kb.TogglePlay, save));
+        PlaybackBindings.Add(new("Previous Frame", "PreviousFrame", kb.PreviousFrame, save));
+        PlaybackBindings.Add(new("Next Frame", "NextFrame", kb.NextFrame, save));
+        PlaybackBindings.Add(new("First Frame", "FirstFrame", kb.FirstFrame, save));
+        PlaybackBindings.Add(new("Last Frame", "LastFrame", kb.LastFrame, save));
+
+        ViewBindings.Add(new("Zoom In", "ZoomIn", kb.ZoomIn, save));
+        ViewBindings.Add(new("Zoom Out", "ZoomOut", kb.ZoomOut, save));
+        ViewBindings.Add(new("Fit to Window", "FitToWindow", kb.FitToWindow, save));
+        ViewBindings.Add(new("Reset View", "ResetView", kb.ResetView, save));
+        ViewBindings.Add(new("Toggle Invert", "ToggleInvert", kb.ToggleInvert, save));
+        ViewBindings.Add(new("Toggle Fullscreen", "ToggleFullscreen", kb.ToggleFullscreen, save));
+
+        ToolBindings.Add(new("Arrow Tool", "ToolArrow", kb.ToolArrow, save));
+        ToolBindings.Add(new("Text Tool", "ToolText", kb.ToolText, save));
+        ToolBindings.Add(new("Freehand Tool", "ToolFreehand", kb.ToolFreehand, save));
+        ToolBindings.Add(new("Cycle Color", "CycleColor", kb.CycleColor, save));
+        ToolBindings.Add(new("Deselect Tool", "DeselectTool", kb.DeselectTool, save));
+
+        FileBindings.Add(new("Open File", "OpenFile", kb.OpenFile, save));
+        FileBindings.Add(new("Open Logs", "OpenLogs", kb.OpenLogs, save));
+
+        EditBindings.Add(new("Undo", "Undo", kb.Undo, save));
+        EditBindings.Add(new("Redo", "Redo", kb.Redo, save));
+
+        CheckForConflicts();
+    }
+
+    [RelayCommand]
+    private void ResetKeyBindings()
+    {
+        _appSettings.KeyBindings = new KeyBindingSettings();
+        PlaybackBindings.Clear();
+        ViewBindings.Clear();
+        ToolBindings.Clear();
+        FileBindings.Clear();
+        EditBindings.Clear();
+        BuildKeyBindingRows();
+        SaveSettings();
+        CheckForConflicts();
     }
 
     [RelayCommand]
@@ -90,6 +190,32 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     public StartupWindowMode StartupWindowMode => (StartupWindowMode)SelectedWindowModeIndex;
+
+    public KeyBindingSettings KeyBindings => _appSettings.KeyBindings;
+
+    private void CheckForConflicts()
+    {
+        var allRows = PlaybackBindings
+            .Concat(ViewBindings)
+            .Concat(ToolBindings)
+            .Concat(FileBindings)
+            .Concat(EditBindings)
+            .ToList();
+
+        foreach (var row in allRows)
+        {
+            var duplicates = allRows.Where(r => r != row
+                && r.Binding.Key == row.Binding.Key
+                && r.Binding.Ctrl == row.Binding.Ctrl
+                && r.Binding.Shift == row.Binding.Shift
+                && r.Binding.Alt == row.Binding.Alt).ToList();
+
+            row.HasConflict = duplicates.Count > 0;
+            row.ConflictMessage = duplicates.Count > 0
+                ? $"Conflicts with: {string.Join(", ", duplicates.Select(d => d.Label))}"
+                : string.Empty;
+        }
+    }
 
     private void SaveSettings()
     {

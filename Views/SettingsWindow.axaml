@@ -77,6 +77,10 @@
 			<Setter Property="CornerRadius" Value="0,6,6,0"/>
 			<Setter Property="BorderThickness" Value="1"/>
 		</Style>
+		<Style Selector="Button.KeyConflict">
+			<Setter Property="BorderBrush" Value="#FF6B6B"/>
+			<Setter Property="Background" Value="#2A1A1A"/>
+		</Style>
 	</Window.Styles>
 
 	<Grid RowDefinitions="36,*">
@@ -243,25 +247,162 @@
 					</StackPanel>
 
 					<!-- Controls Page -->
-					<StackPanel IsVisible="{Binding IsControlsSelected}" Margin="28,24" Spacing="28">
+					<StackPanel IsVisible="{Binding IsControlsSelected}" Margin="28,24" Spacing="20">
 
-						<StackPanel Spacing="10">
-							<StackPanel Orientation="Horizontal" Spacing="8">
+						<!-- Header + Reset -->
+						<Grid ColumnDefinitions="*,Auto">
+							<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
 								<iconPacks:PackIconCodicons Kind="Record" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
 								<TextBlock Text="KEYBOARD SHORTCUTS" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
-
-							<Border Background="#1C1C28" CornerRadius="8" Padding="20,16" BorderBrush="#2A2A3A" BorderThickness="1">
-								<StackPanel Spacing="8" HorizontalAlignment="Center">
-									<iconPacks:PackIconCodicons Kind="Record" Width="28" Height="28"
-									           Foreground="#555570" HorizontalAlignment="Center"/>
-									<TextBlock Text="Keyboard shortcuts and control preferences"
-									           Foreground="#8888A8" FontSize="12" HorizontalAlignment="Center"/>
-									<TextBlock Text="will be available in a future update."
-									           Foreground="#555570" FontSize="11" HorizontalAlignment="Center"/>
+							<Button Grid.Column="1" Classes="DangerBtn" Command="{Binding ResetKeyBindingsCommand}"
+							        Padding="10,4" VerticalAlignment="Center">
+								<StackPanel Orientation="Horizontal" Spacing="4">
+									<iconPacks:PackIconCodicons Kind="DebugRestart" Width="11" Height="11" VerticalAlignment="Center"/>
+									<TextBlock Text="Reset All" FontSize="10" VerticalAlignment="Center"/>
 								</StackPanel>
-							</Border>
+							</Button>
+						</Grid>
+
+						<TextBlock Text="Click a shortcut to rebind it, then press the new key combination."
+						           Foreground="#444460" FontSize="10" TextWrapping="Wrap" Margin="0,-12,0,0"/>
+
+						<!-- Playback Section -->
+						<StackPanel Spacing="4">
+							<TextBlock Text="Playback" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<ItemsControl ItemsSource="{Binding PlaybackBindings}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
+										<Grid ColumnDefinitions="*,Auto" Margin="0,1" Height="30">
+											<TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#E8E8F0" FontSize="11"
+											           VerticalAlignment="Center"/>
+											<Button Grid.Column="1" Classes="SegBtn" Padding="10,4" MinWidth="90"
+											        Classes.KeyConflict="{Binding HasConflict}"
+											        ToolTip.Tip="{Binding ConflictMessage}"
+											        x:Name="KeyBtn" Tag="{Binding}">
+												<Panel>
+													<TextBlock Text="{Binding DisplayString}" FontSize="11"
+													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
+													<TextBlock Text="Press key..." FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
+												</Panel>
+											</Button>
+										</Grid>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+
+						<Rectangle Height="1" Fill="#2A2A3A"/>
+
+						<!-- View Section -->
+						<StackPanel Spacing="4">
+							<TextBlock Text="View" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<ItemsControl ItemsSource="{Binding ViewBindings}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
+										<Grid ColumnDefinitions="*,Auto" Margin="0,1" Height="30">
+											<TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#E8E8F0" FontSize="11"
+											           VerticalAlignment="Center"/>
+											<Button Grid.Column="1" Classes="SegBtn" Padding="10,4" MinWidth="90"
+											        Classes.KeyConflict="{Binding HasConflict}"
+											        ToolTip.Tip="{Binding ConflictMessage}"
+											        Tag="{Binding}">
+												<Panel>
+													<TextBlock Text="{Binding DisplayString}" FontSize="11"
+													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
+													<TextBlock Text="Press key..." FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
+												</Panel>
+											</Button>
+										</Grid>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+
+						<Rectangle Height="1" Fill="#2A2A3A"/>
+
+						<!-- Tools Section -->
+						<StackPanel Spacing="4">
+							<TextBlock Text="Annotation Tools" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<ItemsControl ItemsSource="{Binding ToolBindings}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
+										<Grid ColumnDefinitions="*,Auto" Margin="0,1" Height="30">
+											<TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#E8E8F0" FontSize="11"
+											           VerticalAlignment="Center"/>
+											<Button Grid.Column="1" Classes="SegBtn" Padding="10,4" MinWidth="90"
+											        Classes.KeyConflict="{Binding HasConflict}"
+											        ToolTip.Tip="{Binding ConflictMessage}"
+											        Tag="{Binding}">
+												<Panel>
+													<TextBlock Text="{Binding DisplayString}" FontSize="11"
+													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
+													<TextBlock Text="Press key..." FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
+												</Panel>
+											</Button>
+										</Grid>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+
+						<Rectangle Height="1" Fill="#2A2A3A"/>
+
+						<!-- File & Edit Section -->
+						<StackPanel Spacing="4">
+							<TextBlock Text="File" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<ItemsControl ItemsSource="{Binding FileBindings}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
+										<Grid ColumnDefinitions="*,Auto" Margin="0,1" Height="30">
+											<TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#E8E8F0" FontSize="11"
+											           VerticalAlignment="Center"/>
+											<Button Grid.Column="1" Classes="SegBtn" Padding="10,4" MinWidth="90"
+											        Classes.KeyConflict="{Binding HasConflict}"
+											        ToolTip.Tip="{Binding ConflictMessage}"
+											        Tag="{Binding}">
+												<Panel>
+													<TextBlock Text="{Binding DisplayString}" FontSize="11"
+													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
+													<TextBlock Text="Press key..." FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
+												</Panel>
+											</Button>
+										</Grid>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
+						</StackPanel>
+
+						<Rectangle Height="1" Fill="#2A2A3A"/>
+
+						<StackPanel Spacing="4">
+							<TextBlock Text="Edit" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<ItemsControl ItemsSource="{Binding EditBindings}">
+								<ItemsControl.ItemTemplate>
+									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
+										<Grid ColumnDefinitions="*,Auto" Margin="0,1" Height="30">
+											<TextBlock Grid.Column="0" Text="{Binding Label}" Foreground="#E8E8F0" FontSize="11"
+											           VerticalAlignment="Center"/>
+											<Button Grid.Column="1" Classes="SegBtn" Padding="10,4" MinWidth="90"
+											        Classes.KeyConflict="{Binding HasConflict}"
+											        ToolTip.Tip="{Binding ConflictMessage}"
+											        Tag="{Binding}">
+												<Panel>
+													<TextBlock Text="{Binding DisplayString}" FontSize="11"
+													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
+													<TextBlock Text="Press key..." FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
+												</Panel>
+											</Button>
+										</Grid>
+									</DataTemplate>
+								</ItemsControl.ItemTemplate>
+							</ItemsControl>
 						</StackPanel>
 
 					</StackPanel>

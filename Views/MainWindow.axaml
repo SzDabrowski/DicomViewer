@@ -633,32 +633,34 @@
 				</Border>
 			</Grid>
 
-			<Border Grid.Column="1" Width="16" Background="#16161F"
-                    BorderBrush="#2A2A3A" BorderThickness="1,0,0,0"
-                    Cursor="Hand"
-                    ToolTip.Tip="{Binding IsRightPanelVisible, Converter={StaticResource BoolToFilePanelTip}}"
-                    PointerPressed="OnRightPanelHandlePressed">
-				<Panel VerticalAlignment="Center" HorizontalAlignment="Center">
-					<iconPacks:PackIconCodicons Kind="ChevronRight" Width="11" Height="11" Foreground="#555570"
-					                            IsVisible="{Binding IsRightPanelVisible}"/>
-					<iconPacks:PackIconCodicons Kind="ChevronLeft" Width="11" Height="11" Foreground="#555570"
-					                            IsVisible="{Binding !IsRightPanelVisible}"/>
-				</Panel>
-			</Border>
+			<GridSplitter Grid.Column="1" Width="6" Background="#16161F"
+			             ResizeDirection="Columns"
+			             IsVisible="{Binding IsRightPanelVisible}"/>
 
 			<Border Grid.Column="2"
-                    Width="{Binding IsRightPanelVisible, Converter={StaticResource BoolToWidth}}"
+                    Width="260" MinWidth="150" MaxWidth="400"
+                    IsVisible="{Binding IsRightPanelVisible}"
                     Background="#16161F" BorderBrush="#2A2A3A" BorderThickness="0,0,0,0"
                     ClipToBounds="True">
 				<Grid RowDefinitions="Auto,*,Auto,Auto">
 					<!-- HEADER -->
 					<Border Grid.Row="0" Padding="12,10" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
-						<Grid ColumnDefinitions="*,Auto">
-							<StackPanel Grid.Column="0" Spacing="2">
+						<Grid ColumnDefinitions="Auto,*,Auto">
+							<Border Grid.Column="0" Cursor="Hand" Margin="0,0,6,0" VerticalAlignment="Center"
+							        PointerPressed="OnBrowserCollapsePressed">
+								<Panel>
+									<iconPacks:PackIconCodicons Kind="ChevronDown" Width="10" Height="10" Foreground="#555570"
+									                            IsVisible="{Binding IsBrowserExpanded}"/>
+									<iconPacks:PackIconCodicons Kind="ChevronRight" Width="10" Height="10" Foreground="#555570"
+									                            IsVisible="{Binding !IsBrowserExpanded}"/>
+								</Panel>
+							</Border>
+							<StackPanel Grid.Column="1" Spacing="2" Cursor="Hand"
+							            PointerPressed="OnBrowserCollapsePressed">
 								<TextBlock Text="BROWSER" Classes="SectionHeader"/>
 								<TextBlock Foreground="#555570" FontSize="10" Text="Files &amp; directories"/>
 							</StackPanel>
-							<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding OpenFileCommand}" Padding="10,5">
+							<Button Grid.Column="2" Classes="AccentBtn" Command="{Binding OpenFileCommand}" Padding="10,5">
 								<StackPanel Orientation="Horizontal" Spacing="4">
 									<iconPacks:PackIconCodicons Kind="Add" Width="14" Height="14"/>
 									<TextBlock Text="Add" FontSize="11"/>
@@ -667,8 +669,9 @@
 						</Grid>
 					</Border>
 
-					<!-- DIRECTORY TREE (when loaded) -->
-					<ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Padding="4,4"
+					<!-- DIRECTORY TREE (collapsible) -->
+					<Panel Grid.Row="1" IsVisible="{Binding IsBrowserExpanded}">
+					<ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,4"
                                   IsVisible="{Binding HasDirectoryLoaded}">
 						<ItemsControl ItemsSource="{Binding DirectoryTree}">
 							<ItemsControl.ItemTemplate>
@@ -753,7 +756,7 @@
 					</ScrollViewer>
 
 					<!-- NO DIRECTORY PLACEHOLDER -->
-					<Border Grid.Row="1" IsVisible="{Binding !HasDirectoryLoaded}" Padding="12">
+					<Border IsVisible="{Binding !HasDirectoryLoaded}" Padding="12">
 						<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8">
 							<iconPacks:PackIconCodicons Kind="Folder" Width="28" Height="28" HorizontalAlignment="Center" Opacity="0.3"/>
 							<TextBlock Text="No directory loaded" Foreground="#444460" FontSize="11"
@@ -762,6 +765,7 @@
                                        HorizontalAlignment="Center"/>
 						</StackPanel>
 					</Border>
+					</Panel>
 
 					<!-- OPEN FILES SECTION (only when multiple files) -->
 					<Border Grid.Row="2" Padding="12,8" BorderBrush="#2A2A3A" BorderThickness="0,1,0,0"
