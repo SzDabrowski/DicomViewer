@@ -10,6 +10,8 @@
         MinWidth="500" MinHeight="300"
         WindowStartupLocation="CenterOwner"
         ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="-1"
+        ExtendClientAreaChromeHints="NoChrome"
         SystemDecorations="BorderOnly"
         Background="#0A0A0E"
         Title="Log Viewer">
@@ -38,6 +40,9 @@
 					</Border>
 				</ControlTemplate>
 			</Setter>
+		</Style>
+		<Style Selector="Button.WinBtn:pointerover">
+			<Setter Property="Background" Value="#2A2A3A"/>
 		</Style>
 		<Style Selector="Button.WinBtnClose:pointerover">
 			<Setter Property="Background" Value="#C42B1C"/>
@@ -96,7 +101,7 @@
 
 		<!-- TITLE BAR -->
 		<Border Grid.Row="0" Background="#111118" BorderBrush="#2A2A3A" BorderThickness="0,0,0,1">
-			<Grid ColumnDefinitions="*,Auto">
+			<Grid ColumnDefinitions="*,Auto,Auto,Auto">
 				<Border Grid.Column="0" x:Name="TitleBarDragArea" IsHitTestVisible="True">
 					<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="14,0">
 						<iconPacks:PackIconCodicons Kind="Output" Width="14" Height="14"
@@ -104,7 +109,13 @@
 						<TextBlock Text="Log Viewer" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
 					</StackPanel>
 				</Border>
-				<Button Grid.Column="1" Classes="WinBtn WinBtnClose" x:Name="CloseBtn">
+				<Button Grid.Column="1" Classes="WinBtn" x:Name="BtnMinimise">
+					<iconPacks:PackIconCodicons Kind="ChromeMinimize" Width="11" Height="11"/>
+				</Button>
+				<Button Grid.Column="2" Classes="WinBtn" x:Name="BtnMaximise">
+					<iconPacks:PackIconCodicons Kind="ChromeMaximize" Width="11" Height="11" x:Name="MaximiseIcon"/>
+				</Button>
+				<Button Grid.Column="3" Classes="WinBtn WinBtnClose" x:Name="CloseBtn">
 					<iconPacks:PackIconCodicons Kind="ChromeClose" Width="11" Height="11"/>
 				</Button>
 			</Grid>

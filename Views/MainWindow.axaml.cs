@@ -475,7 +475,7 @@ namespace DicomViewer.Views
         {
             if (sender is Border b && b.DataContext is DicomFileViewModel fileVM && VM != null)
             {
-                VM.ActiveFile = fileVM;
+                _ = VM.SelectFileCommand.ExecuteAsync(fileVM);
             }
         }
 
@@ -483,7 +483,7 @@ namespace DicomViewer.Views
         {
             if (sender is Border b && b.DataContext is DicomFileViewModel fileVM && VM != null)
             {
-                VM.ActiveFile = fileVM;
+                _ = VM.SelectFileCommand.ExecuteAsync(fileVM);
             }
         }
 
@@ -495,9 +495,9 @@ namespace DicomViewer.Views
             }
         }
 
-        private void OnRightPanelHandlePressed(object? sender, PointerPressedEventArgs e)
+        private void OnBrowserCollapsePressed(object? sender, PointerPressedEventArgs e)
         {
-            if (VM != null) VM.IsRightPanelVisible = !VM.IsRightPanelVisible;
+            if (VM != null) VM.IsBrowserExpanded = !VM.IsBrowserExpanded;
         }
 
         private void OnFilmstripHandlePressed(object? sender, PointerPressedEventArgs e)

@@ -58,6 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private CancellationTokenSource? _playCts;
 
     [ObservableProperty] private bool _isRightPanelVisible = true;
+    [ObservableProperty] private bool _isBrowserExpanded = true;
     [ObservableProperty] private bool _isLoadingFile;
     [ObservableProperty] private double _loadingProgress;
     [ObservableProperty] private string _statusMessage = "Ready - Open a DICOM file to begin";
@@ -470,6 +471,7 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     [RelayCommand] private void ToggleRightPanel() => IsRightPanelVisible = !IsRightPanelVisible;
+    [RelayCommand] private void ToggleBrowserExpanded() => IsBrowserExpanded = !IsBrowserExpanded;
     [RelayCommand] private void ToggleOverlay() => ShowOverlay = !ShowOverlay;
     [RelayCommand] private void ToggleMiniFrames() => ShowMiniFrames = !ShowMiniFrames;
 }
