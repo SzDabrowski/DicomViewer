@@ -61,7 +61,9 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool _isBrowserExpanded = true;
     [ObservableProperty] private bool _isLoadingFile;
     [ObservableProperty] private double _loadingProgress;
-    [ObservableProperty] private string _statusMessage = "Ready - Open a DICOM file to begin";
+    [ObservableProperty] private string _statusMessage = "";
+
+    private readonly LocalizationService _loc = LocalizationService.Instance;
     [ObservableProperty] private DicomFileViewModel? _activeFile;
     [ObservableProperty] private string _activeFileInfo = string.Empty;
 
@@ -147,7 +149,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             ToolPan = ToolWindowLevel = false;
             ActiveTool = MouseTool.None;
-            StatusMessage = "No tool selected — scroll to navigate frames";
+            StatusMessage = _loc["StatusNoTool"];
             return;
         }
 
@@ -155,15 +157,15 @@ public partial class MainWindowViewModel : ViewModelBase
         ActiveTool = parsed;
         StatusMessage = ActiveTool switch
         {
-            MouseTool.Pan         => "Pan / Zoom — drag to pan, scroll to zoom",
-            MouseTool.WindowLevel => "Window/Level — drag left/right: center, up/down: width",
-            MouseTool.Arrow       => "Arrow — click and drag to point at structures",
-            MouseTool.TextLabel   => "Text — click to place a text label",
-            MouseTool.Freehand    => "Freehand — draw freely on the image",
-            MouseTool.DrawRect    => "Rectangle — click and drag to draw a rectangle",
-            MouseTool.DrawEllipse => "Ellipse — click and drag to draw an ellipse",
-            MouseTool.DrawLine    => "Line — click and drag to draw a line",
-            _ => "No tool selected"
+            MouseTool.Pan         => _loc["StatusPanZoom"],
+            MouseTool.WindowLevel => _loc["StatusWindowLevel"],
+            MouseTool.Arrow       => _loc["StatusArrow"],
+            MouseTool.TextLabel   => _loc["StatusText"],
+            MouseTool.Freehand    => _loc["StatusFreehand"],
+            MouseTool.DrawRect    => _loc["StatusRectangle"],
+            MouseTool.DrawEllipse => _loc["StatusEllipse"],
+            MouseTool.DrawLine    => _loc["StatusLine"],
+            _ => _loc["StatusNoToolSelected"]
         };
         ToolPan = ActiveTool == MouseTool.Pan;
         ToolWindowLevel = ActiveTool == MouseTool.WindowLevel;
@@ -173,7 +175,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void CycleAnnotationColor()
     {
         AnnotationColorIndex = (AnnotationColorIndex + 1) % AnnotationColors.All.Length;
-        StatusMessage = $"Annotation color: {AnnotationColors.Names[AnnotationColorIndex]}";
+        StatusMessage = $"{_loc["AnnotationColor"]} {_loc[AnnotationColors.Names[AnnotationColorIndex]]}";
     }
 
     [RelayCommand]
@@ -261,6 +263,10 @@ public partial class MainWindowViewModel : ViewModelBase
         ShowTooltips = _appSettings.ShowTooltips;
         StartupWindowMode = _appSettings.StartupWindowMode;
 
+        // Initialize language
+        _loc.SetLanguage(_appSettings.Language);
+        StatusMessage = _loc["StatusReady"];
+
         if (!string.IsNullOrEmpty(DefaultDirectory) && System.IO.Directory.Exists(DefaultDirectory))
         {
             LoadDirectoryTree(DefaultDirectory);
@@ -286,24 +292,24 @@ public partial class MainWindowViewModel : ViewModelBase
 
         IsLoadingFile = true;
         LoadingProgress = 0;
-        StatusMessage = $"Opening: {System.IO.Path.GetFileName(path)}";
+        StatusMessage = $"{_loc["Opening"]} {System.IO.Path.GetFileName(path)}";
 
         try
         {
             _log.Info("FileOpen", $"Opening file: {System.IO.Path.GetFileName(path)}");
             LoadingProgress = 15;
-            StatusMessage = "Reading DICOM headers...";
+            StatusMessage = _loc["ReadingHeaders"];
 
             var vm = await Task.Run(() => DicomFileViewModel.Create(path));
 
             LoadingProgress = 60;
-            StatusMessage = $"Parsing metadata - {vm.TotalFrames} frame(s) found...";
+            StatusMessage = $"{_loc["ParsingMetadata"]} - {vm.TotalFrames} {_loc["FramesFound"]}";
 
             OpenFiles.Add(vm);
             OnPropertyChanged(nameof(HasMultipleFiles)); // update tab bar visibility
 
             LoadingProgress = 80;
-            StatusMessage = "Building thumbnails...";
+            StatusMessage = _loc["BuildingThumbnails"];
 
             await SelectFile(vm);
 
@@ -313,15 +319,15 @@ public partial class MainWindowViewModel : ViewModelBase
 
             _log.Info("FileOpen", $"Loaded {vm.DisplayName} ({vm.TotalFrames} frames)");
             LoadingProgress = 100;
-            StatusMessage = $"Ready - {vm.DisplayName}";
+            StatusMessage = $"{_loc["Ready"]} - {vm.DisplayName}";
         }
         catch (Exception ex)
         {
             _log.Error("FileOpen", $"Failed to open {System.IO.Path.GetFileName(path)}", ex);
             LoadingProgress = 0;
-            StatusMessage = $"Error: {ex.Message}";
+            StatusMessage = $"{_loc["Error"]} {ex.Message}";
             AddNotification(NotificationSeverity.Error,
-                $"Failed to open {System.IO.Path.GetFileName(path)}",
+                $"{_loc["Err_FailedToOpen"]} {System.IO.Path.GetFileName(path)}",
                 $"{ex.Message}\n{ex.StackTrace}");
         }
         finally
@@ -383,7 +389,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 Thumbnails.Clear();
                 TotalFrames = 1;
                 CurrentFrameIndex = 0;
-                StatusMessage = "Ready - Open a DICOM file to begin";
+                StatusMessage = _loc["StatusReady"];
             }
         }
     }
@@ -429,7 +435,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 Avalonia.Threading.Dispatcher.UIThread.Post(NextFrame);
             }
         }, token);
-        StatusMessage = $"Playing - {PlaybackFps} FPS";
+        StatusMessage = $"{_loc["Playing"]} - {PlaybackFps} {_loc["FPS"]}";
     }
 
     private void StopPlayback()
@@ -438,7 +444,7 @@ public partial class MainWindowViewModel : ViewModelBase
         IsPlaying = false;
         _playCts?.Cancel();
         _playCts = null;
-        StatusMessage = "Paused";
+        StatusMessage = _loc["Paused"];
     }
 
     private void UpdateThumbnailSelection()
@@ -470,7 +476,7 @@ public partial class MainWindowViewModel : ViewModelBase
             "Liver" => (60.0, 150.0),
             _ => (40.0, 400.0)
         };
-        StatusMessage = $"Preset: {preset}  C={WindowCenter} W={WindowWidth}";
+        StatusMessage = $"{_loc["Preset"]} {_loc[preset]}  C={WindowCenter} W={WindowWidth}";
     }
 
     [RelayCommand] private void ToggleRightPanel() => IsRightPanelVisible = !IsRightPanelVisible;

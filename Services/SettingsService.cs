@@ -96,6 +96,7 @@ public class AppSettings
     public string DefaultDirectory { get; set; } = string.Empty;
     public bool ShowTooltips { get; set; } = true;
     public StartupWindowMode StartupWindowMode { get; set; } = StartupWindowMode.Windowed;
+    public string Language { get; set; } = "en";
     public KeyBindingSettings KeyBindings { get; set; } = new();
 }
 
