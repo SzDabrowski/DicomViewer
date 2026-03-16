@@ -16,6 +16,10 @@ namespace DicomViewer.Views
     public partial class MainWindow : Window
     {
         private LogWindow? _logWindow;
+        private KeyBindingSettings? _keyBindings;
+        private readonly ImageService _imageService = new();
+        private readonly VideoService _videoService = new();
+        private readonly DicomService _dicomService = new();
 
         public MainWindow()
         {
@@ -163,20 +167,17 @@ namespace DicomViewer.Views
             {
                 if (ImageService.IsSupported(filePath))
                 {
-                    var imgSvc = new ImageService();
-                    var pixels = imgSvc.LoadPixels(filePath, out int w, out int h);
+                    var pixels = _imageService.LoadPixels(filePath, out int w, out int h);
                     canvas.SetPixels(pixels, w, h);
                 }
                 else if (VideoService.IsSupported(filePath))
                 {
-                    var vidSvc = new VideoService();
-                    var pixels = vidSvc.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                    var pixels = _videoService.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
                     canvas.SetPixels(pixels, w, h);
                 }
                 else
                 {
-                    var svc = new DicomService();
-                    var pixels = svc.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                    var pixels = _dicomService.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
                     canvas.SetPixels(pixels, w, h);
                 }
             }
@@ -260,11 +261,13 @@ namespace DicomViewer.Views
             var wwSlider = this.FindControl<Slider>("WindowWidthSlider");
             if (wwSlider != null)
                 wwSlider.AddHandler(PointerWheelChangedEvent, OnWindowWidthSliderWheel, RoutingStrategies.Tunnel, handledEventsToo: true);
+
+            _keyBindings = new SettingsService().Load().KeyBindings;
         }
 
         private void OnKeyDown(object? sender, KeyEventArgs e)
         {
-            if (VM == null) return;
+            if (VM == null || _keyBindings == null) return;
 
             // Skip all single-letter shortcuts while canvas is in text editing mode
             if (MainCanvas.IsEditingText)
@@ -278,64 +281,43 @@ namespace DicomViewer.Views
                 return;
             }
 
-            switch (e.Key)
-            {
-                case Key.Space: VM.TogglePlayCommand.Execute(null); break;
-                case Key.Left: VM.PreviousFrameCommand.Execute(null); break;
-                case Key.Right: VM.NextFrameCommand.Execute(null); break;
-                case Key.Home: VM.FirstFrameCommand.Execute(null); break;
-                case Key.End: VM.LastFrameCommand.Execute(null); break;
-                case Key.Add:
-                case Key.OemPlus: VM.ZoomInCommand.Execute(null); break;
-                case Key.Subtract:
-                case Key.OemMinus: VM.ZoomOutCommand.Execute(null); break;
-                case Key.I: VM.ToggleInvertCommand.Execute(null); break;
-                case Key.O:
-                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
-                        _ = VM.OpenFileCommand.ExecuteAsync(null);
-                    break;
-                case Key.L:
-                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
-                        OpenLogWindow();
-                    break;
-                case Key.Z:
-                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-                    { MainCanvas.UndoAnnotation(); e.Handled = true; }
-                    else if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.KeyModifiers.HasFlag(KeyModifiers.Shift))
-                    { MainCanvas.RedoAnnotation(); e.Handled = true; }
-                    break;
-                case Key.Y:
-                    if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
-                    { MainCanvas.RedoAnnotation(); e.Handled = true; }
-                    break;
-                case Key.F11:
-                    ToggleFullscreen();
-                    break;
-                // Annotation tool shortcuts
-                case Key.A:
-                    if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
-                        VM.SelectToolCommand.Execute("Arrow");
-                    break;
-                case Key.T:
-                    VM.SelectToolCommand.Execute("TextLabel");
-                    break;
-                case Key.D:
-                    VM.SelectToolCommand.Execute("Freehand");
-                    break;
-                case Key.C:
-                    if (!e.KeyModifiers.HasFlag(KeyModifiers.Control))
-                        VM.CycleAnnotationColorCommand.Execute(null);
-                    break;
-                case Key.F:
-                    VM.FitToWindowCommand.Execute(null);
-                    break;
-                case Key.R:
-                    VM.ResetViewCommand.Execute(null);
-                    break;
-                case Key.Escape:
-                    VM.SelectToolCommand.Execute("None");
-                    break;
-            }
+            var key = e.Key;
+            var mod = e.KeyModifiers;
+
+            // Playback
+            if (Matches(_keyBindings.TogglePlay, key, mod)) VM.TogglePlayCommand.Execute(null);
+            else if (Matches(_keyBindings.PreviousFrame, key, mod)) VM.PreviousFrameCommand.Execute(null);
+            else if (Matches(_keyBindings.NextFrame, key, mod)) VM.NextFrameCommand.Execute(null);
+            else if (Matches(_keyBindings.FirstFrame, key, mod)) VM.FirstFrameCommand.Execute(null);
+            else if (Matches(_keyBindings.LastFrame, key, mod)) VM.LastFrameCommand.Execute(null);
+            // View
+            else if (Matches(_keyBindings.ZoomIn, key, mod) || (key == Key.Add && !_keyBindings.ZoomIn.Ctrl && !_keyBindings.ZoomIn.Shift && !_keyBindings.ZoomIn.Alt)) VM.ZoomInCommand.Execute(null);
+            else if (Matches(_keyBindings.ZoomOut, key, mod) || (key == Key.Subtract && !_keyBindings.ZoomOut.Ctrl && !_keyBindings.ZoomOut.Shift && !_keyBindings.ZoomOut.Alt)) VM.ZoomOutCommand.Execute(null);
+            else if (Matches(_keyBindings.FitToWindow, key, mod)) VM.FitToWindowCommand.Execute(null);
+            else if (Matches(_keyBindings.ResetView, key, mod)) VM.ResetViewCommand.Execute(null);
+            else if (Matches(_keyBindings.ToggleInvert, key, mod)) VM.ToggleInvertCommand.Execute(null);
+            else if (Matches(_keyBindings.ToggleFullscreen, key, mod)) ToggleFullscreen();
+            // File
+            else if (Matches(_keyBindings.OpenFile, key, mod)) _ = VM.OpenFileCommand.ExecuteAsync(null);
+            else if (Matches(_keyBindings.OpenLogs, key, mod)) OpenLogWindow();
+            // Edit
+            else if (Matches(_keyBindings.Undo, key, mod)) { MainCanvas.UndoAnnotation(); e.Handled = true; }
+            else if (Matches(_keyBindings.Redo, key, mod)) { MainCanvas.RedoAnnotation(); e.Handled = true; }
+            // Annotation tools
+            else if (Matches(_keyBindings.ToolArrow, key, mod)) VM.SelectToolCommand.Execute("Arrow");
+            else if (Matches(_keyBindings.ToolText, key, mod)) VM.SelectToolCommand.Execute("TextLabel");
+            else if (Matches(_keyBindings.ToolFreehand, key, mod)) VM.SelectToolCommand.Execute("Freehand");
+            else if (Matches(_keyBindings.CycleColor, key, mod)) VM.CycleAnnotationColorCommand.Execute(null);
+            else if (Matches(_keyBindings.DeselectTool, key, mod)) VM.SelectToolCommand.Execute("None");
+        }
+
+        private static bool Matches(Services.KeyBinding binding, Key key, KeyModifiers modifiers)
+        {
+            if (binding.Key != key.ToString()) return false;
+            if (binding.Ctrl != modifiers.HasFlag(KeyModifiers.Control)) return false;
+            if (binding.Shift != modifiers.HasFlag(KeyModifiers.Shift)) return false;
+            if (binding.Alt != modifiers.HasFlag(KeyModifiers.Alt)) return false;
+            return true;
         }
 
         private void ApplyStartupWindowMode(StartupWindowMode mode)
@@ -412,6 +394,9 @@ namespace DicomViewer.Views
                     }
                 }
             }
+
+            // Reload key bindings so changes take effect immediately
+            _keyBindings = new SettingsService().Load().KeyBindings;
         }
 
         private void OpenLogWindow()

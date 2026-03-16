@@ -230,23 +230,30 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private string? _errorStatusMessage;
     [ObservableProperty] private bool _hasStatusError;
+    private bool _logSubscribed;
 
     [RelayCommand]
     private void DismissStatus() { HasStatusError = false; ErrorStatusMessage = null; }
 
+    private void OnLogEntryAdded(LogEntry entry)
+    {
+        if (entry.Level >= LogLevel.Warning)
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            {
+                ErrorStatusMessage = $"[{entry.LevelLabel}] {entry.Category}: {entry.Message}";
+                HasStatusError = true;
+            });
+        }
+    }
+
     public void LoadSettings()
     {
-        _log.LogAdded += entry =>
+        if (!_logSubscribed)
         {
-            if (entry.Level >= LogLevel.Warning)
-            {
-                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                {
-                    ErrorStatusMessage = $"[{entry.LevelLabel}] {entry.Category}: {entry.Message}";
-                    HasStatusError = true;
-                });
-            }
-        };
+            _log.LogAdded += OnLogEntryAdded;
+            _logSubscribed = true;
+        }
 
         _log.Info("App", "DicomViewer starting up");
         _appSettings = _settingsService.Load();
@@ -286,20 +293,17 @@ public partial class MainWindowViewModel : ViewModelBase
             _log.Info("FileOpen", $"Opening file: {System.IO.Path.GetFileName(path)}");
             LoadingProgress = 15;
             StatusMessage = "Reading DICOM headers...";
-            await Task.Delay(50);
 
             var vm = await Task.Run(() => DicomFileViewModel.Create(path));
 
             LoadingProgress = 60;
             StatusMessage = $"Parsing metadata - {vm.TotalFrames} frame(s) found...";
-            await Task.Delay(50);
 
             OpenFiles.Add(vm);
             OnPropertyChanged(nameof(HasMultipleFiles)); // update tab bar visibility
 
             LoadingProgress = 80;
             StatusMessage = "Building thumbnails...";
-            await Task.Delay(30);
 
             await SelectFile(vm);
 
@@ -310,7 +314,6 @@ public partial class MainWindowViewModel : ViewModelBase
             _log.Info("FileOpen", $"Loaded {vm.DisplayName} ({vm.TotalFrames} frames)");
             LoadingProgress = 100;
             StatusMessage = $"Ready - {vm.DisplayName}";
-            await Task.Delay(300);
         }
         catch (Exception ex)
         {
