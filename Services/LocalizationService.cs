@@ -226,6 +226,7 @@ public class LocalizationService : INotifyPropertyChanged
         ["Settings_Fullscreen"] = "Fullscreen",
         ["Settings_General"] = "General",
         ["Settings_Controls"] = "Controls",
+        ["Settings_Save"] = "Save",
         ["Settings_SaveClose"] = "Save & Close",
 
         // Settings - Controls Tab
@@ -439,6 +440,7 @@ public class LocalizationService : INotifyPropertyChanged
         ["Settings_Fullscreen"] = "Pe\u0142ny ekran",
         ["Settings_General"] = "Og\u00f3lne",
         ["Settings_Controls"] = "Sterowanie",
+        ["Settings_Save"] = "Zapisz",
         ["Settings_SaveClose"] = "Zapisz i zamknij",
 
         // Settings - Controls Tab

@@ -408,10 +408,16 @@
 
 		<!-- FOOTER: Save & Close -->
 		<Border Grid.Row="2" Background="#111118" BorderBrush="#2A2A3A" BorderThickness="0,1,0,0" Padding="16,10">
-			<Grid ColumnDefinitions="*,Auto">
-				<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding CloseCommand}" Padding="20,8">
+			<Grid ColumnDefinitions="*,Auto,Auto">
+				<Button Grid.Column="1" Classes="SegBtn" Command="{Binding SaveCommand}" Padding="20,8" Margin="0,0,8,0">
 					<StackPanel Orientation="Horizontal" Spacing="6">
 						<iconPacks:PackIconCodicons Kind="Save" Width="14" Height="14" VerticalAlignment="Center"/>
+						<TextBlock Text="{Binding Loc[Settings_Save]}" FontSize="12" VerticalAlignment="Center"/>
+					</StackPanel>
+				</Button>
+				<Button Grid.Column="2" Classes="AccentBtn" Command="{Binding CloseCommand}" Padding="20,8">
+					<StackPanel Orientation="Horizontal" Spacing="6">
+						<iconPacks:PackIconCodicons Kind="ChromeClose" Width="14" Height="14" VerticalAlignment="Center"/>
 						<TextBlock Text="{Binding Loc[Settings_SaveClose]}" FontSize="12" VerticalAlignment="Center"/>
 					</StackPanel>
 				</Button>

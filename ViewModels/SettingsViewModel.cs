@@ -174,6 +174,9 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void Save() => SaveSettings();
+
+    [RelayCommand]
     private void Close() => RequestClose?.Invoke();
 
     public bool IsWindowedMode => SelectedWindowModeIndex == 0;

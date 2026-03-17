@@ -11,4 +11,14 @@ public abstract partial class ViewModelBase : ObservableObject
     /// Usage in XAML: {Binding Loc[Key]}
     /// </summary>
     public LocalizationService Loc => LocalizationService.Instance;
+
+    protected ViewModelBase()
+    {
+        // Forward language change notifications so {Binding Loc[Key]} re-evaluates
+        LocalizationService.Instance.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == "Item[]" || e.PropertyName == nameof(LocalizationService.CurrentLanguage))
+                OnPropertyChanged(nameof(Loc));
+        };
+    }
 }
