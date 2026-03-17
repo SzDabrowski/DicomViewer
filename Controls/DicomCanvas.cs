@@ -85,7 +85,9 @@ public class DicomCanvas : Control
     private ushort[]? _pixels;
     private int _imgWidth;
     private int _imgHeight;
+    private bool _isColor;
     private WriteableBitmap? _bitmap;
+    private byte[]? _rgbaBuffer; // Reusable buffer to avoid per-frame allocation
 
     // Annotation storage
     private readonly List<Annotation> _annotationList = new();
@@ -124,11 +126,16 @@ public class DicomCanvas : Control
     }
 
     // ── Public API ─────────────────────────────────────────────────────────────────────────
-    public void SetPixels(ushort[] pixels, int width, int height)
+    public void SetPixels(ushort[] pixels, int width, int height, bool isColor = false)
     {
         _pixels = pixels;
         _imgWidth = width;
         _imgHeight = height;
+        _isColor = isColor;
+        // Invalidate buffer when dimensions change
+        int requiredSize = width * height * 4;
+        if (_rgbaBuffer == null || _rgbaBuffer.Length != requiredSize)
+            _rgbaBuffer = new byte[requiredSize];
         RebuildBitmap();
         InvalidateVisual();
     }
@@ -211,37 +218,66 @@ public class DicomCanvas : Control
     {
         if (_pixels == null || _imgWidth <= 0 || _imgHeight <= 0) return;
 
-        float winWidth = Math.Max(1f, (float)WindowWidth);
-        float winCenter = (float)WindowCenter;
-        float min = winCenter - winWidth / 2f;
+        int pixelCount = _imgWidth * _imgHeight;
+        int requiredSize = pixelCount * 4;
+        if (_rgbaBuffer == null || _rgbaBuffer.Length != requiredSize)
+            _rgbaBuffer = new byte[requiredSize];
 
-        byte[] rgba = new byte[_imgWidth * _imgHeight * 4];
-
-        for (int i = 0; i < _pixels.Length; i++)
+        if (_isColor && _pixels.Length >= pixelCount * 3)
         {
-            float val = _pixels[i];
-            byte v;
-            if (val <= min) v = 0;
-            else if (val >= min + winWidth) v = 255;
-            else v = (byte)((val - min) / winWidth * 255f);
+            // Color image: pixels are stored as 3 planes (R, G, B)
+            for (int i = 0; i < pixelCount; i++)
+            {
+                byte r = (byte)(_pixels[i] >> 8);
+                byte g = (byte)(_pixels[i + pixelCount] >> 8);
+                byte b = (byte)(_pixels[i + pixelCount * 2] >> 8);
 
-            if (IsInverted) v = (byte)(255 - v);
+                if (IsInverted) { r = (byte)(255 - r); g = (byte)(255 - g); b = (byte)(255 - b); }
 
-            int idx = i * 4;
-            rgba[idx]     = v;   // B
-            rgba[idx + 1] = v;   // G
-            rgba[idx + 2] = v;   // R
-            rgba[idx + 3] = 255; // A
+                int idx = i * 4;
+                _rgbaBuffer[idx]     = b; // B
+                _rgbaBuffer[idx + 1] = g; // G
+                _rgbaBuffer[idx + 2] = r; // R
+                _rgbaBuffer[idx + 3] = 255;
+            }
+        }
+        else
+        {
+            // Grayscale: apply Window/Level
+            float winWidth = Math.Max(1f, (float)WindowWidth);
+            float winCenter = (float)WindowCenter;
+            float min = winCenter - winWidth / 2f;
+
+            for (int i = 0; i < pixelCount; i++)
+            {
+                float val = _pixels[i];
+                byte v;
+                if (val <= min) v = 0;
+                else if (val >= min + winWidth) v = 255;
+                else v = (byte)((val - min) / winWidth * 255f);
+
+                if (IsInverted) v = (byte)(255 - v);
+
+                int idx = i * 4;
+                _rgbaBuffer[idx]     = v; // B
+                _rgbaBuffer[idx + 1] = v; // G
+                _rgbaBuffer[idx + 2] = v; // R
+                _rgbaBuffer[idx + 3] = 255;
+            }
         }
 
-        _bitmap = new WriteableBitmap(
-            new PixelSize(_imgWidth, _imgHeight),
-            new Vector(96, 96),
-            PixelFormat.Bgra8888,
-            AlphaFormat.Opaque);
+        // Reuse bitmap if dimensions match, else create new
+        if (_bitmap == null || _bitmap.PixelSize.Width != _imgWidth || _bitmap.PixelSize.Height != _imgHeight)
+        {
+            _bitmap = new WriteableBitmap(
+                new PixelSize(_imgWidth, _imgHeight),
+                new Vector(96, 96),
+                PixelFormat.Bgra8888,
+                AlphaFormat.Opaque);
+        }
 
         using var fb = _bitmap.Lock();
-        Marshal.Copy(rgba, 0, fb.Address, rgba.Length);
+        Marshal.Copy(_rgbaBuffer, 0, fb.Address, requiredSize);
     }
 
     // ── Rendering ──────────────────────────────────────────────────────────────────────────

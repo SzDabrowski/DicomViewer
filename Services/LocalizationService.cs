@@ -152,6 +152,11 @@ public class LocalizationService : INotifyPropertyChanged
         ["Abdomen"] = "Abdomen",
         ["Mediastinum"] = "Mediastinum",
         ["Liver"] = "Liver",
+        ["SoftTissue"] = "Soft Tissue",
+        ["Stroke"] = "Stroke",
+        ["Spine"] = "Spine",
+        ["Angio"] = "Angio/CTA",
+        ["ChestWide"] = "Chest Wide",
         ["Presets"] = "Presets",
 
         // Main Viewer
@@ -360,6 +365,11 @@ public class LocalizationService : INotifyPropertyChanged
         ["Abdomen"] = "Brzuch",
         ["Mediastinum"] = "\u015ar\u00f3dpiersie",
         ["Liver"] = "W\u0105troba",
+        ["SoftTissue"] = "Tk. mi\u0119kkie",
+        ["Stroke"] = "Udar",
+        ["Spine"] = "Kr\u0119gos\u0142up",
+        ["Angio"] = "Angio/CTA",
+        ["ChestWide"] = "Kl. piersiowa",
         ["Presets"] = "Presety",
 
         // Main Viewer

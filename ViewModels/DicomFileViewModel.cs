@@ -29,6 +29,22 @@ public partial class DicomFileViewModel : ViewModelBase
     public string SeriesDescription => _model.SeriesDescription;
     public int TotalFrames => _model.TotalFrames;
 
+    // Extended metadata for four-corner overlay
+    public string PatientSex => _model.PatientSex;
+    public string PatientAge => _model.PatientAge;
+    public string PatientBirthDate => _model.PatientBirthDate;
+    public string InstitutionName => _model.InstitutionName;
+    public string StudyTime => _model.StudyTime;
+    public string StudyDescription => _model.StudyDescription;
+    public string AccessionNumber => _model.AccessionNumber;
+    public string SeriesNumber => _model.SeriesNumber;
+    public string InstanceNumber => _model.InstanceNumber;
+    public string SliceLocation => _model.SliceLocation;
+    public string SliceThickness => _model.SliceThickness;
+    public bool IsLossy => _model.IsLossy;
+    public bool IsColor => _model.IsColor;
+    public string ImageOrientationPatient => _model.ImageOrientationPatient;
+
     public string DisplayName => string.IsNullOrEmpty(PatientName) || PatientName == "Unknown"
         ? FileName
         : PatientName;
@@ -116,6 +132,33 @@ public partial class DicomFileViewModel : ViewModelBase
             Modality = meta.Modality,
             SeriesDescription = meta.SeriesDescription,
             TotalFrames = meta.TotalFrames,
+            Rows = meta.Rows,
+            Columns = meta.Columns,
+            WindowCenter = meta.WindowCenter,
+            WindowWidth = meta.WindowWidth,
+            // Extended metadata
+            PatientSex = meta.PatientSex,
+            PatientAge = meta.PatientAge,
+            PatientBirthDate = meta.PatientBirthDate,
+            InstitutionName = meta.InstitutionName,
+            StudyTime = meta.StudyTime,
+            StudyDescription = meta.StudyDescription,
+            AccessionNumber = meta.AccessionNumber,
+            SeriesNumber = meta.SeriesNumber,
+            InstanceNumber = meta.InstanceNumber,
+            SliceLocation = meta.SliceLocation,
+            SliceThickness = meta.SliceThickness,
+            PhotometricInterpretation = meta.PhotometricInterpretation,
+            TransferSyntax = meta.TransferSyntax,
+            RescaleSlope = meta.RescaleSlope,
+            RescaleIntercept = meta.RescaleIntercept,
+            ReferringPhysician = meta.ReferringPhysician,
+            BitsStored = meta.BitsStored,
+            IsLossy = meta.IsLossy,
+            IsColor = meta.IsColor,
+            ImageOrientationPatient = meta.ImageOrientationPatient,
+            PixelSpacingX = meta.PixelSpacingX,
+            PixelSpacingY = meta.PixelSpacingY,
             IsLoaded = true
         });
     }

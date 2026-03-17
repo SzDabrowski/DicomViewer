@@ -474,6 +474,11 @@ public partial class MainWindowViewModel : ViewModelBase
             "Abdomen" => (60.0, 400.0),
             "Mediastinum" => (40.0, 400.0),
             "Liver" => (60.0, 150.0),
+            "SoftTissue" => (40.0, 350.0),
+            "Stroke" => (40.0, 40.0),
+            "Spine" => (250.0, 1500.0),
+            "Angio" => (300.0, 600.0),
+            "ChestWide" => (-400.0, 1500.0),
             _ => (40.0, 400.0)
         };
         StatusMessage = $"{_loc["Preset"]} {_loc[preset]}  C={WindowCenter} W={WindowWidth}";

@@ -354,6 +354,52 @@
 										</StackPanel>
 									</MenuItem.Header>
 								</MenuItem>
+								<Separator/>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="SoftTissue">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#C084FC"/>
+											<TextBlock Text="{Binding Loc[SoftTissue]}" VerticalAlignment="Center"/>
+											<TextBlock Text="C:40 W:350" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Stroke">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#F43F5E"/>
+											<TextBlock Text="{Binding Loc[Stroke]}" VerticalAlignment="Center"/>
+											<TextBlock Text="C:40 W:40" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Spine">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#22D3EE"/>
+											<TextBlock Text="{Binding Loc[Spine]}" VerticalAlignment="Center"/>
+											<TextBlock Text="C:250 W:1500" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="Angio">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#EF4444"/>
+											<TextBlock Text="{Binding Loc[Angio]}" VerticalAlignment="Center"/>
+											<TextBlock Text="C:300 W:600" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
+								<MenuItem Command="{Binding ApplyWindowPresetCommand}" CommandParameter="ChestWide">
+									<MenuItem.Header>
+										<StackPanel Orientation="Horizontal" Spacing="8">
+											<TextBlock Text="&#xEB5C;" FontFamily="{StaticResource Codicon}" FontSize="14" VerticalAlignment="Center" Foreground="#94A3B8"/>
+											<TextBlock Text="{Binding Loc[ChestWide]}" VerticalAlignment="Center"/>
+											<TextBlock Text="C:-400 W:1500" Foreground="#555570" FontSize="10" VerticalAlignment="Center" Margin="4,0,0,0"/>
+										</StackPanel>
+									</MenuItem.Header>
+								</MenuItem>
 							</MenuFlyout>
 						</Button.Flyout>
 						<StackPanel Orientation="Horizontal" Spacing="4" UseLayoutRounding="True">
@@ -502,24 +548,47 @@
                                   AnnotationFontSize="{Binding AnnotationFontSize}"/>
 
 				<Grid IsVisible="{Binding ShowOverlay}" IsHitTestVisible="False" Margin="10">
+					<!-- TOP-LEFT: Patient info (industry standard) -->
 					<StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Spacing="2"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}">
 						<TextBlock Text="{Binding ActiveFile.PatientName}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
 						<TextBlock Text="{Binding ActiveFile.PatientId, StringFormat={}ID: {0}}" Foreground="#DDDDDD" FontSize="10"/>
+						<StackPanel Orientation="Horizontal" Spacing="6">
+							<TextBlock Text="{Binding ActiveFile.PatientSex}" Foreground="#DDDDDD" FontSize="10"/>
+							<TextBlock Text="{Binding ActiveFile.PatientAge}" Foreground="#DDDDDD" FontSize="10"/>
+							<TextBlock Text="{Binding ActiveFile.PatientBirthDate, StringFormat={}DOB: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+						</StackPanel>
 						<TextBlock Text="{Binding ActiveFile.StudyDate, StringFormat={}Date: {0}}" Foreground="#DDDDDD" FontSize="10"/>
 					</StackPanel>
+					<!-- TOP-RIGHT: Institution, Study, Modality -->
 					<StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Spacing="2"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+						<TextBlock Text="{Binding ActiveFile.InstitutionName}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
 						<TextBlock Text="{Binding ActiveFile.Modality}" Foreground="White" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+						<TextBlock Text="{Binding ActiveFile.StudyDescription}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
+						<TextBlock Text="{Binding ActiveFile.AccessionNumber, StringFormat={}Acc#: {0}}" Foreground="#AAAAAA" FontSize="10" HorizontalAlignment="Right"/>
 						<TextBlock Text="{Binding WindowCenter, StringFormat={}WC: {0:F0}}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
 						<TextBlock Text="{Binding WindowWidth, StringFormat={}WW: {0:F0}}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
 						<TextBlock Text="{Binding ZoomLevel, StringFormat={}Zoom: {0:P0}}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
+						<!-- Lossy compression warning -->
+						<TextBlock Text="LOSSY" Foreground="#FF6666" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right"
+						           IsVisible="{Binding ActiveFile.IsLossy}"/>
 					</StackPanel>
+					<!-- BOTTOM-LEFT: Series info, slice details -->
 					<StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Spacing="2"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}">
+						<StackPanel Orientation="Horizontal" Spacing="6">
+							<TextBlock Text="{Binding ActiveFile.SeriesNumber, StringFormat={}Se: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+							<TextBlock Text="{Binding ActiveFile.InstanceNumber, StringFormat={}Im: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+						</StackPanel>
 						<TextBlock Text="{Binding ActiveFile.SeriesDescription}" Foreground="#DDDDDD" FontSize="10"/>
-						<TextBlock Text="{Binding ActiveFile.FileName}" Foreground="#AAAAAA" FontSize="10"/>
+						<StackPanel Orientation="Horizontal" Spacing="6">
+							<TextBlock Text="{Binding ActiveFile.SliceLocation, StringFormat={}Loc: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+							<TextBlock Text="{Binding ActiveFile.SliceThickness, StringFormat={}Thk: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+						</StackPanel>
+						<TextBlock Text="{Binding ActiveFile.FileName}" Foreground="#888888" FontSize="10"/>
 					</StackPanel>
+					<!-- BOTTOM-RIGHT: Frame, tool, dimensions -->
 					<StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom" Spacing="2"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}">
 						<TextBlock HorizontalAlignment="Right" Foreground="#DDDDDD" FontSize="10">

@@ -177,8 +177,8 @@ namespace DicomViewer.Views
                 }
                 else
                 {
-                    var pixels = _dicomService.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h);
-                    canvas.SetPixels(pixels, w, h);
+                    var pixels = _dicomService.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h, out bool isColor);
+                    canvas.SetPixels(pixels, w, h, isColor);
                 }
             }
             catch (Exception ex)
