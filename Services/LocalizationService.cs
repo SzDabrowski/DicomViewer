@@ -152,6 +152,11 @@ public class LocalizationService : INotifyPropertyChanged
         ["Abdomen"] = "Abdomen",
         ["Mediastinum"] = "Mediastinum",
         ["Liver"] = "Liver",
+        ["SoftTissue"] = "Soft Tissue",
+        ["Stroke"] = "Stroke",
+        ["Spine"] = "Spine",
+        ["Angio"] = "Angio/CTA",
+        ["ChestWide"] = "Chest Wide",
         ["Presets"] = "Presets",
 
         // Main Viewer
@@ -221,6 +226,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Settings_Fullscreen"] = "Fullscreen",
         ["Settings_General"] = "General",
         ["Settings_Controls"] = "Controls",
+        ["Settings_Save"] = "Save",
+        ["Settings_SaveClose"] = "Save & Close",
 
         // Settings - Controls Tab
         ["Controls_KeyboardShortcuts"] = "KEYBOARD SHORTCUTS",
@@ -359,6 +366,11 @@ public class LocalizationService : INotifyPropertyChanged
         ["Abdomen"] = "Brzuch",
         ["Mediastinum"] = "\u015ar\u00f3dpiersie",
         ["Liver"] = "W\u0105troba",
+        ["SoftTissue"] = "Tk. mi\u0119kkie",
+        ["Stroke"] = "Udar",
+        ["Spine"] = "Kr\u0119gos\u0142up",
+        ["Angio"] = "Angio/CTA",
+        ["ChestWide"] = "Kl. piersiowa",
         ["Presets"] = "Presety",
 
         // Main Viewer
@@ -428,6 +440,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Settings_Fullscreen"] = "Pe\u0142ny ekran",
         ["Settings_General"] = "Og\u00f3lne",
         ["Settings_Controls"] = "Sterowanie",
+        ["Settings_Save"] = "Zapisz",
+        ["Settings_SaveClose"] = "Zapisz i zamknij",
 
         // Settings - Controls Tab
         ["Controls_KeyboardShortcuts"] = "SKR\u00d3TY KLAWISZOWE",

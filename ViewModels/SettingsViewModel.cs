@@ -19,6 +19,7 @@ public partial class KeyBindingRowViewModel : ObservableObject
     [ObservableProperty] private bool _hasConflict;
     [ObservableProperty] private string _conflictMessage = string.Empty;
 
+    public LocalizationService Loc => LocalizationService.Instance;
     public string LabelKey { get; }
     public string PropertyName { get; }
     public KeyBinding Binding { get; }
@@ -171,6 +172,9 @@ public partial class SettingsViewModel : ViewModelBase
         DefaultDirectory = string.Empty;
         SaveSettings();
     }
+
+    [RelayCommand]
+    private void Save() => SaveSettings();
 
     [RelayCommand]
     private void Close() => RequestClose?.Invoke();
