@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DicomViewer.ViewModels;
@@ -77,6 +78,10 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool _isGeneralSelected = true;
     [ObservableProperty] private bool _isControlsSelected;
     [ObservableProperty] private int _selectedLanguageIndex;
+    [ObservableProperty] private bool _hasUnsavedChanges;
+    [ObservableProperty] private bool _showSaveConfirmation;
+
+    private Timer? _confirmationTimer;
 
     public List<string> WindowModeOptions { get; } = new() { "Windowed", "Maximized", "Fullscreen" };
     public List<string> LanguageOptions { get; } = new() { "English", "Polski" };
@@ -100,7 +105,7 @@ public partial class SettingsViewModel : ViewModelBase
     private void BuildKeyBindingRows()
     {
         var kb = _appSettings.KeyBindings;
-        Action save = () => { SaveSettings(); CheckForConflicts(); };
+        Action save = () => { HasUnsavedChanges = true; CheckForConflicts(); };
 
         PlaybackBindings.Add(new("Controls_PlayPause", "TogglePlay", kb.TogglePlay, save));
         PlaybackBindings.Add(new("Controls_PreviousFrame", "PreviousFrame", kb.PreviousFrame, save));
@@ -140,7 +145,7 @@ public partial class SettingsViewModel : ViewModelBase
         FileBindings.Clear();
         EditBindings.Clear();
         BuildKeyBindingRows();
-        SaveSettings();
+        HasUnsavedChanges = true;
         CheckForConflicts();
     }
 
@@ -161,7 +166,7 @@ public partial class SettingsViewModel : ViewModelBase
             if (!string.IsNullOrEmpty(dir))
             {
                 DefaultDirectory = dir;
-                SaveSettings();
+                HasUnsavedChanges = true;
             }
         }
     }
@@ -170,14 +175,28 @@ public partial class SettingsViewModel : ViewModelBase
     private void ClearDefaultDirectory()
     {
         DefaultDirectory = string.Empty;
-        SaveSettings();
+        HasUnsavedChanges = true;
     }
 
     [RelayCommand]
-    private void Save() => SaveSettings();
+    private void Save()
+    {
+        SaveSettings();
+        HasUnsavedChanges = false;
+        ShowSaveConfirmation = true;
+        _confirmationTimer?.Dispose();
+        _confirmationTimer = new Timer(_ =>
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => ShowSaveConfirmation = false);
+        }, null, 2000, Timeout.Infinite);
+    }
 
     [RelayCommand]
-    private void Close() => RequestClose?.Invoke();
+    private void Close()
+    {
+        SaveSettings();
+        RequestClose?.Invoke();
+    }
 
     public bool IsWindowedMode => SelectedWindowModeIndex == 0;
     public bool IsMaximizedMode => SelectedWindowModeIndex == 1;
@@ -194,7 +213,7 @@ public partial class SettingsViewModel : ViewModelBase
         };
     }
 
-    partial void OnShowTooltipsChanged(bool value) => SaveSettings();
+    partial void OnShowTooltipsChanged(bool value) => HasUnsavedChanges = true;
 
     partial void OnSelectedLanguageIndexChanged(int value)
     {
@@ -212,7 +231,7 @@ public partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsWindowedMode));
         OnPropertyChanged(nameof(IsMaximizedMode));
         OnPropertyChanged(nameof(IsFullscreenMode));
-        SaveSettings();
+        HasUnsavedChanges = true;
     }
 
     public StartupWindowMode StartupWindowMode => (StartupWindowMode)SelectedWindowModeIndex;

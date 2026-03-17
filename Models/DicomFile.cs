@@ -3,6 +3,28 @@ using System.Collections.Generic;
 
 namespace DicomViewer.Models;
 
+/// <summary>
+/// Represents a virtual stack of single-frame DICOM files grouped by SeriesInstanceUID.
+/// Enables scrolling through a series of slices as if they were a single multi-frame file.
+/// </summary>
+public class DicomSeriesStack
+{
+    public string SeriesInstanceUID { get; set; } = string.Empty;
+    public string SeriesDescription { get; set; } = string.Empty;
+    public string Modality { get; set; } = string.Empty;
+    public List<string> FilePaths { get; set; } = new();
+    public int SliceCount { get; set; }
+
+    /// <summary>Gets the file path for a given slice index within the stack.</summary>
+    public string GetFilePathForSlice(int sliceIndex)
+    {
+        if (sliceIndex < 0 || sliceIndex >= FilePaths.Count)
+            throw new ArgumentOutOfRangeException(nameof(sliceIndex),
+                $"Slice {sliceIndex} out of range (0-{FilePaths.Count - 1})");
+        return FilePaths[sliceIndex];
+    }
+}
+
 public class DicomFile
 {
     public string FilePath { get; set; } = string.Empty;
@@ -48,4 +70,24 @@ public class DicomFile
     public string ImageOrientationPatient { get; set; } = string.Empty;
     public double? PixelSpacingX { get; set; }
     public double? PixelSpacingY { get; set; }
+
+    // Series stacking: ordered list of file paths for virtual multi-slice navigation
+    public List<string>? StackFilePaths { get; set; }
+
+    /// <summary>
+    /// True if this file represents a stacked series of single-frame files.
+    /// When true, TotalFrames == StackFilePaths.Count and each "frame" is a different file.
+    /// </summary>
+    public bool IsStacked => StackFilePaths != null && StackFilePaths.Count > 1;
+
+    /// <summary>Gets the file path to use for a given frame/slice index.</summary>
+    public string GetFilePathForFrame(int frameIndex)
+    {
+        if (IsStacked)
+        {
+            int idx = Math.Clamp(frameIndex, 0, StackFilePaths!.Count - 1);
+            return StackFilePaths[idx];
+        }
+        return FilePath;
+    }
 }

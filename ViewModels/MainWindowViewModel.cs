@@ -282,8 +282,113 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task OpenFilesFromPaths(string[] paths)
     {
+        // PROBLEM 3 FIX: If multiple DICOM files are provided, try to group them into series stacks
+        if (paths.Length > 1)
+        {
+            var dicomPaths = paths.Where(p =>
+            {
+                var ext = System.IO.Path.GetExtension(p).ToLowerInvariant();
+                return !ImageService.IsSupported(p) && !VideoService.IsSupported(p);
+            }).ToArray();
+
+            var nonDicomPaths = paths.Except(dicomPaths).ToArray();
+
+            if (dicomPaths.Length > 1)
+            {
+                try
+                {
+                    var dicomService = new Services.DicomService();
+                    var stacks = dicomService.GroupFilesIntoStacks(dicomPaths);
+
+                    foreach (var stack in stacks)
+                    {
+                        if (stack.SliceCount > 1)
+                        {
+                            // Load as a virtual stacked series
+                            await LoadStackedSeriesAsync(stack);
+                        }
+                        else
+                        {
+                            // Single file in series — load normally
+                            await LoadFileAsync(stack.FilePaths[0]);
+                        }
+                    }
+
+                    // Load non-DICOM files normally
+                    foreach (var path in nonDicomPaths)
+                        await LoadFileAsync(path);
+
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    _log.Warning("Stacking", $"Series grouping failed, loading files individually: {ex.Message}");
+                }
+            }
+        }
+
+        // Fallback: load each file individually
         foreach (var path in paths)
             await LoadFileAsync(path);
+    }
+
+    private async Task LoadStackedSeriesAsync(Models.DicomSeriesStack stack)
+    {
+        if (OpenFiles.Any(f => f.Model.StackFilePaths != null &&
+            f.Model.StackFilePaths.SequenceEqual(stack.FilePaths))) return;
+
+        IsLoadingFile = true;
+        LoadingProgress = 0;
+        StatusMessage = $"{_loc["Opening"]} {stack.SeriesDescription} ({stack.SliceCount} slices)";
+
+        try
+        {
+            _log.Info("Stacking", $"Loading stacked series: {stack.SeriesDescription} ({stack.SliceCount} slices)");
+            LoadingProgress = 15;
+
+            // Use the first file for metadata
+            var firstPath = stack.FilePaths[0];
+            var vm = await Task.Run(() =>
+            {
+                var fileVm = DicomFileViewModel.Create(firstPath);
+                // Override the model to represent the full stack
+                fileVm.Model.StackFilePaths = stack.FilePaths;
+                fileVm.Model.TotalFrames = stack.SliceCount;
+                fileVm.Model.SeriesDescription = string.IsNullOrEmpty(stack.SeriesDescription)
+                    ? $"Series ({stack.SliceCount} slices)"
+                    : $"{stack.SeriesDescription} ({stack.SliceCount} slices)";
+                return fileVm;
+            });
+
+            LoadingProgress = 60;
+            StatusMessage = $"{_loc["ParsingMetadata"]} - {stack.SliceCount} {_loc["FramesFound"]}";
+
+            OpenFiles.Add(vm);
+            OnPropertyChanged(nameof(HasMultipleFiles));
+
+            LoadingProgress = 80;
+            StatusMessage = _loc["BuildingThumbnails"];
+
+            await SelectFile(vm);
+            ShowMiniFrames = true;
+
+            _log.Info("Stacking", $"Loaded stacked series: {vm.DisplayName} ({stack.SliceCount} slices)");
+            LoadingProgress = 100;
+            StatusMessage = $"{_loc["Ready"]} - {vm.DisplayName}";
+        }
+        catch (Exception ex)
+        {
+            _log.Error("Stacking", $"Failed to load series stack: {stack.SeriesDescription}", ex);
+            StatusMessage = $"{_loc["Error"]} {ex.Message}";
+            AddNotification(NotificationSeverity.Error,
+                $"{_loc["Err_FailedToOpen"]} {stack.SeriesDescription}",
+                $"{ex.Message}\n{ex.StackTrace}");
+        }
+        finally
+        {
+            IsLoadingFile = false;
+            LoadingProgress = 0;
+        }
     }
 
     private async Task LoadFileAsync(string path)
@@ -353,9 +458,15 @@ public partial class MainWindowViewModel : ViewModelBase
         StopPlayback();
         foreach (var f in OpenFiles) f.IsSelected = false;
         file.IsSelected = true;
-        ActiveFile = file;
+
+        // CRITICAL: Reset frame index BEFORE setting ActiveFile to prevent
+        // out-of-range access when switching from multi-frame to fewer-frame file
+        _currentFrameIndex = 0; // direct field write to avoid triggering canvas update
         TotalFrames = file.TotalFrames;
-        CurrentFrameIndex = 0;
+        OnPropertyChanged(nameof(CurrentFrameIndex));
+        OnPropertyChanged(nameof(CurrentFrameDisplay));
+
+        ActiveFile = file;
         WindowCenter = file.Model.WindowCenter;
         WindowWidth = file.Model.WindowWidth;
         ActiveFileInfo = $"{file.PatientName}  |  {file.Modality}  |  {file.StudyDate}  |  {file.TotalFrames} frames";
@@ -370,7 +481,12 @@ public partial class MainWindowViewModel : ViewModelBase
         // Cap at 200 frames for performance; thumbnails load async so this is safe
         var count = Math.Min(file.TotalFrames, 200);
         for (int i = 0; i < count; i++)
-            Thumbnails.Add(new ThumbnailViewModel(i, file.FilePath, i == 0));
+        {
+            // PROBLEM 3: For stacked series, each thumbnail uses a different file (frame 0 of each)
+            string thumbPath = file.Model.GetFilePathForFrame(i);
+            int thumbFrame = file.Model.IsStacked ? 0 : i;
+            Thumbnails.Add(new ThumbnailViewModel(thumbFrame, thumbPath, i == 0) { FrameDisplayIndex = i });
+        }
     }
 
     [RelayCommand]
@@ -450,7 +566,11 @@ public partial class MainWindowViewModel : ViewModelBase
     private void UpdateThumbnailSelection()
     {
         foreach (var t in Thumbnails)
-            t.IsCurrentFrame = t.FrameIndex == CurrentFrameIndex;
+        {
+            // For stacked series, compare against the display index
+            int compareIdx = t.FrameDisplayIndex >= 0 ? t.FrameDisplayIndex : t.FrameIndex;
+            t.IsCurrentFrame = compareIdx == CurrentFrameIndex;
+        }
     }
 
     [RelayCommand] private void ZoomIn() => ZoomLevel = Math.Min(ZoomLevel * 1.25, 20.0);

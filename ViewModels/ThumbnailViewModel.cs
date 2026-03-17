@@ -17,7 +17,9 @@ public partial class ThumbnailViewModel : ViewModelBase
 
     public int FrameIndex { get; }
     public string FilePath { get; }
-    public string Label => $"#{FrameIndex + 1}";
+    /// <summary>Display index used for stacked series (slice number in the stack).</summary>
+    public int FrameDisplayIndex { get; set; } = -1;
+    public string Label => $"#{(FrameDisplayIndex >= 0 ? FrameDisplayIndex + 1 : FrameIndex + 1)}";
 
     public ThumbnailViewModel(int frameIndex, string filePath, bool isCurrent = false)
     {
