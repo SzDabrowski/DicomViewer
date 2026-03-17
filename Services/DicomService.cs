@@ -1,5 +1,6 @@
 using FellowOakDicom;
 using FellowOakDicom.Imaging;
+using FellowOakDicom.Imaging.Codec;
 using FellowOakDicom.IO.Buffer;
 using System;
 using System.Collections.Generic;
@@ -146,6 +147,15 @@ namespace DicomViewer.Services
             width = dataset.GetSingleValue<int>(DicomTag.Columns);
             height = dataset.GetSingleValue<int>(DicomTag.Rows);
 
+            // PROBLEM 1 FIX: Clamp frame index at the service layer as a safety net
+            int totalFrames = new DicomImage(dataset).NumberOfFrames;
+            if (frameIndex < 0 || frameIndex >= totalFrames)
+            {
+                LoggingService.Instance.Warning("DicomService",
+                    $"Frame {frameIndex} out of range (0-{totalFrames - 1}), clamping");
+                frameIndex = Math.Clamp(frameIndex, 0, Math.Max(0, totalFrames - 1));
+            }
+
             string photoInterp = dataset.GetSingleValueOrDefault(DicomTag.PhotometricInterpretation, "MONOCHROME2");
             isColor = photoInterp is "RGB" or "YBR_FULL" or "YBR_FULL_422" or "PALETTE COLOR";
 
@@ -167,6 +177,30 @@ namespace DicomViewer.Services
 
         private ushort[] LoadGrayscalePixels(FellowOakDicom.DicomDataset dataset, int frameIndex, int width, int height)
         {
+            // PROBLEM 2 FIX: Decompress encapsulated (compressed) transfer syntax before raw pixel extraction
+            var transferSyntax = dataset.InternalTransferSyntax;
+            bool isEncapsulated = transferSyntax != DicomTransferSyntax.ImplicitVRLittleEndian
+                && transferSyntax != DicomTransferSyntax.ExplicitVRLittleEndian
+                && transferSyntax != DicomTransferSyntax.ExplicitVRBigEndian
+                && transferSyntax != DicomTransferSyntax.DeflatedExplicitVRLittleEndian;
+
+            if (isEncapsulated)
+            {
+                try
+                {
+                    var transcoder = new DicomTranscoder(transferSyntax, DicomTransferSyntax.ExplicitVRLittleEndian);
+                    dataset = transcoder.Transcode(dataset);
+                    LoggingService.Instance.Debug("DicomService", $"Transcoded from {transferSyntax} to Explicit VR LE");
+                }
+                catch (Exception ex)
+                {
+                    LoggingService.Instance.Warning("DicomService",
+                        $"Transcoding failed for {transferSyntax}, using fallback renderer", ex.Message);
+                    int pixelCount0 = width * height;
+                    return LoadFallbackPixels(dataset, frameIndex, pixelCount0);
+                }
+            }
+
             int bitsAllocated = dataset.GetSingleValueOrDefault<int>(DicomTag.BitsAllocated, 16);
             int bitsStored = dataset.GetSingleValueOrDefault<int>(DicomTag.BitsStored, bitsAllocated);
             int highBit = dataset.GetSingleValueOrDefault<int>(DicomTag.HighBit, bitsStored - 1);
@@ -178,17 +212,28 @@ namespace DicomViewer.Services
             int pixelCount = width * height;
             var pixels = new ushort[pixelCount];
 
-            // Try native pixel data extraction
+            // Try native pixel data extraction (now guaranteed uncompressed after transcoding)
             byte[] rawBytes;
             try
             {
                 var pixelData = FellowOakDicom.Imaging.DicomPixelData.Create(dataset);
+
+                // Clamp frame index to available frames
+                int availableFrames = pixelData.NumberOfFrames;
+                if (frameIndex >= availableFrames)
+                {
+                    LoggingService.Instance.Warning("DicomService",
+                        $"Frame {frameIndex} requested but only {availableFrames} available, clamping");
+                    frameIndex = Math.Max(0, availableFrames - 1);
+                }
+
                 var frameData = pixelData.GetFrame(frameIndex);
                 rawBytes = frameData.Data;
             }
-            catch
+            catch (Exception ex)
             {
-                // If raw extraction fails (e.g. compressed data), fall back to fo-dicom rendering
+                // If raw extraction fails, fall back to fo-dicom rendering
+                LoggingService.Instance.Warning("DicomService", "Raw pixel extraction failed, using fallback", ex.Message);
                 return LoadFallbackPixels(dataset, frameIndex, pixelCount);
             }
 
@@ -286,6 +331,62 @@ namespace DicomViewer.Services
                 pixels[i + pixelCount * 2] = (ushort)(rgba[i * 4 + 0] * 257); // B
             }
             return pixels;
+        }
+
+        /// <summary>
+        /// Groups a list of DICOM file paths by SeriesInstanceUID and sorts
+        /// slices within each series by InstanceNumber or SliceLocation.
+        /// Returns a list of series stacks, each containing ordered file paths.
+        /// </summary>
+        public List<Models.DicomSeriesStack> GroupFilesIntoStacks(string[] filePaths)
+        {
+            var fileInfos = new List<(string Path, string SeriesUID, int InstanceNumber, double SliceLocation, string SeriesDesc, string Modality)>();
+
+            foreach (var path in filePaths)
+            {
+                try
+                {
+                    var file = DicomFile.Open(path);
+                    var ds = file.Dataset;
+                    string seriesUid = ds.GetSingleValueOrDefault(DicomTag.SeriesInstanceUID, "UNKNOWN");
+                    int instanceNum = ds.GetSingleValueOrDefault<int>(DicomTag.InstanceNumber, 0);
+                    double sliceLoc = ds.GetSingleValueOrDefault<double>(DicomTag.SliceLocation, 0.0);
+                    string seriesDesc = ds.GetSingleValueOrDefault(DicomTag.SeriesDescription, "");
+                    string modality = ds.GetSingleValueOrDefault(DicomTag.Modality, "OT");
+
+                    fileInfos.Add((path, seriesUid, instanceNum, sliceLoc, seriesDesc, modality));
+                }
+                catch (Exception ex)
+                {
+                    LoggingService.Instance.Warning("DicomService",
+                        $"Skipping non-DICOM file during stacking: {System.IO.Path.GetFileName(path)}", ex.Message);
+                }
+            }
+
+            // Group by SeriesInstanceUID
+            var stacks = fileInfos
+                .GroupBy(f => f.SeriesUID)
+                .Select(group =>
+                {
+                    // Sort by InstanceNumber first; if all are 0, fall back to SliceLocation
+                    var sorted = group.All(g => g.InstanceNumber == 0)
+                        ? group.OrderBy(g => g.SliceLocation).ToList()
+                        : group.OrderBy(g => g.InstanceNumber).ToList();
+
+                    var first = sorted.First();
+                    return new Models.DicomSeriesStack
+                    {
+                        SeriesInstanceUID = group.Key,
+                        SeriesDescription = first.SeriesDesc,
+                        Modality = first.Modality,
+                        FilePaths = sorted.Select(s => s.Path).ToList(),
+                        SliceCount = sorted.Count
+                    };
+                })
+                .OrderBy(s => s.SeriesDescription)
+                .ToList();
+
+            return stacks;
         }
 
         /// <summary>

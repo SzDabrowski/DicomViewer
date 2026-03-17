@@ -161,7 +161,22 @@ namespace DicomViewer.Views
             if (VM?.ActiveFile == null) return;
             var canvas = this.FindControl<DicomCanvas>("MainCanvas");
             if (canvas == null) return;
-            var filePath = VM.ActiveFile.FilePath;
+
+            // PROBLEM 1 FIX: Clamp frame index to valid range before any rendering attempt
+            int safeFrameIndex = Math.Clamp(VM.CurrentFrameIndex, 0, Math.Max(0, VM.TotalFrames - 1));
+            if (safeFrameIndex != VM.CurrentFrameIndex)
+            {
+                LoggingService.Instance.Warning("Canvas",
+                    $"Frame index {VM.CurrentFrameIndex} out of range (0-{VM.TotalFrames - 1}), clamped to {safeFrameIndex}");
+                VM.CurrentFrameIndex = safeFrameIndex;
+                return; // Setting CurrentFrameIndex will re-trigger this method
+            }
+
+            // PROBLEM 3 FIX: For stacked series, get the correct file path for this slice
+            var model = VM.ActiveFile.Model;
+            var filePath = model.GetFilePathForFrame(safeFrameIndex);
+            // For stacked files, each slice is frame 0 of its own file
+            int actualFrameIndex = model.IsStacked ? 0 : safeFrameIndex;
 
             try
             {
@@ -172,20 +187,20 @@ namespace DicomViewer.Views
                 }
                 else if (VideoService.IsSupported(filePath))
                 {
-                    var pixels = _videoService.LoadFrame(filePath, VM.CurrentFrameIndex, out int w, out int h);
+                    var pixels = _videoService.LoadFrame(filePath, actualFrameIndex, out int w, out int h);
                     canvas.SetPixels(pixels, w, h);
                 }
                 else
                 {
-                    var pixels = _dicomService.LoadDicomPixels(filePath, VM.CurrentFrameIndex, out int w, out int h, out bool isColor);
+                    var pixels = _dicomService.LoadDicomPixels(filePath, actualFrameIndex, out int w, out int h, out bool isColor);
                     canvas.SetPixels(pixels, w, h, isColor);
                 }
             }
             catch (Exception ex)
             {
-                LoggingService.Instance.Error("Canvas", $"Failed to render frame {VM.CurrentFrameIndex}", ex);
+                LoggingService.Instance.Error("Canvas", $"Failed to render frame {safeFrameIndex}", ex);
                 VM.AddNotification(ViewModels.NotificationSeverity.Error,
-                    $"Failed to render frame {VM.CurrentFrameIndex}",
+                    $"Failed to render frame {safeFrameIndex}",
                     ex.Message);
             }
         }

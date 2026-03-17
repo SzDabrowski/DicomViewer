@@ -228,6 +228,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Settings_Controls"] = "Controls",
         ["Settings_Save"] = "Save",
         ["Settings_SaveClose"] = "Save & Close",
+        ["Settings_Saved"] = "Settings saved",
+        ["Settings_UnsavedChanges"] = "Unsaved changes",
 
         // Settings - Controls Tab
         ["Controls_KeyboardShortcuts"] = "KEYBOARD SHORTCUTS",
@@ -442,6 +444,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Settings_Controls"] = "Sterowanie",
         ["Settings_Save"] = "Zapisz",
         ["Settings_SaveClose"] = "Zapisz i zamknij",
+        ["Settings_Saved"] = "Ustawienia zapisane",
+        ["Settings_UnsavedChanges"] = "Niezapisane zmiany",
 
         // Settings - Controls Tab
         ["Controls_KeyboardShortcuts"] = "SKR\u00d3TY KLAWISZOWE",
