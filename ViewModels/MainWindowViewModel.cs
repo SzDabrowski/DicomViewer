@@ -586,21 +586,21 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ApplyWindowPreset(string preset)
     {
-        // Preset values are in Hounsfield Units (modality space)
+        // Preset values in Hounsfield Units (from Weasis/industry standard)
         var (huCenter, huWidth) = preset switch
         {
-            "Lung" => (-600.0, 1500.0),
-            "Bone" => (400.0, 1800.0),
-            "Brain" => (40.0, 80.0),
-            "Abdomen" => (60.0, 400.0),
-            "Mediastinum" => (40.0, 400.0),
+            "Lung" => (-500.0, 1500.0),
+            "Bone" => (350.0, 2000.0),
+            "Brain" => (35.0, 110.0),
+            "Abdomen" => (50.0, 320.0),
+            "Mediastinum" => (80.0, 400.0),
             "Liver" => (60.0, 150.0),
             "SoftTissue" => (40.0, 350.0),
-            "Stroke" => (40.0, 40.0),
+            "Stroke" => (35.0, 40.0),
             "Spine" => (250.0, 1500.0),
             "Angio" => (300.0, 600.0),
             "ChestWide" => (-400.0, 1500.0),
-            _ => (40.0, 400.0)
+            _ => (50.0, 400.0)
         };
 
         // Convert from HU to normalized 0-65535 pixel space using the active file's modality range
