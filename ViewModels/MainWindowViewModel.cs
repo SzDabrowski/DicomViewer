@@ -60,6 +60,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool _isRightPanelVisible = true;
     [ObservableProperty] private bool _isBrowserExpanded = true;
     [ObservableProperty] private bool _isLoadingFile;
+    [ObservableProperty] private bool _isLoadingFrame;
     [ObservableProperty] private double _loadingProgress;
     [ObservableProperty] private string _statusMessage = "";
 

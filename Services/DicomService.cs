@@ -5,6 +5,8 @@ using FellowOakDicom.IO.Buffer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DicomViewer.Services
 {
@@ -173,6 +175,25 @@ namespace DicomViewer.Services
         public ushort[] LoadDicomPixels(string filePath, int frameIndex, out int width, out int height)
         {
             return LoadDicomPixels(filePath, frameIndex, out width, out height, out _);
+        }
+
+        /// <summary>
+        /// Async version of LoadDicomPixels that runs heavy transcoding/decoding on a background thread.
+        /// Supports CancellationToken so fast scrolling can cancel in-flight decodes.
+        /// Returns (pixels, width, height, isColor).
+        /// </summary>
+        public async Task<(ushort[] Pixels, int Width, int Height, bool IsColor)> LoadDicomPixelsAsync(
+            string filePath, int frameIndex, CancellationToken ct = default)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            return await Task.Run(() =>
+            {
+                ct.ThrowIfCancellationRequested();
+                var pixels = LoadDicomPixels(filePath, frameIndex, out int w, out int h, out bool isColor);
+                ct.ThrowIfCancellationRequested();
+                return (pixels, w, h, isColor);
+            }, ct);
         }
 
         private ushort[] LoadGrayscalePixels(FellowOakDicom.DicomDataset dataset, int frameIndex, int width, int height)
