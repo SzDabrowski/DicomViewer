@@ -173,19 +173,34 @@ namespace DicomViewer.Services
             int pixelRep = dataset.GetSingleValueOrDefault<int>(DicomTag.PixelRepresentation, 0); // 0=unsigned, 1=signed
             double rescaleSlope = dataset.GetSingleValueOrDefault(DicomTag.RescaleSlope, 1.0);
             double rescaleIntercept = dataset.GetSingleValueOrDefault(DicomTag.RescaleIntercept, 0.0);
-
-            var pixelData = FellowOakDicom.Imaging.DicomPixelData.Create(dataset);
-            var frameData = pixelData.GetFrame(frameIndex);
-            var rawBytes = frameData.Data;
+            int samplesPerPixel = dataset.GetSingleValueOrDefault<int>(DicomTag.SamplesPerPixel, 1);
 
             int pixelCount = width * height;
             var pixels = new ushort[pixelCount];
+
+            // Try native pixel data extraction
+            byte[] rawBytes;
+            try
+            {
+                var pixelData = FellowOakDicom.Imaging.DicomPixelData.Create(dataset);
+                var frameData = pixelData.GetFrame(frameIndex);
+                rawBytes = frameData.Data;
+            }
+            catch
+            {
+                // If raw extraction fails (e.g. compressed data), fall back to fo-dicom rendering
+                return LoadFallbackPixels(dataset, frameIndex, pixelCount);
+            }
+
+            // Validate raw data size matches expected dimensions
+            int expectedBytes16 = pixelCount * 2 * samplesPerPixel;
+            int expectedBytes8 = pixelCount * samplesPerPixel;
 
             // Determine min/max for mapping to ushort range after rescale
             double minVal = double.MaxValue, maxVal = double.MinValue;
             var modalityValues = new double[pixelCount];
 
-            if (bitsAllocated == 16)
+            if (bitsAllocated == 16 && rawBytes.Length >= expectedBytes16)
             {
                 for (int i = 0; i < pixelCount; i++)
                 {
@@ -210,7 +225,7 @@ namespace DicomViewer.Services
                     if (modalityVal > maxVal) maxVal = modalityVal;
                 }
             }
-            else if (bitsAllocated == 8)
+            else if (bitsAllocated == 8 && rawBytes.Length >= expectedBytes8)
             {
                 for (int i = 0; i < pixelCount; i++)
                 {
@@ -223,13 +238,8 @@ namespace DicomViewer.Services
             }
             else
             {
-                // Fallback: use fo-dicom rendering for unusual bit depths (32-bit, etc.)
-                var image = new DicomImage(dataset);
-                var rendered = image.RenderImage(frameIndex);
-                var rgba = rendered.AsBytes();
-                for (int i = 0; i < pixelCount; i++)
-                    pixels[i] = (ushort)(rgba[i * 4 + 2] * 257);
-                return pixels;
+                // Fallback: raw data size mismatch or unusual bit depth — use fo-dicom rendering
+                return LoadFallbackPixels(dataset, frameIndex, pixelCount);
             }
 
             // Map modality values to ushort range (0-65535)
@@ -243,6 +253,18 @@ namespace DicomViewer.Services
                 pixels[i] = (ushort)(Math.Clamp(normalized, 0, 1) * 65535.0);
             }
 
+            return pixels;
+        }
+
+        private ushort[] LoadFallbackPixels(FellowOakDicom.DicomDataset dataset, int frameIndex, int pixelCount)
+        {
+            var pixels = new ushort[pixelCount];
+            var image = new DicomImage(dataset);
+            var rendered = image.RenderImage(frameIndex);
+            var rgba = rendered.AsBytes();
+            int count = Math.Min(pixelCount, rgba.Length / 4);
+            for (int i = 0; i < count; i++)
+                pixels[i] = (ushort)(rgba[i * 4 + 2] * 257);
             return pixels;
         }
 
@@ -284,14 +306,23 @@ namespace DicomViewer.Services
             double rescaleSlope = dataset.GetSingleValueOrDefault(DicomTag.RescaleSlope, 1.0);
             double rescaleIntercept = dataset.GetSingleValueOrDefault(DicomTag.RescaleIntercept, 0.0);
 
-            var pixelData = FellowOakDicom.Imaging.DicomPixelData.Create(dataset);
-            var frameData = pixelData.GetFrame(frameIndex);
-            var rawBytes = frameData.Data;
-
             int pixelCount = width * height;
             double minVal = double.MaxValue, maxVal = double.MinValue;
 
-            if (bitsAllocated == 16)
+            byte[] rawBytes;
+            try
+            {
+                var pixelData = FellowOakDicom.Imaging.DicomPixelData.Create(dataset);
+                var frameData = pixelData.GetFrame(frameIndex);
+                rawBytes = frameData.Data;
+            }
+            catch
+            {
+                // Cannot read raw data; return default range
+                return (0, 65535);
+            }
+
+            if (bitsAllocated == 16 && rawBytes.Length >= pixelCount * 2)
             {
                 for (int i = 0; i < pixelCount; i++)
                 {
@@ -308,7 +339,7 @@ namespace DicomViewer.Services
                     if (val > maxVal) maxVal = val;
                 }
             }
-            else
+            else if (rawBytes.Length >= pixelCount)
             {
                 for (int i = 0; i < pixelCount; i++)
                 {
@@ -316,6 +347,11 @@ namespace DicomViewer.Services
                     if (val < minVal) minVal = val;
                     if (val > maxVal) maxVal = val;
                 }
+            }
+            else
+            {
+                // Raw data too small; return safe default
+                return (0, 65535);
             }
 
             return (minVal, maxVal);
