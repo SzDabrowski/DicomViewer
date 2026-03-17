@@ -99,11 +99,14 @@ namespace DicomViewer.Views
                         var dirPath = folder[0].TryGetLocalPath();
                         if (!string.IsNullOrEmpty(dirPath))
                         {
+                            // Show directory in browser tree
                             VM.LoadDirectoryTree(dirPath);
                             VM.IsRightPanelVisible = true;
+
+                            // Also scan and load all DICOM files from the directory (recursive)
+                            await OpenDicomFilesFromDirectoryRecursive(dirPath);
                         }
                     }
-                    await Task.CompletedTask;
                 };
 
                 VM.RequestBrowseDirectory = async () =>
@@ -511,12 +514,122 @@ namespace DicomViewer.Views
             {
                 if (node.IsDirectory)
                 {
+                    // Toggle expand/collapse
                     node.IsExpanded = !node.IsExpanded;
+
+                    // Also load all DICOM files from this folder as a stacked series
+                    _ = OpenDicomFilesFromDirectory(node.FullPath);
                 }
                 else
                 {
-                    _ = VM.OpenFilesFromPaths(new[] { node.FullPath });
+                    // For individual file clicks, gather ALL sibling DICOM files
+                    // from the same directory to enable series stacking
+                    var dir = System.IO.Path.GetDirectoryName(node.FullPath);
+                    if (dir != null)
+                    {
+                        var dicomFiles = System.IO.Directory.GetFiles(dir)
+                            .Where(f =>
+                            {
+                                var ext = System.IO.Path.GetExtension(f).ToLowerInvariant();
+                                return ext is ".dcm" or ".dicom";
+                            })
+                            .OrderBy(f => f)
+                            .ToArray();
+
+                        if (dicomFiles.Length > 1)
+                        {
+                            // Multiple DICOM files in same folder → load all for stacking
+                            _ = VM.OpenFilesFromPaths(dicomFiles);
+                        }
+                        else
+                        {
+                            // Single file or non-DICOM → load individually
+                            _ = VM.OpenFilesFromPaths(new[] { node.FullPath });
+                        }
+                    }
+                    else
+                    {
+                        _ = VM.OpenFilesFromPaths(new[] { node.FullPath });
+                    }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Scans a directory for DICOM files and loads them via OpenFilesFromPaths
+        /// which will auto-group them into series stacks.
+        /// </summary>
+        private async Task OpenDicomFilesFromDirectory(string dirPath)
+        {
+            if (VM == null) return;
+
+            try
+            {
+                var dicomFiles = System.IO.Directory.GetFiles(dirPath)
+                    .Where(f =>
+                    {
+                        var ext = System.IO.Path.GetExtension(f).ToLowerInvariant();
+                        return ext is ".dcm" or ".dicom";
+                    })
+                    .OrderBy(f => f)
+                    .ToArray();
+
+                if (dicomFiles.Length > 0)
+                {
+                    LoggingService.Instance.Info("FolderOpen",
+                        $"Opening {dicomFiles.Length} DICOM files from {System.IO.Path.GetFileName(dirPath)}");
+                    await VM.OpenFilesFromPaths(dicomFiles);
+                }
+                else
+                {
+                    LoggingService.Instance.Debug("FolderOpen",
+                        $"No DICOM files found in {System.IO.Path.GetFileName(dirPath)}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Warning("FolderOpen",
+                    $"Error scanning directory: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Recursively scans a directory tree for DICOM files and loads them.
+        /// Groups files by series for stacking.
+        /// </summary>
+        private async Task OpenDicomFilesFromDirectoryRecursive(string dirPath)
+        {
+            if (VM == null) return;
+
+            try
+            {
+                var dicomFiles = System.IO.Directory.GetFiles(dirPath, "*.*", System.IO.SearchOption.AllDirectories)
+                    .Where(f =>
+                    {
+                        var ext = System.IO.Path.GetExtension(f).ToLowerInvariant();
+                        return ext is ".dcm" or ".dicom";
+                    })
+                    .OrderBy(f => f)
+                    .ToArray();
+
+                if (dicomFiles.Length > 0)
+                {
+                    LoggingService.Instance.Info("FolderOpen",
+                        $"Found {dicomFiles.Length} DICOM files in {System.IO.Path.GetFileName(dirPath)} (recursive)");
+                    await VM.OpenFilesFromPaths(dicomFiles);
+                }
+                else
+                {
+                    LoggingService.Instance.Info("FolderOpen",
+                        $"No DICOM files found in {System.IO.Path.GetFileName(dirPath)}");
+                    VM.AddNotification(ViewModels.NotificationSeverity.Info,
+                        "No DICOM files found in selected directory");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggingService.Instance.Warning("FolderOpen",
+                    $"Error scanning directory recursively: {ex.Message}");
             }
         }
     } // End of MainWindow class
