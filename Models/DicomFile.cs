@@ -71,6 +71,35 @@ public class DicomFile
     public double? PixelSpacingX { get; set; }
     public double? PixelSpacingY { get; set; }
 
+    // Modality value range for W/L mapping (e.g., HU range for CT)
+    // These store the original DICOM W/L values (in modality units like HU)
+    public double DicomWindowCenter { get; set; } = double.NaN;
+    public double DicomWindowWidth { get; set; } = double.NaN;
+    // Min/max modality values found in pixel data — used to convert HU ↔ normalized (0-65535)
+    public double ModalityMin { get; set; } = 0;
+    public double ModalityMax { get; set; } = 65535;
+
+    /// <summary>
+    /// Converts a Window Center value from modality units (e.g., Hounsfield Units)
+    /// to the normalized 0-65535 pixel space used by the canvas.
+    /// </summary>
+    public double ModalityToNormalizedCenter(double modalityCenter)
+    {
+        double range = ModalityMax - ModalityMin;
+        if (range < 1) range = 1;
+        return (modalityCenter - ModalityMin) / range * 65535.0;
+    }
+
+    /// <summary>
+    /// Converts a Window Width value from modality units to normalized pixel space.
+    /// </summary>
+    public double ModalityToNormalizedWidth(double modalityWidth)
+    {
+        double range = ModalityMax - ModalityMin;
+        if (range < 1) range = 1;
+        return modalityWidth / range * 65535.0;
+    }
+
     // Series stacking: ordered list of file paths for virtual multi-slice navigation
     public List<string>? StackFilePaths { get; set; }
 

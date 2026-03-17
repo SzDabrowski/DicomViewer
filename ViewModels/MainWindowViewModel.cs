@@ -586,7 +586,8 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void ApplyWindowPreset(string preset)
     {
-        (WindowCenter, WindowWidth) = preset switch
+        // Preset values are in Hounsfield Units (modality space)
+        var (huCenter, huWidth) = preset switch
         {
             "Lung" => (-600.0, 1500.0),
             "Bone" => (400.0, 1800.0),
@@ -601,7 +602,21 @@ public partial class MainWindowViewModel : ViewModelBase
             "ChestWide" => (-400.0, 1500.0),
             _ => (40.0, 400.0)
         };
-        StatusMessage = $"{_loc["Preset"]} {_loc[preset]}  C={WindowCenter} W={WindowWidth}";
+
+        // Convert from HU to normalized 0-65535 pixel space using the active file's modality range
+        if (ActiveFile?.Model != null)
+        {
+            WindowCenter = ActiveFile.Model.ModalityToNormalizedCenter(huCenter);
+            WindowWidth = ActiveFile.Model.ModalityToNormalizedWidth(huWidth);
+        }
+        else
+        {
+            // No file loaded — use raw values as fallback
+            WindowCenter = huCenter;
+            WindowWidth = huWidth;
+        }
+
+        StatusMessage = $"{_loc["Preset"]} {_loc[preset]}  C={huCenter:F0} W={huWidth:F0} (HU)";
     }
 
     [RelayCommand] private void ToggleRightPanel() => IsRightPanelVisible = !IsRightPanelVisible;
