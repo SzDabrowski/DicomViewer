@@ -398,6 +398,27 @@ namespace DicomViewer.Services
         {
             var file = DicomFile.Open(filePath);
             var dataset = file.Dataset;
+
+            // Decompress if needed (same logic as LoadGrayscalePixels)
+            var transferSyntax = dataset.InternalTransferSyntax;
+            bool isEncapsulated = transferSyntax != DicomTransferSyntax.ImplicitVRLittleEndian
+                && transferSyntax != DicomTransferSyntax.ExplicitVRLittleEndian
+                && transferSyntax != DicomTransferSyntax.ExplicitVRBigEndian
+                && transferSyntax != DicomTransferSyntax.DeflatedExplicitVRLittleEndian;
+
+            if (isEncapsulated)
+            {
+                try
+                {
+                    var transcoder = new DicomTranscoder(transferSyntax, DicomTransferSyntax.ExplicitVRLittleEndian);
+                    dataset = transcoder.Transcode(dataset);
+                }
+                catch
+                {
+                    return (0, 65535);
+                }
+            }
+
             int width = dataset.GetSingleValue<int>(DicomTag.Columns);
             int height = dataset.GetSingleValue<int>(DicomTag.Rows);
             int bitsAllocated = dataset.GetSingleValueOrDefault<int>(DicomTag.BitsAllocated, 16);

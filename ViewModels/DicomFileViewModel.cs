@@ -123,7 +123,12 @@ public partial class DicomFileViewModel : ViewModelBase
         // Default: attempt DICOM parse
         var svc = new DicomService();
         var meta = svc.GetMetadata(filePath);
-        return new DicomFileViewModel(new DicomFile
+
+        // Get modality value range (e.g., HU range for CT) so we can convert W/L to normalized space
+        var (modalityMin, modalityMax) = svc.GetModalityRange(filePath, 0);
+
+        // Store original DICOM W/L and compute normalized values for the canvas
+        var model = new DicomFile
         {
             FilePath = filePath,
             PatientName = meta.PatientName,
@@ -134,8 +139,10 @@ public partial class DicomFileViewModel : ViewModelBase
             TotalFrames = meta.TotalFrames,
             Rows = meta.Rows,
             Columns = meta.Columns,
-            WindowCenter = meta.WindowCenter,
-            WindowWidth = meta.WindowWidth,
+            DicomWindowCenter = meta.WindowCenter,
+            DicomWindowWidth = meta.WindowWidth,
+            ModalityMin = modalityMin,
+            ModalityMax = modalityMax,
             // Extended metadata
             PatientSex = meta.PatientSex,
             PatientAge = meta.PatientAge,
@@ -160,6 +167,17 @@ public partial class DicomFileViewModel : ViewModelBase
             PixelSpacingX = meta.PixelSpacingX,
             PixelSpacingY = meta.PixelSpacingY,
             IsLoaded = true
-        });
+        };
+
+        // Convert DICOM W/L (in modality units like HU) to normalized 0-65535 pixel space
+        model.WindowCenter = model.ModalityToNormalizedCenter(meta.WindowCenter);
+        model.WindowWidth = model.ModalityToNormalizedWidth(meta.WindowWidth);
+
+        log.Debug("FileOpen",
+            $"W/L mapping: DICOM WC={meta.WindowCenter:F0} WW={meta.WindowWidth:F0} → " +
+            $"Normalized WC={model.WindowCenter:F0} WW={model.WindowWidth:F0} " +
+            $"(modality range: {modalityMin:F0}..{modalityMax:F0})");
+
+        return new DicomFileViewModel(model);
     }
 }
