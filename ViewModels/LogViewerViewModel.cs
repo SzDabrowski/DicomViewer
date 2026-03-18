@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace DicomViewer.ViewModels;
 
-public partial class LogViewerViewModel : ViewModelBase, IDisposable
+public partial class LogViewerViewModel : ViewModelBase
 {
     [ObservableProperty] private LogLevel _selectedFilter = LogLevel.Debug;
     [ObservableProperty] private string _searchText = string.Empty;
@@ -89,9 +89,9 @@ public partial class LogViewerViewModel : ViewModelBase, IDisposable
         catch (Exception ex) { _log.Warning("LogViewer", $"{LocalizationService.Instance["Err_CouldNotOpenLogFolder"]} {ex.Message}"); }
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         _log.LogAdded -= OnLogAdded;
-        GC.SuppressFinalize(this);
+        base.Dispose();
     }
 }

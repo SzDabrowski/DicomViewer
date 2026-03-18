@@ -69,15 +69,21 @@ public partial class FileTreeNodeViewModel : ViewModelBase
         }
     }
 
-    private static bool HasSupportedFiles(string dirPath)
+    private const int MaxScanDepth = 20;
+
+    private static bool HasSupportedFiles(string dirPath) => HasSupportedFiles(dirPath, 0);
+
+    private static bool HasSupportedFiles(string dirPath, int depth)
     {
+        if (depth >= MaxScanDepth) return false;
+
         try
         {
             if (Directory.GetFiles(dirPath)
                 .Any(f => SupportedExtensions.Contains(Path.GetExtension(f).ToLowerInvariant())))
                 return true;
 
-            return Directory.GetDirectories(dirPath).Any(HasSupportedFiles);
+            return Directory.GetDirectories(dirPath).Any(d => HasSupportedFiles(d, depth + 1));
         }
         catch (Exception ex)
         {

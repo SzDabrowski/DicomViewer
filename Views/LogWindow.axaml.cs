@@ -1,6 +1,8 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using DicomViewer.ViewModels;
 using IconPacks.Avalonia.Codicons;
 
 namespace DicomViewer.Views;
@@ -39,5 +41,12 @@ public partial class LogWindow : Window
         };
 
         this.FindControl<Button>("CloseBtn")!.Click += (_, _) => Close();
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        // Dispose LogViewerViewModel to unsubscribe from LoggingService events
+        (DataContext as LogViewerViewModel)?.Dispose();
+        base.OnClosed(e);
     }
 }

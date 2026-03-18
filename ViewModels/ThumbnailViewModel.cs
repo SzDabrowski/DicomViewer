@@ -33,6 +33,13 @@ public partial class ThumbnailViewModel : ViewModelBase
         _ = LoadThumbnailAsync();
     }
 
+    public override void Dispose()
+    {
+        Thumbnail?.Dispose();
+        Thumbnail = null;
+        base.Dispose();
+    }
+
     partial void OnIsCurrentFrameChanged(bool value)
     {
         Opacity = value ? 1.0 : 0.6;

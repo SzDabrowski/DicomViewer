@@ -88,6 +88,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private const int MaxVisibleNotifications = UIConstants.MaxVisibleNotifications;
 
+    /// <summary>Tracks auto-dismiss cancellation tokens so manual dismissal cancels pending timers.</summary>
+    private readonly System.Collections.Generic.Dictionary<NotificationViewModel, CancellationTokenSource> _autoDismissTokens = new();
+
     public void AddNotification(NotificationSeverity severity, string message, string details = "")
     {
         var notification = NotificationViewModel.Create(severity, message, details);
@@ -100,14 +103,23 @@ public partial class MainWindowViewModel : ViewModelBase
             while (Notifications.Count > MaxVisibleNotifications)
                 Notifications.RemoveAt(Notifications.Count - 1);
 
-            // Schedule auto-dismiss if applicable
+            // Schedule auto-dismiss if applicable, with cancellation support
             if (notification.AutoDismissMs > 0)
             {
+                var cts = new CancellationTokenSource();
+                _autoDismissTokens[notification] = cts;
                 _ = Task.Run(async () =>
                 {
-                    await Task.Delay(notification.AutoDismissMs);
-                    Dispatcher.UIThread.Post(() => DismissNotification(notification));
-                });
+                    try
+                    {
+                        await Task.Delay(notification.AutoDismissMs, cts.Token);
+                        Dispatcher.UIThread.Post(() => DismissNotification(notification));
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Notification was manually dismissed before timer fired — expected
+                    }
+                }, cts.Token);
             }
         });
     }
@@ -115,8 +127,16 @@ public partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     private void DismissNotification(NotificationViewModel? notification)
     {
-        if (notification != null)
-            Notifications.Remove(notification);
+        if (notification == null) return;
+        Notifications.Remove(notification);
+
+        // Cancel and clean up the auto-dismiss timer if still pending
+        if (_autoDismissTokens.TryGetValue(notification, out var cts))
+        {
+            cts.Cancel();
+            cts.Dispose();
+            _autoDismissTokens.Remove(notification);
+        }
     }
 
     [RelayCommand]
@@ -501,6 +521,9 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void BuildThumbnails(DicomFileViewModel file)
     {
+        // Dispose old thumbnail bitmaps before clearing to free unmanaged memory
+        foreach (var thumb in Thumbnails)
+            thumb.Dispose();
         Thumbnails.Clear();
         // Cap at 200 frames for performance; thumbnails load async so this is safe
         var count = Math.Min(file.TotalFrames, UIConstants.MaxThumbnails);
@@ -568,11 +591,18 @@ public partial class MainWindowViewModel : ViewModelBase
         var token = _playCts.Token;
         _ = Task.Run(async () =>
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                await Task.Delay(1000 / Math.Max(1, PlaybackFps), token);
-                if (token.IsCancellationRequested) break;
-                Avalonia.Threading.Dispatcher.UIThread.Post(NextFrame);
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(1000 / Math.Max(1, PlaybackFps), token);
+                    if (token.IsCancellationRequested) break;
+                    Avalonia.Threading.Dispatcher.UIThread.Post(NextFrame);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when StopPlayback cancels the token
             }
         }, token);
         StatusMessage = $"{_loc["Playing"]} - {PlaybackFps} {_loc["FPS"]}";
@@ -583,6 +613,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsPlaying) return;
         IsPlaying = false;
         _playCts?.Cancel();
+        _playCts?.Dispose();
         _playCts = null;
         StatusMessage = _loc["Paused"];
     }

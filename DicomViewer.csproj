@@ -36,4 +36,9 @@
 		<AvaloniaResource Include="Assets\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Compile Remove="DicomViewer.Tests\**" />
+		<None Remove="DicomViewer.Tests\**" />
+	</ItemGroup>
+
 </Project>

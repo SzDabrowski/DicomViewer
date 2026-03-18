@@ -72,11 +72,18 @@ public partial class PlaybackController : ViewModelBase
         var token = _playCts.Token;
         _ = Task.Run(async () =>
         {
-            while (!token.IsCancellationRequested)
+            try
             {
-                await Task.Delay(1000 / Math.Max(1, PlaybackFps), token);
-                if (token.IsCancellationRequested) break;
-                Dispatcher.UIThread.Post(NextFrame);
+                while (!token.IsCancellationRequested)
+                {
+                    await Task.Delay(1000 / Math.Max(1, PlaybackFps), token);
+                    if (token.IsCancellationRequested) break;
+                    Dispatcher.UIThread.Post(NextFrame);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when StopPlayback cancels the token
             }
         }, token);
         StatusChanged?.Invoke($"{_loc["Playing"]} - {PlaybackFps} {_loc["FPS"]}");
@@ -87,6 +94,7 @@ public partial class PlaybackController : ViewModelBase
         if (!IsPlaying) return;
         IsPlaying = false;
         _playCts?.Cancel();
+        _playCts?.Dispose();
         _playCts = null;
         StatusChanged?.Invoke(_loc["Paused"]);
     }
