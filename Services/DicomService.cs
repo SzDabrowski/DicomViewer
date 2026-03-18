@@ -191,7 +191,8 @@ namespace DicomViewer.Services
             {
                 ct.ThrowIfCancellationRequested();
                 var pixels = LoadDicomPixels(filePath, frameIndex, out int w, out int h, out bool isColor);
-                ct.ThrowIfCancellationRequested();
+                // Don't throw after expensive work is done — let the caller check cancellation
+                // and decide whether to use the already-loaded pixels.
                 return (pixels, w, h, isColor);
             }, ct);
         }
