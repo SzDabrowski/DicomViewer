@@ -1,3 +1,4 @@
+using DicomViewer.Constants;
 using System;
 using System.Collections.Generic;
 
@@ -34,7 +35,7 @@ public class DicomFile
     public string PatientName { get; set; } = "Unknown";
     public string PatientId { get; set; } = string.Empty;
     public string StudyDate { get; set; } = string.Empty;
-    public string Modality { get; set; } = "OT";
+    public string Modality { get; set; } = DicomDefaults.DefaultModality;
     public string SeriesDescription { get; set; } = string.Empty;
     public string StudyDescription { get; set; } = string.Empty;
 
@@ -42,8 +43,8 @@ public class DicomFile
     public int Rows { get; set; }
     public int Columns { get; set; }
 
-    public double WindowCenter { get; set; } = 32768;
-    public double WindowWidth { get; set; } = 65535;
+    public double WindowCenter { get; set; } = DicomDefaults.WindowCenter;
+    public double WindowWidth { get; set; } = DicomDefaults.WindowWidth;
 
     public bool IsLoaded { get; set; }
     public string Status { get; set; } = "Ready";

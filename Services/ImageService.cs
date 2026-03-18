@@ -1,3 +1,4 @@
+using DicomViewer.Helpers;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
@@ -8,13 +9,7 @@ namespace DicomViewer.Services;
 
 public class ImageService
 {
-    private static readonly string[] SupportedExtensions = { ".jpg", ".jpeg", ".png", ".bmp", ".tiff", ".tif", ".gif", ".webp" };
-
-    public static bool IsSupported(string filePath)
-    {
-        var ext = Path.GetExtension(filePath).ToLowerInvariant();
-        return Array.Exists(SupportedExtensions, e => e == ext);
-    }
+    public static bool IsSupported(string filePath) => FileTypeDetector.IsImage(filePath);
 
     public ImageMetadata GetMetadata(string filePath)
     {
@@ -42,8 +37,8 @@ public class ImageService
                 for (int x = 0; x < w; x++)
                 {
                     var px = row[x];
-                    byte gray = (byte)(0.299 * px.R + 0.587 * px.G + 0.114 * px.B);
-                    pixels[y * w + x] = (ushort)(gray * 257);
+                    byte gray = PixelConversion.RgbToGrayscale(px.R, px.G, px.B);
+                    pixels[y * w + x] = PixelConversion.GrayToUshort(gray);
                 }
             }
         });

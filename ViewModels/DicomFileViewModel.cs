@@ -1,4 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using DicomViewer.Constants;
+using DicomViewer.Helpers;
 using DicomViewer.Models;
 using DicomViewer.Services;
 using System;
@@ -54,11 +56,7 @@ public partial class DicomFileViewModel : ViewModelBase
         _model = model;
     }
 
-    private static readonly string[] SupportedExtensions =
-    {
-        ".dcm", ".dicom", ".jpg", ".jpeg", ".png", ".bmp",
-        ".tiff", ".tif", ".gif", ".webp", ".avi", ".mp4", ".mkv", ".mov", ".wmv"
-    };
+    private static readonly string[] SupportedExtensions = FileTypeDetector.AllSupported;
 
     public static DicomFileViewModel Create(string filePath)
     {
@@ -96,8 +94,8 @@ public partial class DicomFileViewModel : ViewModelBase
                 TotalFrames = imgMeta.TotalFrames,
                 Rows = imgMeta.Height,
                 Columns = imgMeta.Width,
-                WindowCenter = 32768,
-                WindowWidth = 65535,
+                WindowCenter = DicomDefaults.WindowCenter,
+                WindowWidth = DicomDefaults.WindowWidth,
                 IsLoaded = true
             });
         }
@@ -114,8 +112,8 @@ public partial class DicomFileViewModel : ViewModelBase
                 TotalFrames = Math.Max(1, vidMeta.TotalFrames),
                 Rows = vidMeta.Height,
                 Columns = vidMeta.Width,
-                WindowCenter = 32768,
-                WindowWidth = 65535,
+                WindowCenter = DicomDefaults.WindowCenter,
+                WindowWidth = DicomDefaults.WindowWidth,
                 IsLoaded = true
             });
         }

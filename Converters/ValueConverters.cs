@@ -134,18 +134,6 @@ public class BoolToTooltipDelayConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-public class BoolToStringConverter : IValueConverter
-{
-    public string TrueValue { get; set; } = "";
-    public string FalseValue { get; set; } = "";
-
-    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is true ? TrueValue : FalseValue;
-
-    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => throw new NotImplementedException();
-}
-
 // ── Bool → White/Muted (for toggle icons like loop) ─────────────────────────
 public class BoolToWhiteConverter : IValueConverter
 {

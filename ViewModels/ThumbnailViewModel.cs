@@ -2,6 +2,7 @@ using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using Avalonia;
 using CommunityToolkit.Mvvm.ComponentModel;
+using DicomViewer.Constants;
 using DicomViewer.Services;
 using System;
 using System.Runtime.InteropServices;
@@ -56,7 +57,7 @@ public partial class ThumbnailViewModel : ViewModelBase
 
     private WriteableBitmap? RenderThumbnail()
     {
-        const int ThumbSize = 80;
+        const int ThumbSize = UIConstants.ThumbnailSize;
 
         var svc = new DicomService();
         var pixels = svc.LoadDicomPixels(FilePath, FrameIndex, out int w, out int h);

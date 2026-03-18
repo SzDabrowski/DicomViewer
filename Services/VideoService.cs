@@ -1,3 +1,4 @@
+using DicomViewer.Helpers;
 using FFMediaToolkit;
 using FFMediaToolkit.Decoding;
 using FFMediaToolkit.Graphics;
@@ -9,15 +10,10 @@ namespace DicomViewer.Services;
 
 public class VideoService
 {
-    private static readonly string[] SupportedExtensions = { ".avi", ".mp4", ".mkv", ".mov", ".wmv" };
     private static bool _ffmpegInitialized;
     private static string? _ffmpegError;
 
-    public static bool IsSupported(string filePath)
-    {
-        var ext = Path.GetExtension(filePath).ToLowerInvariant();
-        return Array.Exists(SupportedExtensions, e => e == ext);
-    }
+    public static bool IsSupported(string filePath) => FileTypeDetector.IsVideo(filePath);
 
     private static void EnsureFFmpeg()
     {
@@ -139,8 +135,8 @@ public class VideoService
                 {
                     int idx = x * 3;
                     byte r = row[idx], g = row[idx + 1], b = row[idx + 2];
-                    byte gray = (byte)(0.299 * r + 0.587 * g + 0.114 * b);
-                    pixels[y * w + x] = (ushort)(gray * 257);
+                    byte gray = PixelConversion.RgbToGrayscale(r, g, b);
+                    pixels[y * w + x] = PixelConversion.GrayToUshort(gray);
                 }
             }
             return pixels;

@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using DicomViewer.Helpers;
 using IconPacks.Avalonia.Codicons;
 using System;
 using System.Collections.ObjectModel;
@@ -9,11 +10,7 @@ namespace DicomViewer.ViewModels;
 
 public partial class FileTreeNodeViewModel : ViewModelBase
 {
-    private static readonly string[] SupportedExtensions =
-    {
-        ".dcm", ".dicom", ".jpg", ".jpeg", ".png", ".bmp",
-        ".tiff", ".tif", ".gif", ".webp", ".avi", ".mp4", ".mkv", ".mov", ".wmv"
-    };
+    private static readonly string[] SupportedExtensions = FileTypeDetector.AllSupported;
 
     [ObservableProperty] private bool _isExpanded;
     [ObservableProperty] private bool _isSelected;

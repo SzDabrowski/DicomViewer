@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using DicomViewer.Constants;
 using DicomViewer.Models;
 using DicomViewer.Services;
 using Avalonia.Threading;
@@ -46,13 +47,16 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool _isFlippedV;
     [ObservableProperty] private bool _invertColors;
 
-    [ObservableProperty] private double _windowCenter = 32768;
-    [ObservableProperty] private double _windowWidth = 65535;
+    [ObservableProperty] private double _windowCenter = DicomDefaults.WindowCenter;
+    [ObservableProperty] private double _windowWidth = DicomDefaults.WindowWidth;
+
+    // Playback state delegated to PlaybackController (extracted for SRP/testability)
+    private readonly PlaybackController _playback = new();
 
     [ObservableProperty] private int _currentFrameIndex;
     [ObservableProperty] private int _totalFrames = 1;
     [ObservableProperty] private bool _isPlaying;
-    [ObservableProperty] private int _playbackFps = 10;
+    [ObservableProperty] private int _playbackFps = UIConstants.DefaultPlaybackFps;
     [ObservableProperty] private bool _loopPlayback = true;
 
     private CancellationTokenSource? _playCts;
@@ -81,7 +85,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public ObservableCollection<FileTreeNodeViewModel> DirectoryTree { get; } = new();
     public ObservableCollection<NotificationViewModel> Notifications { get; } = new();
 
-    private const int MaxVisibleNotifications = 3;
+    private const int MaxVisibleNotifications = UIConstants.MaxVisibleNotifications;
 
     public void AddNotification(NotificationSeverity severity, string message, string details = "")
     {
@@ -479,7 +483,7 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         Thumbnails.Clear();
         // Cap at 200 frames for performance; thumbnails load async so this is safe
-        var count = Math.Min(file.TotalFrames, 200);
+        var count = Math.Min(file.TotalFrames, UIConstants.MaxThumbnails);
         for (int i = 0; i < count; i++)
         {
             // PROBLEM 3: For stacked series, each thumbnail uses a different file (frame 0 of each)

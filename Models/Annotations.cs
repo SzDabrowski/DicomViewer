@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Media;
+using DicomViewer.Helpers;
 using System;
 using System.Collections.Generic;
 
@@ -70,23 +71,13 @@ public class ArrowAnnotation : Annotation
 
     public override bool HitTest(Point p, double tolerance)
     {
-        return DistanceToSegment(p, Tail, Head) <= tolerance;
+        return GeometryHelper.DistanceToSegment(p, Tail, Head) <= tolerance;
     }
 
     public override void Move(double dx, double dy)
     {
         Tail = new Point(Tail.X + dx, Tail.Y + dy);
         Head = new Point(Head.X + dx, Head.Y + dy);
-    }
-
-    private static double DistanceToSegment(Point p, Point a, Point b)
-    {
-        double dx = b.X - a.X, dy = b.Y - a.Y;
-        double lenSq = dx * dx + dy * dy;
-        if (lenSq < 0.001) return Math.Sqrt((p.X - a.X) * (p.X - a.X) + (p.Y - a.Y) * (p.Y - a.Y));
-        double t = Math.Clamp(((p.X - a.X) * dx + (p.Y - a.Y) * dy) / lenSq, 0, 1);
-        double projX = a.X + t * dx, projY = a.Y + t * dy;
-        return Math.Sqrt((p.X - projX) * (p.X - projX) + (p.Y - projY) * (p.Y - projY));
     }
 }
 
@@ -147,7 +138,7 @@ public class FreehandAnnotation : Annotation
     {
         for (int i = 1; i < Points.Count; i++)
         {
-            if (DistanceToSegment(pt, Points[i - 1], Points[i]) <= tolerance)
+            if (GeometryHelper.DistanceToSegment(pt, Points[i - 1], Points[i]) <= tolerance)
                 return true;
         }
         return false;
@@ -157,16 +148,6 @@ public class FreehandAnnotation : Annotation
     {
         for (int i = 0; i < Points.Count; i++)
             Points[i] = new Point(Points[i].X + dx, Points[i].Y + dy);
-    }
-
-    private static double DistanceToSegment(Point p, Point a, Point b)
-    {
-        double dx = b.X - a.X, dy = b.Y - a.Y;
-        double lenSq = dx * dx + dy * dy;
-        if (lenSq < 0.001) return Math.Sqrt((p.X - a.X) * (p.X - a.X) + (p.Y - a.Y) * (p.Y - a.Y));
-        double t = Math.Clamp(((p.X - a.X) * dx + (p.Y - a.Y) * dy) / lenSq, 0, 1);
-        double projX = a.X + t * dx, projY = a.Y + t * dy;
-        return Math.Sqrt((p.X - projX) * (p.X - projX) + (p.Y - projY) * (p.Y - projY));
     }
 }
 
@@ -276,22 +257,12 @@ public class LineAnnotation : Annotation
 
     public override bool HitTest(Point p, double tolerance)
     {
-        return DistanceToSegment(p, Start, End) <= tolerance;
+        return GeometryHelper.DistanceToSegment(p, Start, End) <= tolerance;
     }
 
     public override void Move(double dx, double dy)
     {
         Start = new Point(Start.X + dx, Start.Y + dy);
         End = new Point(End.X + dx, End.Y + dy);
-    }
-
-    private static double DistanceToSegment(Point p, Point a, Point b)
-    {
-        double dx = b.X - a.X, dy = b.Y - a.Y;
-        double lenSq = dx * dx + dy * dy;
-        if (lenSq < 0.001) return Math.Sqrt((p.X - a.X) * (p.X - a.X) + (p.Y - a.Y) * (p.Y - a.Y));
-        double t = Math.Clamp(((p.X - a.X) * dx + (p.Y - a.Y) * dy) / lenSq, 0, 1);
-        double projX = a.X + t * dx, projY = a.Y + t * dy;
-        return Math.Sqrt((p.X - projX) * (p.X - projX) + (p.Y - projY) * (p.Y - projY));
     }
 }
