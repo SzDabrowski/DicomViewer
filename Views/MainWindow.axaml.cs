@@ -9,6 +9,7 @@ using IconPacks.Avalonia.Codicons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DicomViewer.Views
@@ -20,6 +21,13 @@ namespace DicomViewer.Views
         private readonly ImageService _imageService = new();
         private readonly VideoService _videoService = new();
         private readonly DicomService _dicomService = new();
+
+        /// <summary>
+        /// CancellationTokenSource for the current frame load operation.
+        /// Cancelled whenever a new frame is requested (e.g., fast scrolling),
+        /// so intermediate frames are skipped and only the final frame renders.
+        /// </summary>
+        private CancellationTokenSource? _frameLoadCts;
 
         public MainWindow()
         {
@@ -125,7 +133,7 @@ namespace DicomViewer.Views
                 {
                     if (args.PropertyName == nameof(MainWindowViewModel.ActiveFile) ||
                         args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
-                        UpdateCanvasImage();
+                        _ = UpdateCanvasImageAsync();
 
                     if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         ScrollFilmstripToCurrentFrame();
@@ -159,7 +167,12 @@ namespace DicomViewer.Views
             scroller.Offset = new Avalonia.Vector(targetOffset, 0);
         }
 
-        private void UpdateCanvasImage()
+        /// <summary>
+        /// Asynchronously loads and displays the current frame on the canvas.
+        /// Cancels any in-flight frame load when a new frame is requested,
+        /// so fast scrolling skips intermediate frames (e.g., JPEG 2000 at ~1.5s/frame).
+        /// </summary>
+        private async Task UpdateCanvasImageAsync()
         {
             if (VM?.ActiveFile == null) return;
             var canvas = this.FindControl<DicomCanvas>("MainCanvas");
@@ -175,6 +188,12 @@ namespace DicomViewer.Views
                 return; // Setting CurrentFrameIndex will re-trigger this method
             }
 
+            // Cancel any previous in-flight frame decode (fast-scroll skip)
+            _frameLoadCts?.Cancel();
+            _frameLoadCts?.Dispose();
+            _frameLoadCts = new CancellationTokenSource();
+            var ct = _frameLoadCts.Token;
+
             // PROBLEM 3 FIX: For stacked series, get the correct file path for this slice
             var model = VM.ActiveFile.Model;
             var filePath = model.GetFilePathForFrame(safeFrameIndex);
@@ -185,26 +204,46 @@ namespace DicomViewer.Views
             {
                 if (ImageService.IsSupported(filePath))
                 {
+                    // Images are fast — load synchronously
                     var pixels = _imageService.LoadPixels(filePath, out int w, out int h);
+                    if (ct.IsCancellationRequested) return;
                     canvas.SetPixels(pixels, w, h);
                 }
                 else if (VideoService.IsSupported(filePath))
                 {
+                    // Video frames are fast — load synchronously
                     var pixels = _videoService.LoadFrame(filePath, actualFrameIndex, out int w, out int h);
+                    if (ct.IsCancellationRequested) return;
                     canvas.SetPixels(pixels, w, h);
                 }
                 else
                 {
-                    var pixels = _dicomService.LoadDicomPixels(filePath, actualFrameIndex, out int w, out int h, out bool isColor);
-                    canvas.SetPixels(pixels, w, h, isColor);
+                    // DICOM: use async loading — heavy transcoding runs on background thread
+                    VM.IsLoadingFrame = true;
+                    var result = await _dicomService.LoadDicomPixelsAsync(filePath, actualFrameIndex, ct);
+
+                    // Check cancellation after await — another frame may have been requested
+                    if (ct.IsCancellationRequested) return;
+
+                    canvas.SetPixels(result.Pixels, result.Width, result.Height, result.IsColor);
                 }
+            }
+            catch (OperationCanceledException)
+            {
+                // Expected when fast-scrolling cancels intermediate frames — silently skip
             }
             catch (Exception ex)
             {
+                if (ct.IsCancellationRequested) return; // Don't show errors for cancelled frames
                 LoggingService.Instance.Error("Canvas", $"Failed to render frame {safeFrameIndex}", ex);
                 VM.AddNotification(ViewModels.NotificationSeverity.Error,
                     $"Failed to render frame {safeFrameIndex}",
                     ex.Message);
+            }
+            finally
+            {
+                if (VM != null)
+                    VM.IsLoadingFrame = false;
             }
         }
 
@@ -382,6 +421,8 @@ namespace DicomViewer.Views
         private async Task OpenSettingsWindow()
         {
             var vm = new ViewModels.SettingsViewModel();
+            vm.OnLanguageChanged = (title, detail) =>
+                VM?.AddNotification(NotificationSeverity.Info, title, detail);
             vm.RequestBrowseDirectory = async () =>
             {
                 var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions

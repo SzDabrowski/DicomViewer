@@ -60,6 +60,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool _isRightPanelVisible = true;
     [ObservableProperty] private bool _isBrowserExpanded = true;
     [ObservableProperty] private bool _isLoadingFile;
+    [ObservableProperty] private bool _isLoadingFrame;
     [ObservableProperty] private double _loadingProgress;
     [ObservableProperty] private string _statusMessage = "";
 
@@ -394,6 +395,25 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task LoadFileAsync(string path)
     {
         if (OpenFiles.Any(f => f.FilePath == path)) return;
+
+        // Check if this is a video file — show friendly message if FFmpeg is missing
+        if (VideoService.IsSupported(path))
+        {
+            try
+            {
+                var testSvc = new VideoService();
+                testSvc.GetMetadata(path);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("FFmpeg"))
+            {
+                AddNotification(NotificationSeverity.Warning,
+                    _loc["Err_VideoNotSupported"],
+                    _loc["Err_VideoNotSupported_Details"]);
+                StatusMessage = _loc["Err_VideoNotSupported"];
+                _log.Warning("FileOpen", $"Video not supported (FFmpeg missing): {System.IO.Path.GetFileName(path)}");
+                return;
+            }
+        }
 
         IsLoadingFile = true;
         LoadingProgress = 0;
