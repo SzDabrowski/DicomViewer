@@ -6,7 +6,7 @@ namespace DicomViewer.Constants;
 public static class UIConstants
 {
     public const int MaxVisibleNotifications = 3;
-    public const int MaxThumbnails = 200;
+    public const int MaxThumbnails = 2000;
     public const int ThumbnailSize = 80;
     public const double AnnotationDragThreshold = 3.0;
     public const double DefaultAnnotationStrokeWidth = 2.0;
