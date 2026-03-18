@@ -1,3 +1,4 @@
+using DicomViewer.Constants;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -28,7 +29,7 @@ public sealed class LoggingService
 
     private readonly object _lock = new();
     private readonly LinkedList<LogEntry> _buffer = new();
-    private const int MaxBufferSize = 500;
+    private const int MaxBufferSize = UIConstants.MaxLogBufferSize;
     private readonly string _logDir;
     private string? _currentLogFile;
     private string? _currentLogDate;
