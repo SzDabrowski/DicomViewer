@@ -396,6 +396,25 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         if (OpenFiles.Any(f => f.FilePath == path)) return;
 
+        // Check if this is a video file — show friendly message if FFmpeg is missing
+        if (VideoService.IsSupported(path))
+        {
+            try
+            {
+                var testSvc = new VideoService();
+                testSvc.GetMetadata(path);
+            }
+            catch (InvalidOperationException ex) when (ex.Message.Contains("FFmpeg"))
+            {
+                AddNotification(NotificationSeverity.Warning,
+                    _loc["Err_VideoNotSupported"],
+                    _loc["Err_VideoNotSupported_Details"]);
+                StatusMessage = _loc["Err_VideoNotSupported"];
+                _log.Warning("FileOpen", $"Video not supported (FFmpeg missing): {System.IO.Path.GetFileName(path)}");
+                return;
+            }
+        }
+
         IsLoadingFile = true;
         LoadingProgress = 0;
         StatusMessage = $"{_loc["Opening"]} {System.IO.Path.GetFileName(path)}";

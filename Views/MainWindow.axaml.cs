@@ -421,6 +421,8 @@ namespace DicomViewer.Views
         private async Task OpenSettingsWindow()
         {
             var vm = new ViewModels.SettingsViewModel();
+            vm.OnLanguageChanged = (title, detail) =>
+                VM?.AddNotification(NotificationSeverity.Info, title, detail);
             vm.RequestBrowseDirectory = async () =>
             {
                 var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions

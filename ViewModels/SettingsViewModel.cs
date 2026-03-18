@@ -86,6 +86,9 @@ public partial class SettingsViewModel : ViewModelBase
     public List<string> WindowModeOptions { get; } = new() { "Windowed", "Maximized", "Fullscreen" };
     public List<string> LanguageOptions { get; } = new() { "English", "Polski" };
 
+    /// <summary>Invoked when the language changes so the host window can show a restart notification.</summary>
+    public Action<string, string>? OnLanguageChanged { get; set; }
+
     public ObservableCollection<KeyBindingRowViewModel> PlaybackBindings { get; } = new();
     public ObservableCollection<KeyBindingRowViewModel> ViewBindings { get; } = new();
     public ObservableCollection<KeyBindingRowViewModel> ToolBindings { get; } = new();
@@ -220,6 +223,7 @@ public partial class SettingsViewModel : ViewModelBase
         var lang = value == 1 ? "pl" : "en";
         _loc.SetLanguage(lang);
         SaveSettings();
+        OnLanguageChanged?.Invoke(_loc["Info_RestartRequired"], _loc["Info_RestartRequired_Lang"]);
 
         // Refresh all key binding labels
         foreach (var row in PlaybackBindings.Concat(ViewBindings).Concat(ToolBindings).Concat(FileBindings).Concat(EditBindings))

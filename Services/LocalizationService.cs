@@ -290,6 +290,10 @@ public class LocalizationService : INotifyPropertyChanged
         ["Err_AccessDenied"] = "Access denied:",
         ["Err_IOError"] = "IO error reading:",
         ["Err_CouldNotOpenLogFolder"] = "Could not open log folder:",
+        ["Err_VideoNotSupported"] = "Video playback requires FFmpeg",
+        ["Err_VideoNotSupported_Details"] = "Video files (.mp4, .avi, .mkv, .mov, .wmv) require FFmpeg libraries to be installed. Please install FFmpeg and ensure it is on your PATH.",
+        ["Info_RestartRequired"] = "Restart required",
+        ["Info_RestartRequired_Lang"] = "Some UI elements require a restart to fully apply the new language.",
     };
 
     private static Dictionary<string, string> GetPolishStrings() => new()
@@ -506,5 +510,9 @@ public class LocalizationService : INotifyPropertyChanged
         ["Err_AccessDenied"] = "Odmowa dost\u0119pu:",
         ["Err_IOError"] = "B\u0142\u0105d odczytu:",
         ["Err_CouldNotOpenLogFolder"] = "Nie mo\u017cna otworzy\u0107 folderu log\u00f3w:",
+        ["Err_VideoNotSupported"] = "Odtwarzanie wideo wymaga FFmpeg",
+        ["Err_VideoNotSupported_Details"] = "Pliki wideo (.mp4, .avi, .mkv, .mov, .wmv) wymagaj\u0105 zainstalowanych bibliotek FFmpeg. Zainstaluj FFmpeg i upewnij si\u0119, \u017ce jest w zmiennej PATH.",
+        ["Info_RestartRequired"] = "Wymagany restart",
+        ["Info_RestartRequired_Lang"] = "Niekt\u00f3re elementy interfejsu wymagaj\u0105 restartu, aby w pe\u0142ni zastosowa\u0107 nowy j\u0119zyk.",
     };
 }
