@@ -104,7 +104,10 @@ namespace DicomViewer.Services
                     var vals = dataset.GetValues<double>(DicomTag.ImageOrientationPatient);
                     iop = string.Join("\\", vals.Select(v => v.ToString("F6")));
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    LoggingService.Instance.Debug("DicomService", $"Failed to parse ImageOrientationPatient: {ex.Message}");
+                }
             }
 
             // Transfer syntax
@@ -395,7 +398,7 @@ namespace DicomViewer.Services
                         ? group.OrderBy(g => g.SliceLocation).ToList()
                         : group.OrderBy(g => g.InstanceNumber).ToList();
 
-                    var first = sorted.First();
+                    var first = sorted.First(); // Safe: GroupBy guarantees at least one element per group
                     return new Models.DicomSeriesStack
                     {
                         SeriesInstanceUID = group.Key,
@@ -435,8 +438,9 @@ namespace DicomViewer.Services
                     var transcoder = new DicomTranscoder(transferSyntax, DicomTransferSyntax.ExplicitVRLittleEndian);
                     dataset = transcoder.Transcode(dataset);
                 }
-                catch
+                catch (Exception ex)
                 {
+                    LoggingService.Instance.Debug("DicomService", $"Transcoding failed in GetModalityRange: {ex.Message}");
                     return (0, 65535);
                 }
             }
@@ -460,9 +464,10 @@ namespace DicomViewer.Services
                 var frameData = pixelData.GetFrame(frameIndex);
                 rawBytes = frameData.Data;
             }
-            catch
+            catch (Exception ex)
             {
                 // Cannot read raw data; return default range
+                LoggingService.Instance.Debug("DicomService", $"Raw pixel extraction failed in GetModalityRange: {ex.Message}");
                 return (0, 65535);
             }
 

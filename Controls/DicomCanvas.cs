@@ -271,6 +271,8 @@ public class DicomCanvas : Control
 
         if (_bitmap == null || _bitmap.PixelSize.Width != _imgWidth || _bitmap.PixelSize.Height != _imgHeight)
         {
+            // Dispose the old bitmap to free unmanaged memory before allocating a new one
+            _bitmap?.Dispose();
             _bitmap = new WriteableBitmap(
                 new PixelSize(_imgWidth, _imgHeight),
                 new Vector(96, 96),
