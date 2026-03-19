@@ -61,6 +61,11 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private CancellationTokenSource? _playCts;
 
+    /// <summary>
+    /// Callback set by the View to await frame render completion during playback.
+    /// </summary>
+    internal Func<Task>? WaitForFrameRenderAsync { get; set; }
+
     [ObservableProperty] private bool _isRightPanelVisible = true;
     [ObservableProperty] private bool _isBrowserExpanded = true;
     [ObservableProperty] private bool _isLoadingFile;
@@ -597,7 +602,10 @@ public partial class MainWindowViewModel : ViewModelBase
                 {
                     await Task.Delay(1000 / Math.Max(1, PlaybackFps), token);
                     if (token.IsCancellationRequested) break;
-                    Avalonia.Threading.Dispatcher.UIThread.Post(NextFrame);
+                    await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => NextFrame());
+                    // Wait for the frame to finish rendering before advancing
+                    if (WaitForFrameRenderAsync != null)
+                        await WaitForFrameRenderAsync();
                 }
             }
             catch (OperationCanceledException)

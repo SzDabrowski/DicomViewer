@@ -28,6 +28,7 @@ namespace DicomViewer.Views
         /// so intermediate frames are skipped and only the final frame renders.
         /// </summary>
         private CancellationTokenSource? _frameLoadCts;
+        private Task _currentRenderTask = Task.CompletedTask;
 
         public MainWindow()
         {
@@ -133,7 +134,7 @@ namespace DicomViewer.Views
                 {
                     if (args.PropertyName == nameof(MainWindowViewModel.ActiveFile) ||
                         args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
-                        _ = UpdateCanvasImageAsync();
+                        _currentRenderTask = UpdateCanvasImageAsync();
 
                     if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         ScrollFilmstripToCurrentFrame();
@@ -141,6 +142,8 @@ namespace DicomViewer.Views
                     if (args.PropertyName == nameof(MainWindowViewModel.ClipboardText) && VM.ClipboardText != null)
                         _ = Clipboard?.SetTextAsync(VM.ClipboardText);
                 };
+
+                VM.WaitForFrameRenderAsync = () => _currentRenderTask;
 
                 VM.LoadSettings();
                 ApplyStartupWindowMode(VM.StartupWindowMode);
