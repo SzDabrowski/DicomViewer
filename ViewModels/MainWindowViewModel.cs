@@ -69,7 +69,12 @@ public partial class MainWindowViewModel : ViewModelBase
     /// <summary>
     /// Callback set by the View to prefetch all frames into cache when playback starts.
     /// </summary>
-    internal Action<CancellationToken>? PrefetchFramesAsync { get; set; }
+    internal Func<CancellationToken, Task>? PrefetchFramesAsync { get; set; }
+
+    /// <summary>
+    /// Callback to query how many frames are currently in the decode cache.
+    /// </summary>
+    internal Func<int>? GetCachedFrameCount { get; set; }
 
     [ObservableProperty] private bool _isRightPanelVisible = true;
     [ObservableProperty] private bool _isBrowserExpanded = true;
@@ -602,12 +607,13 @@ public partial class MainWindowViewModel : ViewModelBase
         var token = _playCts.Token;
 
         // Prefetch all frames into cache on a background thread
-        PrefetchFramesAsync?.Invoke(token);
+        var prefetchTask = PrefetchFramesAsync?.Invoke(token);
 
         _ = Task.Run(async () =>
         {
             try
             {
+                bool allBuffered = false;
                 var sw = System.Diagnostics.Stopwatch.StartNew();
                 while (!token.IsCancellationRequested)
                 {
@@ -638,6 +644,25 @@ public partial class MainWindowViewModel : ViewModelBase
                     // Wait for the frame to finish rendering before advancing
                     if (WaitForFrameRenderAsync != null)
                         await WaitForFrameRenderAsync();
+
+                    // Update buffering status
+                    if (!allBuffered && prefetchTask != null)
+                    {
+                        if (prefetchTask.IsCompleted)
+                        {
+                            allBuffered = true;
+                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                                StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffered"]}");
+                        }
+                        else
+                        {
+                            int cached = GetCachedFrameCount?.Invoke() ?? 0;
+                            int total = TotalFrames;
+                            int pct = total > 0 ? (int)(cached * 100.0 / total) : 0;
+                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                                StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffering"]} {pct}% ({cached}/{total})");
+                        }
+                    }
                 }
             }
             catch (OperationCanceledException)
@@ -645,7 +670,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 // Expected when StopPlayback cancels the token
             }
         }, token);
-        StatusMessage = $"{_loc["Playing"]} - {PlaybackFps} {_loc["FPS"]}";
+        StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffering"]}...";
     }
 
     private void StopPlayback()

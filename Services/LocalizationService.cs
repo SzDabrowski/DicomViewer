@@ -204,6 +204,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Error"] = "Error:",
         ["Playing"] = "Playing",
         ["Paused"] = "Paused",
+        ["Buffering"] = "Buffering",
+        ["Buffered"] = "Buffered",
         ["Preset"] = "Preset:",
         ["Opening"] = "Opening:",
 
@@ -424,6 +426,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Error"] = "B\u0142\u0105d:",
         ["Playing"] = "Odtwarzanie",
         ["Paused"] = "Wstrzymano",
+        ["Buffering"] = "Buforowanie",
+        ["Buffered"] = "Zbuforowano",
         ["Preset"] = "Preset:",
         ["Opening"] = "Otwieranie:",
 

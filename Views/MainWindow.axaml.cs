@@ -152,12 +152,12 @@ namespace DicomViewer.Views
 
                 VM.PrefetchFramesAsync = (ct) =>
                 {
-                    if (VM?.ActiveFile == null) return;
+                    if (VM?.ActiveFile == null) return Task.CompletedTask;
                     var model = VM.ActiveFile.Model;
                     int totalFrames = VM.TotalFrames;
                     var dicomService = _dicomService;
 
-                    _ = Task.Run(() =>
+                    return Task.Run(() =>
                     {
                         for (int i = 0; i < totalFrames; i++)
                         {
@@ -176,6 +176,8 @@ namespace DicomViewer.Views
                         }
                     }, ct);
                 };
+
+                VM.GetCachedFrameCount = () => _dicomService.CachedFrameCount;
 
                 VM.LoadSettings();
                 ApplyStartupWindowMode(VM.StartupWindowMode);
