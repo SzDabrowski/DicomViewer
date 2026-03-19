@@ -208,6 +208,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Buffered"] = "Buffered",
         ["Preset"] = "Preset:",
         ["Opening"] = "Opening:",
+        ["WL_Center"] = "Center:",
+        ["WL_Width"] = "Width:",
 
         // Settings Window
         ["Settings_Title"] = "Settings",
@@ -430,6 +432,8 @@ public class LocalizationService : INotifyPropertyChanged
         ["Buffered"] = "Zbuforowano",
         ["Preset"] = "Preset:",
         ["Opening"] = "Otwieranie:",
+        ["WL_Center"] = "Środek:",
+        ["WL_Width"] = "Szerokość:",
 
         // Settings Window
         ["Settings_Title"] = "Ustawienia",

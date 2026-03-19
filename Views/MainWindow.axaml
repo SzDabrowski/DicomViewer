@@ -1066,13 +1066,13 @@
 					</StackPanel>
 					<Rectangle Width="1" Height="20" Fill="#2A2A3A" VerticalAlignment="Center"/>
 					<StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
-						<TextBlock Text="C:" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
+						<TextBlock Text="{Binding Loc[WL_Center]}" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
 						<Slider Name="WindowCenterSlider" Minimum="0" Maximum="65535" Value="{Binding WindowCenter}" Width="70" VerticalAlignment="Center"/>
 						<TextBlock Text="{Binding WindowCenter, StringFormat={}{0:F0}}"
                                    Foreground="#E8E8F0" FontSize="11" VerticalAlignment="Center" MinWidth="34"/>
 					</StackPanel>
 					<StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
-						<TextBlock Text="W:" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
+						<TextBlock Text="{Binding Loc[WL_Width]}" Foreground="#8888A8" FontSize="11" VerticalAlignment="Center"/>
 						<Slider Name="WindowWidthSlider" Minimum="1" Maximum="65535" Value="{Binding WindowWidth}" Width="70" VerticalAlignment="Center"/>
 						<TextBlock Text="{Binding WindowWidth, StringFormat={}{0:F0}}"
                                    Foreground="#E8E8F0" FontSize="11" VerticalAlignment="Center" MinWidth="34"/>
