@@ -84,6 +84,11 @@ namespace DicomViewer.Services
             return false;
         }
 
+        public int CachedFrameCount
+        {
+            get { lock (_cacheLock) return _frameCache.Count; }
+        }
+
         public void ClearCache()
         {
             lock (_cacheLock)
