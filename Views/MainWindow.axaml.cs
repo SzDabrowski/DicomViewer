@@ -582,7 +582,10 @@ namespace DicomViewer.Views
         {
             if (sender is Border b && b.DataContext is ThumbnailViewModel thumbVM && VM != null)
             {
-                VM.CurrentFrameIndex = thumbVM.FrameIndex;
+                // Use FrameDisplayIndex (position in thumbnail list) for stacked series,
+                // since FrameIndex is always 0 for stacked (each file has one frame)
+                int idx = thumbVM.FrameDisplayIndex >= 0 ? thumbVM.FrameDisplayIndex : thumbVM.FrameIndex;
+                VM.CurrentFrameIndex = Math.Clamp(idx, 0, Math.Max(0, VM.TotalFrames - 1));
             }
         }
 
