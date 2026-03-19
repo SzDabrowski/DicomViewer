@@ -168,10 +168,22 @@ public partial class DicomFileViewModel : ViewModelBase
         };
 
         // Convert DICOM W/L (in modality units like HU) to normalized 0-65535 pixel space
-        // If DICOM file has no W/L tags, auto-compute from actual pixel data range
+        // Auto-compute from pixel data range if tags are missing or nonsensical
         double wc = meta.WindowCenter;
         double ww = meta.WindowWidth;
-        if (double.IsNaN(wc) || double.IsNaN(ww))
+        bool needsAutoCompute = double.IsNaN(wc) || double.IsNaN(ww);
+
+        if (!needsAutoCompute)
+        {
+            // Check if DICOM W/L values produce normalized results outside valid range
+            // This catches cases like WC=32768/WW=65535 on 8-bit data (range 0..255)
+            double testWc = model.ModalityToNormalizedCenter(wc);
+            double testWw = model.ModalityToNormalizedWidth(ww);
+            if (testWc < -65535 || testWc > 2 * 65535 || testWw > 2 * 65535)
+                needsAutoCompute = true;
+        }
+
+        if (needsAutoCompute)
         {
             wc = (modalityMin + modalityMax) / 2.0;
             ww = modalityMax - modalityMin;

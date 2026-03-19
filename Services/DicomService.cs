@@ -142,11 +142,12 @@ namespace DicomViewer.Services
             }
 
             // Read DICOM-embedded Window Center/Width (Critical #3)
-            double wc = 32768, ww = 65535;
+            // Return NaN when tags are absent so caller can auto-compute from pixel data
+            double wc = double.NaN, ww = double.NaN;
             if (dataset.Contains(DicomTag.WindowCenter) && dataset.Contains(DicomTag.WindowWidth))
             {
-                wc = dataset.GetSingleValueOrDefault(DicomTag.WindowCenter, 32768.0);
-                ww = dataset.GetSingleValueOrDefault(DicomTag.WindowWidth, 65535.0);
+                wc = dataset.GetSingleValueOrDefault(DicomTag.WindowCenter, double.NaN);
+                ww = dataset.GetSingleValueOrDefault(DicomTag.WindowWidth, double.NaN);
             }
 
             // Rescale Slope/Intercept for Hounsfield Units (Critical #2)
