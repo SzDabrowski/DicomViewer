@@ -66,6 +66,11 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     internal Func<Task>? WaitForFrameRenderAsync { get; set; }
 
+    /// <summary>
+    /// Callback set by the View to prefetch all frames into cache when playback starts.
+    /// </summary>
+    internal Action<CancellationToken>? PrefetchFramesAsync { get; set; }
+
     [ObservableProperty] private bool _isRightPanelVisible = true;
     [ObservableProperty] private bool _isBrowserExpanded = true;
     [ObservableProperty] private bool _isLoadingFile;
@@ -530,6 +535,7 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var thumb in Thumbnails)
             thumb.Dispose();
         Thumbnails.Clear();
+        _lastSelectedThumbnailIndex = 0;
         // Cap at 200 frames for performance; thumbnails load async so this is safe
         var count = Math.Min(file.TotalFrames, UIConstants.MaxThumbnails);
         for (int i = 0; i < count; i++)
@@ -594,14 +600,40 @@ public partial class MainWindowViewModel : ViewModelBase
         IsPlaying = true;
         _playCts = new CancellationTokenSource();
         var token = _playCts.Token;
+
+        // Prefetch all frames into cache on a background thread
+        PrefetchFramesAsync?.Invoke(token);
+
         _ = Task.Run(async () =>
         {
             try
             {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
                 while (!token.IsCancellationRequested)
                 {
-                    await Task.Delay(1000 / Math.Max(1, PlaybackFps), token);
+                    double targetMs = 1000.0 / Math.Max(1, PlaybackFps);
+                    double elapsedMs = sw.Elapsed.TotalMilliseconds;
+                    double remainMs = targetMs - elapsedMs;
+
+                    // High-resolution wait: use Task.Delay for long waits,
+                    // then spin-wait for the final milliseconds (Task.Delay has ~15ms
+                    // resolution on Windows, making 60 FPS impossible otherwise)
+                    if (remainMs > 20)
+                    {
+                        await Task.Delay((int)(remainMs - 15), token);
+                    }
+                    if (remainMs > 0)
+                    {
+                        // Spin-wait for precise timing on the final stretch
+                        while (sw.Elapsed.TotalMilliseconds < targetMs)
+                        {
+                            if (token.IsCancellationRequested) break;
+                            Thread.SpinWait(100);
+                        }
+                    }
+
                     if (token.IsCancellationRequested) break;
+                    sw.Restart();
                     await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => NextFrame());
                     // Wait for the frame to finish rendering before advancing
                     if (WaitForFrameRenderAsync != null)
@@ -626,13 +658,23 @@ public partial class MainWindowViewModel : ViewModelBase
         StatusMessage = _loc["Paused"];
     }
 
+    private int _lastSelectedThumbnailIndex = -1;
+
     private void UpdateThumbnailSelection()
     {
-        foreach (var t in Thumbnails)
+        // Deselect previous thumbnail
+        if (_lastSelectedThumbnailIndex >= 0 && _lastSelectedThumbnailIndex < Thumbnails.Count)
+            Thumbnails[_lastSelectedThumbnailIndex].IsCurrentFrame = false;
+
+        // Select new thumbnail (CurrentFrameIndex maps directly to Thumbnails collection index)
+        if (CurrentFrameIndex >= 0 && CurrentFrameIndex < Thumbnails.Count)
         {
-            // For stacked series, compare against the display index
-            int compareIdx = t.FrameDisplayIndex >= 0 ? t.FrameDisplayIndex : t.FrameIndex;
-            t.IsCurrentFrame = compareIdx == CurrentFrameIndex;
+            Thumbnails[CurrentFrameIndex].IsCurrentFrame = true;
+            _lastSelectedThumbnailIndex = CurrentFrameIndex;
+        }
+        else
+        {
+            _lastSelectedThumbnailIndex = -1;
         }
     }
 
