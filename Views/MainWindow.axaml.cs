@@ -136,12 +136,7 @@ namespace DicomViewer.Views
                         args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         _currentRenderTask = UpdateCanvasImageAsync();
 
-                    // Skip filmstrip scroll during playback to avoid layout thrashing;
-                    // sync once when playback stops
-                    if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex) && !VM.IsPlaying)
-                        ScrollFilmstripToCurrentFrame();
-
-                    if (args.PropertyName == nameof(MainWindowViewModel.IsPlaying) && !VM.IsPlaying)
+                    if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         ScrollFilmstripToCurrentFrame();
 
                     if (args.PropertyName == nameof(MainWindowViewModel.ClipboardText) && VM.ClipboardText != null)
@@ -587,7 +582,10 @@ namespace DicomViewer.Views
         {
             if (sender is Border b && b.DataContext is ThumbnailViewModel thumbVM && VM != null)
             {
-                VM.CurrentFrameIndex = thumbVM.FrameIndex;
+                // Use FrameDisplayIndex (position in thumbnail list) for stacked series,
+                // since FrameIndex is always 0 for stacked (each file has one frame)
+                int idx = thumbVM.FrameDisplayIndex >= 0 ? thumbVM.FrameDisplayIndex : thumbVM.FrameIndex;
+                VM.CurrentFrameIndex = Math.Clamp(idx, 0, Math.Max(0, VM.TotalFrames - 1));
             }
         }
 
