@@ -416,7 +416,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
             _log.Info("Stacking", $"Loaded stacked series: {vm.DisplayName} ({stack.SliceCount} slices)");
             LoadingProgress = 100;
-            StatusMessage = $"{_loc["Ready"]} - {vm.DisplayName}";
+            if (!IsBuffering)
+                StatusMessage = $"{_loc["Ready"]} - {vm.DisplayName}";
         }
         catch (Exception ex)
         {
@@ -485,7 +486,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
             _log.Info("FileOpen", $"Loaded {vm.DisplayName} ({vm.TotalFrames} frames)");
             LoadingProgress = 100;
-            StatusMessage = $"{_loc["Ready"]} - {vm.DisplayName}";
+            if (!IsBuffering)
+                StatusMessage = $"{_loc["Ready"]} - {vm.DisplayName}";
         }
         catch (Exception ex)
         {
@@ -552,6 +554,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (cachedNow >= TotalFrames) return; // Already fully cached
 
         IsBuffering = true;
+        StatusMessage = $"{_loc["Buffering"]} 0% (0/{TotalFrames})";
         var token = _prefetchCts.Token;
         var prefetchTask = PrefetchFramesAsync.Invoke(token);
 
