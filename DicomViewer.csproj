@@ -41,4 +41,8 @@
 		<None Remove="DicomViewer.Tests\**" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<InternalsVisibleTo Include="DicomViewer.Tests" />
+	</ItemGroup>
+
 </Project>
