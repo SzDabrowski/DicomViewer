@@ -168,8 +168,17 @@ public partial class DicomFileViewModel : ViewModelBase
         };
 
         // Convert DICOM W/L (in modality units like HU) to normalized 0-65535 pixel space
-        model.WindowCenter = model.ModalityToNormalizedCenter(meta.WindowCenter);
-        model.WindowWidth = model.ModalityToNormalizedWidth(meta.WindowWidth);
+        // If DICOM file has no W/L tags, auto-compute from actual pixel data range
+        double wc = meta.WindowCenter;
+        double ww = meta.WindowWidth;
+        if (double.IsNaN(wc) || double.IsNaN(ww))
+        {
+            wc = (modalityMin + modalityMax) / 2.0;
+            ww = modalityMax - modalityMin;
+            if (ww < 1) ww = 1;
+        }
+        model.WindowCenter = model.ModalityToNormalizedCenter(wc);
+        model.WindowWidth = model.ModalityToNormalizedWidth(ww);
 
         log.Debug("FileOpen",
             $"W/L mapping: DICOM WC={meta.WindowCenter:F0} WW={meta.WindowWidth:F0} → " +

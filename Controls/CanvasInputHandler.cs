@@ -136,8 +136,11 @@ public class CanvasInputHandler
                 break;
 
             case MouseTool.WindowLevel:
-                _canvas.WindowCenter += dx * 2.0;
-                _canvas.WindowWidth = Math.Max(1, _canvas.WindowWidth + dy * 4.0);
+                // Scale sensitivity proportionally to current window width for natural feel
+                // A ~200px drag sweeps the full current window width range
+                double sensitivity = Math.Max(1, _canvas.WindowWidth) / 200.0;
+                _canvas.WindowCenter += dx * sensitivity;
+                _canvas.WindowWidth = Math.Max(1, _canvas.WindowWidth + dy * sensitivity);
                 _canvas.RaiseWindowLevelChanged();
                 break;
         }

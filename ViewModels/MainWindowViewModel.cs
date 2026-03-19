@@ -60,6 +60,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool _loopPlayback = true;
 
     private CancellationTokenSource? _playCts;
+    private CancellationTokenSource? _prefetchCts;
 
     /// <summary>
     /// Callback set by the View to await frame render completion during playback.
@@ -532,7 +533,58 @@ public partial class MainWindowViewModel : ViewModelBase
         ActiveFileInfo = $"{file.PatientName}  |  {file.Modality}  |  {file.StudyDate}  |  {file.TotalFrames} frames";
         BuildThumbnails(file);
         ZoomLevel = 1.0; PanX = 0; PanY = 0; Rotation = 0;
+
+        // Start background prefetch for multi-frame files so playback is instant
+        StartBackgroundPrefetch();
         await Task.CompletedTask;
+    }
+
+    private void StartBackgroundPrefetch()
+    {
+        // Cancel any previous prefetch
+        _prefetchCts?.Cancel();
+        _prefetchCts?.Dispose();
+        _prefetchCts = new CancellationTokenSource();
+
+        if (TotalFrames <= 1 || PrefetchFramesAsync == null) return;
+
+        int cachedNow = GetCachedFrameCount?.Invoke() ?? 0;
+        if (cachedNow >= TotalFrames) return; // Already fully cached
+
+        IsBuffering = true;
+        var token = _prefetchCts.Token;
+        var prefetchTask = PrefetchFramesAsync.Invoke(token);
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                // Poll progress until done
+                while (!prefetchTask.IsCompleted && !token.IsCancellationRequested)
+                {
+                    int cached = GetCachedFrameCount?.Invoke() ?? 0;
+                    int total = TotalFrames;
+                    int pct = total > 0 ? (int)(cached * 100.0 / total) : 0;
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                        StatusMessage = $"{_loc["Buffering"]} {pct}% ({cached}/{total})");
+                    await Task.Delay(250, token);
+                }
+
+                if (!token.IsCancellationRequested)
+                {
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        IsBuffering = false;
+                        StatusMessage = $"{_loc["Buffered"]} — {TotalFrames} frames";
+                    });
+                }
+            }
+            catch (OperationCanceledException) { }
+            finally
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => IsBuffering = false);
+            }
+        }, token);
     }
 
     private void BuildThumbnails(DicomFileViewModel file)
@@ -607,18 +659,11 @@ public partial class MainWindowViewModel : ViewModelBase
         _playCts = new CancellationTokenSource();
         var token = _playCts.Token;
 
-        // Check if frames are already cached from a previous session
-        int cachedNow = GetCachedFrameCount?.Invoke() ?? 0;
-        bool alreadyCached = cachedNow >= TotalFrames;
-
-        // Prefetch all frames into cache on a background thread
-        var prefetchTask = alreadyCached ? null : PrefetchFramesAsync?.Invoke(token);
-
         _ = Task.Run(async () =>
         {
             try
             {
-                bool allBuffered = alreadyCached;
+                bool allBuffered = !IsBuffering;
                 var sw = System.Diagnostics.Stopwatch.StartNew();
                 while (!token.IsCancellationRequested)
                 {
@@ -650,26 +695,10 @@ public partial class MainWindowViewModel : ViewModelBase
                     if (WaitForFrameRenderAsync != null)
                         await WaitForFrameRenderAsync();
 
-                    // Update buffering status
-                    if (!allBuffered && prefetchTask != null)
+                    // Detect when background prefetch completes during playback
+                    if (!allBuffered && !IsBuffering)
                     {
-                        if (prefetchTask.IsCompleted)
-                        {
-                            allBuffered = true;
-                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                            {
-                                IsBuffering = false;
-                                StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffered"]}";
-                            });
-                        }
-                        else
-                        {
-                            int cached = GetCachedFrameCount?.Invoke() ?? 0;
-                            int total = TotalFrames;
-                            int pct = total > 0 ? (int)(cached * 100.0 / total) : 0;
-                            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                                StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffering"]} {pct}% ({cached}/{total})");
-                        }
+                        allBuffered = true;
                     }
                 }
             }
@@ -678,16 +707,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 // Expected when StopPlayback cancels the token
             }
         }, token);
-        if (alreadyCached)
-        {
-            IsBuffering = false;
-            StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffered"]}";
-        }
-        else
-        {
-            IsBuffering = true;
-            StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffering"]}...";
-        }
+        StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]}";
     }
 
     private void StopPlayback()
