@@ -35,6 +35,65 @@ namespace DicomViewer.Services
 
     public class DicomService
     {
+        // LRU frame cache: avoids re-decoding frames during loop playback
+        private const long MaxCacheBytes = 256 * 1024 * 1024; // 256 MB budget
+        private readonly Dictionary<(string, int), (ushort[] Pixels, int Width, int Height, bool IsColor)> _frameCache = new();
+        private readonly LinkedList<(string Path, int Frame, long Size)> _cacheOrder = new();
+        private long _currentCacheBytes;
+        private readonly object _cacheLock = new();
+
+        private void CacheFrame(string filePath, int frameIndex, ushort[] pixels, int width, int height, bool isColor)
+        {
+            long entrySize = pixels.Length * 2L;
+            lock (_cacheLock)
+            {
+                var key = (filePath, frameIndex);
+                if (_frameCache.ContainsKey(key)) return;
+
+                // Evict oldest entries until we have room
+                while (_currentCacheBytes + entrySize > MaxCacheBytes && _cacheOrder.Count > 0)
+                {
+                    var oldest = _cacheOrder.First!.Value;
+                    _cacheOrder.RemoveFirst();
+                    _frameCache.Remove((oldest.Path, oldest.Frame));
+                    _currentCacheBytes -= oldest.Size;
+                }
+
+                _frameCache[key] = (pixels, width, height, isColor);
+                _cacheOrder.AddLast((filePath, frameIndex, entrySize));
+                _currentCacheBytes += entrySize;
+            }
+        }
+
+        private bool TryGetCachedFrame(string filePath, int frameIndex, out ushort[] pixels, out int width, out int height, out bool isColor)
+        {
+            lock (_cacheLock)
+            {
+                if (_frameCache.TryGetValue((filePath, frameIndex), out var cached))
+                {
+                    pixels = cached.Pixels;
+                    width = cached.Width;
+                    height = cached.Height;
+                    isColor = cached.IsColor;
+                    return true;
+                }
+            }
+            pixels = Array.Empty<ushort>();
+            width = height = 0;
+            isColor = false;
+            return false;
+        }
+
+        public void ClearCache()
+        {
+            lock (_cacheLock)
+            {
+                _frameCache.Clear();
+                _cacheOrder.Clear();
+                _currentCacheBytes = 0;
+            }
+        }
+
         public DicomMetadata GetMetadata(string filePath)
         {
             var file = DicomFile.Open(filePath);
@@ -147,6 +206,10 @@ namespace DicomViewer.Services
         /// </summary>
         public ushort[] LoadDicomPixels(string filePath, int frameIndex, out int width, out int height, out bool isColor)
         {
+            // Check cache first to avoid expensive re-decoding
+            if (TryGetCachedFrame(filePath, frameIndex, out var cached, out width, out height, out isColor))
+                return cached;
+
             var file = DicomFile.Open(filePath);
             var dataset = file.Dataset;
             width = dataset.GetSingleValue<int>(DicomTag.Columns);
@@ -164,14 +227,14 @@ namespace DicomViewer.Services
             string photoInterp = dataset.GetSingleValueOrDefault(DicomTag.PhotometricInterpretation, "MONOCHROME2");
             isColor = photoInterp is "RGB" or "YBR_FULL" or "YBR_FULL_422" or "PALETTE COLOR";
 
+            ushort[] pixels;
             if (isColor)
-            {
-                // For color images, use fo-dicom's rendering and preserve RGB channels
-                return LoadColorPixels(dataset, frameIndex, width, height);
-            }
+                pixels = LoadColorPixels(dataset, frameIndex, width, height);
+            else
+                pixels = LoadGrayscalePixels(dataset, frameIndex, width, height);
 
-            // Grayscale: read native bit-depth pixel data
-            return LoadGrayscalePixels(dataset, frameIndex, width, height);
+            CacheFrame(filePath, frameIndex, pixels, width, height, isColor);
+            return pixels;
         }
 
         // Overload for backward compatibility

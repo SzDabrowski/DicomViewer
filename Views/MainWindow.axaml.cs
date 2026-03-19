@@ -136,7 +136,12 @@ namespace DicomViewer.Views
                         args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
                         _currentRenderTask = UpdateCanvasImageAsync();
 
-                    if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex))
+                    // Skip filmstrip scroll during playback to avoid layout thrashing;
+                    // sync once when playback stops
+                    if (args.PropertyName == nameof(MainWindowViewModel.CurrentFrameIndex) && !VM.IsPlaying)
+                        ScrollFilmstripToCurrentFrame();
+
+                    if (args.PropertyName == nameof(MainWindowViewModel.IsPlaying) && !VM.IsPlaying)
                         ScrollFilmstripToCurrentFrame();
 
                     if (args.PropertyName == nameof(MainWindowViewModel.ClipboardText) && VM.ClipboardText != null)

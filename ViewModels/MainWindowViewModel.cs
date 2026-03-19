@@ -530,6 +530,7 @@ public partial class MainWindowViewModel : ViewModelBase
         foreach (var thumb in Thumbnails)
             thumb.Dispose();
         Thumbnails.Clear();
+        _lastSelectedThumbnailIndex = 0;
         // Cap at 200 frames for performance; thumbnails load async so this is safe
         var count = Math.Min(file.TotalFrames, UIConstants.MaxThumbnails);
         for (int i = 0; i < count; i++)
@@ -631,13 +632,23 @@ public partial class MainWindowViewModel : ViewModelBase
         StatusMessage = _loc["Paused"];
     }
 
+    private int _lastSelectedThumbnailIndex = -1;
+
     private void UpdateThumbnailSelection()
     {
-        foreach (var t in Thumbnails)
+        // Deselect previous thumbnail
+        if (_lastSelectedThumbnailIndex >= 0 && _lastSelectedThumbnailIndex < Thumbnails.Count)
+            Thumbnails[_lastSelectedThumbnailIndex].IsCurrentFrame = false;
+
+        // Select new thumbnail (CurrentFrameIndex maps directly to Thumbnails collection index)
+        if (CurrentFrameIndex >= 0 && CurrentFrameIndex < Thumbnails.Count)
         {
-            // For stacked series, compare against the display index
-            int compareIdx = t.FrameDisplayIndex >= 0 ? t.FrameDisplayIndex : t.FrameIndex;
-            t.IsCurrentFrame = compareIdx == CurrentFrameIndex;
+            Thumbnails[CurrentFrameIndex].IsCurrentFrame = true;
+            _lastSelectedThumbnailIndex = CurrentFrameIndex;
+        }
+        else
+        {
+            _lastSelectedThumbnailIndex = -1;
         }
     }
 
