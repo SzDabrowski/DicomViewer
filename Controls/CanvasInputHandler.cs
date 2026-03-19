@@ -218,9 +218,25 @@ public class CanvasInputHandler
                 case Key.Escape:
                     FinishTextEditing();
                     return true;
+                case Key.Space:
+                    _editingTextAnnotation.Text += " ";
+                    _canvas.InvalidateVisual();
+                    return true;
             }
-            if (e.Key != Key.LeftCtrl && e.Key != Key.RightCtrl)
+            // Append typed character via KeySymbol (Avalonia 11+)
+            // This works without TextInputMethodClient
+            if (e.KeySymbol is { Length: > 0 } ch
+                && e.Key != Key.LeftCtrl && e.Key != Key.RightCtrl
+                && e.Key != Key.LeftShift && e.Key != Key.RightShift
+                && e.Key != Key.LeftAlt && e.Key != Key.RightAlt
+                && !e.KeyModifiers.HasFlag(KeyModifiers.Control)
+                && !e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+            {
+                _editingTextAnnotation.Text += ch;
+                _canvas.InvalidateVisual();
                 return true;
+            }
+            // Consume modifier-only keys to prevent shortcuts while typing
             return true;
         }
 
