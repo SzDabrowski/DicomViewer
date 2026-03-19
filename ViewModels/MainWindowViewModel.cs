@@ -598,10 +598,15 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             try
             {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
                 while (!token.IsCancellationRequested)
                 {
-                    await Task.Delay(1000 / Math.Max(1, PlaybackFps), token);
+                    int targetMs = 1000 / Math.Max(1, PlaybackFps);
+                    int elapsed = (int)sw.ElapsedMilliseconds;
+                    int delayMs = Math.Max(1, targetMs - elapsed);
+                    await Task.Delay(delayMs, token);
                     if (token.IsCancellationRequested) break;
+                    sw.Restart();
                     await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => NextFrame());
                     // Wait for the frame to finish rendering before advancing
                     if (WaitForFrameRenderAsync != null)
