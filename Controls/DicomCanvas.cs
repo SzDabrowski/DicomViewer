@@ -166,6 +166,82 @@ public class DicomCanvas : Control
         InvalidateVisual();
     }
 
+    /// <summary>
+    /// Accepts a pre-built RGBA buffer (computed off UI thread) and uploads it to the bitmap.
+    /// This avoids running the pixel conversion loop on the UI thread during playback.
+    /// </summary>
+    public void SetPrebuiltRgba(byte[] rgbaBuffer, ushort[] pixels, int width, int height, bool isColor = false)
+    {
+        _pixels = pixels;
+        _imgWidth = width;
+        _imgHeight = height;
+        _isColor = isColor;
+        _rgbaBuffer = rgbaBuffer;
+
+        int requiredSize = width * height * 4;
+        if (_bitmap == null || _bitmap.PixelSize.Width != width || _bitmap.PixelSize.Height != height)
+        {
+            _bitmap?.Dispose();
+            _bitmap = new WriteableBitmap(
+                new PixelSize(width, height),
+                new Vector(96, 96),
+                PixelFormat.Bgra8888,
+                AlphaFormat.Opaque);
+        }
+
+        using var fb = _bitmap.Lock();
+        Marshal.Copy(_rgbaBuffer, 0, fb.Address, requiredSize);
+        InvalidateVisual();
+    }
+
+    /// <summary>
+    /// Builds an RGBA buffer from pixel data. Can be called from any thread.
+    /// Uses the provided W/L values rather than reading from styled properties.
+    /// </summary>
+    public static byte[] BuildRgbaBuffer(ushort[] pixels, int width, int height, bool isColor,
+        double windowCenter, double windowWidth, bool isInverted)
+    {
+        int pixelCount = width * height;
+        var rgba = new byte[pixelCount * 4];
+
+        if (isColor && pixels.Length >= pixelCount * 3)
+        {
+            for (int i = 0; i < pixelCount; i++)
+            {
+                byte r = (byte)(pixels[i] >> 8);
+                byte g = (byte)(pixels[i + pixelCount] >> 8);
+                byte b = (byte)(pixels[i + pixelCount * 2] >> 8);
+                if (isInverted) { r = (byte)(255 - r); g = (byte)(255 - g); b = (byte)(255 - b); }
+                int idx = i * 4;
+                rgba[idx]     = b;
+                rgba[idx + 1] = g;
+                rgba[idx + 2] = r;
+                rgba[idx + 3] = 255;
+            }
+        }
+        else
+        {
+            float winW = Math.Max(1f, (float)windowWidth);
+            float winC = (float)windowCenter;
+            float min = winC - winW / 2f;
+
+            for (int i = 0; i < pixelCount; i++)
+            {
+                float val = pixels[i];
+                byte v;
+                if (val <= min) v = 0;
+                else if (val >= min + winW) v = 255;
+                else v = (byte)((val - min) / winW * 255f);
+                if (isInverted) v = (byte)(255 - v);
+                int idx = i * 4;
+                rgba[idx] = rgba[idx + 1] = rgba[idx + 2] = v;
+                rgba[idx + 3] = 255;
+            }
+        }
+
+        return rgba;
+    }
+
     public void ClearAnnotations()
     {
         _annotationList.Clear();

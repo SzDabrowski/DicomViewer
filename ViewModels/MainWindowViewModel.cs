@@ -66,6 +66,11 @@ public partial class MainWindowViewModel : ViewModelBase
     /// </summary>
     internal Func<Task>? WaitForFrameRenderAsync { get; set; }
 
+    /// <summary>
+    /// Callback set by the View to prefetch all frames into cache when playback starts.
+    /// </summary>
+    internal Action<CancellationToken>? PrefetchFramesAsync { get; set; }
+
     [ObservableProperty] private bool _isRightPanelVisible = true;
     [ObservableProperty] private bool _isBrowserExpanded = true;
     [ObservableProperty] private bool _isLoadingFile;
@@ -595,6 +600,10 @@ public partial class MainWindowViewModel : ViewModelBase
         IsPlaying = true;
         _playCts = new CancellationTokenSource();
         var token = _playCts.Token;
+
+        // Prefetch all frames into cache on a background thread
+        PrefetchFramesAsync?.Invoke(token);
+
         _ = Task.Run(async () =>
         {
             try
@@ -602,10 +611,27 @@ public partial class MainWindowViewModel : ViewModelBase
                 var sw = System.Diagnostics.Stopwatch.StartNew();
                 while (!token.IsCancellationRequested)
                 {
-                    int targetMs = 1000 / Math.Max(1, PlaybackFps);
-                    int elapsed = (int)sw.ElapsedMilliseconds;
-                    int delayMs = Math.Max(1, targetMs - elapsed);
-                    await Task.Delay(delayMs, token);
+                    double targetMs = 1000.0 / Math.Max(1, PlaybackFps);
+                    double elapsedMs = sw.Elapsed.TotalMilliseconds;
+                    double remainMs = targetMs - elapsedMs;
+
+                    // High-resolution wait: use Task.Delay for long waits,
+                    // then spin-wait for the final milliseconds (Task.Delay has ~15ms
+                    // resolution on Windows, making 60 FPS impossible otherwise)
+                    if (remainMs > 20)
+                    {
+                        await Task.Delay((int)(remainMs - 15), token);
+                    }
+                    if (remainMs > 0)
+                    {
+                        // Spin-wait for precise timing on the final stretch
+                        while (sw.Elapsed.TotalMilliseconds < targetMs)
+                        {
+                            if (token.IsCancellationRequested) break;
+                            Thread.SpinWait(100);
+                        }
+                    }
+
                     if (token.IsCancellationRequested) break;
                     sw.Restart();
                     await Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => NextFrame());

@@ -150,6 +150,33 @@ namespace DicomViewer.Views
 
                 VM.WaitForFrameRenderAsync = () => _currentRenderTask;
 
+                VM.PrefetchFramesAsync = (ct) =>
+                {
+                    if (VM?.ActiveFile == null) return;
+                    var model = VM.ActiveFile.Model;
+                    int totalFrames = VM.TotalFrames;
+                    var dicomService = _dicomService;
+
+                    _ = Task.Run(() =>
+                    {
+                        for (int i = 0; i < totalFrames; i++)
+                        {
+                            if (ct.IsCancellationRequested) break;
+                            var filePath = model.GetFilePathForFrame(i);
+                            int frameIdx = model.IsStacked ? 0 : i;
+                            // Skip non-DICOM files and already-cached frames
+                            if (ImageService.IsSupported(filePath) || VideoService.IsSupported(filePath))
+                                continue;
+                            try
+                            {
+                                // LoadDicomPixels checks cache internally; no-op if already cached
+                                dicomService.LoadDicomPixels(filePath, frameIdx, out _, out _, out _);
+                            }
+                            catch { /* Skip frames that fail to decode */ }
+                        }
+                    }, ct);
+                };
+
                 VM.LoadSettings();
                 ApplyStartupWindowMode(VM.StartupWindowMode);
             };
@@ -233,7 +260,22 @@ namespace DicomViewer.Views
                     // Check cancellation after await — another frame may have been requested
                     if (ct.IsCancellationRequested) return;
 
-                    canvas.SetPixels(result.Pixels, result.Width, result.Height, result.IsColor);
+                    if (VM.IsPlaying)
+                    {
+                        // During playback, build RGBA buffer on background thread
+                        // to keep UI thread free for rendering
+                        double wc = canvas.WindowCenter, ww = canvas.WindowWidth;
+                        bool inv = canvas.IsInverted;
+                        var rgba = await Task.Run(() =>
+                            DicomCanvas.BuildRgbaBuffer(result.Pixels, result.Width, result.Height,
+                                result.IsColor, wc, ww, inv), ct);
+                        if (ct.IsCancellationRequested) return;
+                        canvas.SetPrebuiltRgba(rgba, result.Pixels, result.Width, result.Height, result.IsColor);
+                    }
+                    else
+                    {
+                        canvas.SetPixels(result.Pixels, result.Width, result.Height, result.IsColor);
+                    }
                 }
             }
             catch (OperationCanceledException)
