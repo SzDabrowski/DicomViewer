@@ -78,6 +78,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     [ObservableProperty] private bool _isRightPanelVisible = true;
     [ObservableProperty] private bool _isBrowserExpanded = true;
+    [ObservableProperty] private bool _isBuffering;
     [ObservableProperty] private bool _isLoadingFile;
     [ObservableProperty] private bool _isLoadingFrame;
     [ObservableProperty] private double _loadingProgress;
@@ -606,14 +607,18 @@ public partial class MainWindowViewModel : ViewModelBase
         _playCts = new CancellationTokenSource();
         var token = _playCts.Token;
 
+        // Check if frames are already cached from a previous session
+        int cachedNow = GetCachedFrameCount?.Invoke() ?? 0;
+        bool alreadyCached = cachedNow >= TotalFrames;
+
         // Prefetch all frames into cache on a background thread
-        var prefetchTask = PrefetchFramesAsync?.Invoke(token);
+        var prefetchTask = alreadyCached ? null : PrefetchFramesAsync?.Invoke(token);
 
         _ = Task.Run(async () =>
         {
             try
             {
-                bool allBuffered = false;
+                bool allBuffered = alreadyCached;
                 var sw = System.Diagnostics.Stopwatch.StartNew();
                 while (!token.IsCancellationRequested)
                 {
@@ -652,7 +657,10 @@ public partial class MainWindowViewModel : ViewModelBase
                         {
                             allBuffered = true;
                             Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-                                StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffered"]}");
+                            {
+                                IsBuffering = false;
+                                StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffered"]}";
+                            });
                         }
                         else
                         {
@@ -670,13 +678,23 @@ public partial class MainWindowViewModel : ViewModelBase
                 // Expected when StopPlayback cancels the token
             }
         }, token);
-        StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffering"]}...";
+        if (alreadyCached)
+        {
+            IsBuffering = false;
+            StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffered"]}";
+        }
+        else
+        {
+            IsBuffering = true;
+            StatusMessage = $"▶ {PlaybackFps} {_loc["FPS"]} — {_loc["Buffering"]}...";
+        }
     }
 
     private void StopPlayback()
     {
         if (!IsPlaying) return;
         IsPlaying = false;
+        IsBuffering = false;
         _playCts?.Cancel();
         _playCts?.Dispose();
         _playCts = null;
