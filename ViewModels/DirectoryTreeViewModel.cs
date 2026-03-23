@@ -1,3 +1,4 @@
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using DicomViewer.Helpers;
 using IconPacks.Avalonia.Codicons;
@@ -19,7 +20,8 @@ public partial class FileTreeNodeViewModel : ViewModelBase
     public string FullPath { get; }
     public bool IsDirectory { get; }
     public PackIconCodiconsKind IconKind => IsDirectory ? (IsExpanded ? PackIconCodiconsKind.ChevronDown : PackIconCodiconsKind.ChevronRight) : GetFileIconKind();
-    public PackIconCodiconsKind FolderIconKind => IsDirectory ? (IsExpanded ? PackIconCodiconsKind.FolderOpened : PackIconCodiconsKind.Folder) : PackIconCodiconsKind.File;
+    public PackIconCodiconsKind FolderIconKind => IsDirectory ? (IsExpanded ? PackIconCodiconsKind.FolderOpened : PackIconCodiconsKind.Folder) : GetFileIconKind();
+    public IBrush FileIconBrush => new SolidColorBrush(Color.Parse(IsDirectory ? "#5A8FCC" : GetFileIconColor()));
     public ObservableCollection<FileTreeNodeViewModel> Children { get; } = new();
 
     public FileTreeNodeViewModel(string path, bool isDirectory)
@@ -101,6 +103,18 @@ public partial class FileTreeNodeViewModel : ViewModelBase
             ".avi" or ".mp4" or ".mkv" or ".mov" or ".wmv" => PackIconCodiconsKind.Play,
             ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif" or ".webp" => PackIconCodiconsKind.FileMedia,
             _ => PackIconCodiconsKind.File
+        };
+    }
+
+    private string GetFileIconColor()
+    {
+        var ext = Path.GetExtension(FullPath).ToLowerInvariant();
+        return ext switch
+        {
+            ".dcm" or ".dicom" => "#4A9EFF",
+            ".avi" or ".mp4" or ".mkv" or ".mov" or ".wmv" => "#3DCC7A",
+            ".jpg" or ".jpeg" or ".png" or ".bmp" or ".tiff" or ".tif" or ".gif" or ".webp" => "#C084FC",
+            _ => "#8888A8"
         };
     }
 }
