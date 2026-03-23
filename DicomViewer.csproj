@@ -12,6 +12,14 @@
 		<AssemblyName>DicomViewer</AssemblyName>
 	</PropertyGroup>
 
+	<!-- Release publish optimizations for faster startup and smaller binary -->
+	<PropertyGroup Condition="'$(Configuration)' == 'Release'">
+		<PublishReadyToRun>true</PublishReadyToRun>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>partial</TrimMode>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Avalonia" Version="11.3.12" />
 		<PackageReference Include="Avalonia.Desktop" Version="11.3.12" />

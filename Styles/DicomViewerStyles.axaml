@@ -199,6 +199,38 @@
 		<Setter Property="Foreground" Value="{StaticResource AccentBlueBrush}"/>
 	</Style>
 
+	<!-- ToggleSwitch — force custom accent on the knob track -->
+	<Style Selector="ToggleSwitch:checked /template/ Border#SwitchKnobBounds">
+		<Setter Property="Background" Value="{StaticResource AccentBlueBrush}"/>
+	</Style>
+	<Style Selector="ToggleSwitch:checked:pointerover /template/ Border#SwitchKnobBounds">
+		<Setter Property="Background" Value="{StaticResource AccentBlueHoverBrush}"/>
+	</Style>
+	<Style Selector="ToggleSwitch">
+		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+	</Style>
+
+	<!-- ComboBox — override system accent focus/selection -->
+	<Style Selector="ComboBox">
+		<Setter Property="Background" Value="{StaticResource BgCardBrush}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource BorderSubtleBrush}"/>
+		<Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+	</Style>
+	<Style Selector="ComboBox:pointerover /template/ Border#Background">
+		<Setter Property="BorderBrush" Value="{StaticResource BorderActiveBrush}"/>
+	</Style>
+	<Style Selector="ComboBox:focus /template/ Border#Background">
+		<Setter Property="BorderBrush" Value="{StaticResource AccentBlueBrush}"/>
+	</Style>
+
+	<!-- ScrollBar thumb override -->
+	<Style Selector="ScrollBar /template/ Thumb">
+		<Setter Property="Background" Value="{StaticResource BorderSubtleBrush}"/>
+	</Style>
+	<Style Selector="ScrollBar /template/ Thumb:pointerover">
+		<Setter Property="Background" Value="{StaticResource BorderActiveBrush}"/>
+	</Style>
+
 	<!-- MenuFlyout presenter (the popup container) -->
 	<Style Selector="MenuFlyoutPresenter">
 		<Setter Property="Background" Value="{StaticResource BgPanelBrush}"/>
