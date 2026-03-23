@@ -9,7 +9,37 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <FluentTheme />
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Dark" Accent="#4A9EFF"
+                    RegionColor="#0A0A0E"
+                    BaseHigh="#E8E8F0"
+                    BaseMediumHigh="#8888A8"
+                    BaseMedium="#8888A8"
+                    BaseMediumLow="#555570"
+                    BaseLow="#2A2A3A"
+                    AltHigh="#0A0A0E"
+                    AltMediumHigh="#111118"
+                    AltMedium="#16161F"
+                    AltMediumLow="#1C1C28"
+                    AltLow="#252535"
+                    ListLow="#16161F"
+                    ListMedium="#2A2A3A"
+                    ChromeHigh="#1C1C28"
+                    ChromeMedium="#16161F"
+                    ChromeMediumLow="#111118"
+                    ChromeLow="#0A0A0E"
+                    ChromeAltLow="#E8E8F0"
+                    ChromeDisabledHigh="#555570"
+                    ChromeDisabledLow="#2A2A3A"
+                    ChromeBlackHigh="#000000"
+                    ChromeBlackLow="#111118"
+                    ChromeBlackMediumLow="#0A0A0E"
+                    ChromeBlackMedium="#0A0A0E"
+                    ChromeWhite="#E8E8F0"
+                    ErrorText="#FF4A6A"/>
+            </FluentTheme.Palettes>
+        </FluentTheme>
         <StyleInclude Source="avares://IconPacks.Avalonia.Codicons/Codicons.axaml"/>
         <StyleInclude Source="avares://DicomViewer/Styles/DicomViewerStyles.axaml"/>
     </Application.Styles>
