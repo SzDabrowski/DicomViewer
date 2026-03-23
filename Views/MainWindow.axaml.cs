@@ -501,8 +501,10 @@ namespace DicomViewer.Views
                 }
             }
 
-            // Reload key bindings so changes take effect immediately
-            _keyBindings = new SettingsService().Load().KeyBindings;
+            // Reload key bindings and settings so changes take effect immediately
+            var reloaded = new SettingsService().Load();
+            _keyBindings = reloaded.KeyBindings;
+            VM?.ReloadAppSettings();
         }
 
         private void OpenLogWindow()

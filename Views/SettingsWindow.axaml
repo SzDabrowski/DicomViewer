@@ -212,6 +212,17 @@
 								              VerticalAlignment="Center"/>
 							</Grid>
 
+							<Grid ColumnDefinitions="*,Auto" Height="34">
+								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
+									<TextBlock Text="{Binding Loc[Settings_ShowNotifications]}" Foreground="#E8E8F0" FontSize="12"/>
+									<TextBlock Text="{Binding Loc[Settings_ShowNotificationsDesc]}"
+									           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
+								</StackPanel>
+								<ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowNotifications}"
+								              OnContent="" OffContent=""
+								              VerticalAlignment="Center"/>
+							</Grid>
+
 							<!-- Startup Window Mode -->
 							<Grid ColumnDefinitions="*,Auto" Margin="0,12,0,0">
 								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">

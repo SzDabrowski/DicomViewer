@@ -110,6 +110,8 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void AddNotification(NotificationSeverity severity, string message, string details = "")
     {
+        if (!_appSettings.ShowNotifications) return;
+
         var notification = NotificationViewModel.Create(severity, message, details);
 
         Dispatcher.UIThread.Post(() =>
@@ -314,6 +316,11 @@ public partial class MainWindowViewModel : ViewModelBase
             LoadDirectoryTree(DefaultDirectory);
             IsRightPanelVisible = true;
         }
+    }
+
+    public void ReloadAppSettings()
+    {
+        _appSettings = _settingsService.Load();
     }
 
     private void SaveSettings()
