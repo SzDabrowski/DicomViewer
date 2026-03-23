@@ -754,11 +754,11 @@
 												</Style>
 											</Border.Styles>
 											<StackPanel Orientation="Horizontal" Spacing="4">
-												<iconPacks:PackIconCodicons Kind="{Binding IconKind}" Width="10" Height="10" Foreground="#555570"
-                                                           VerticalAlignment="Center" Margin="0,0,2,0"/>
-												<iconPacks:PackIconCodicons Kind="{Binding FolderIconKind}" Width="12" Height="12" Foreground="#6A9FD6"
+												<iconPacks:PackIconCodicons Kind="{Binding IconKind}" Width="10" Height="10" Foreground="#E8E8F0"
                                                            VerticalAlignment="Center" Margin="0,0,2,0"
                                                            IsVisible="{Binding IsDirectory}"/>
+												<iconPacks:PackIconCodicons Kind="{Binding FolderIconKind}" Width="13" Height="13" Foreground="{Binding FileIconBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
 												<TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold"
                                                            Foreground="#E8E8F0" TextTrimming="CharacterEllipsis"
                                                            VerticalAlignment="Center"/>
@@ -779,12 +779,12 @@
 															</Border.Styles>
 															<StackPanel Orientation="Horizontal" Spacing="4">
 																<iconPacks:PackIconCodicons Kind="{Binding IconKind}" Width="10" Height="10"
-                                                                           Foreground="#555570" VerticalAlignment="Center" Margin="0,0,2,0"/>
-																<iconPacks:PackIconCodicons Kind="{Binding FolderIconKind}" Width="12" Height="12" Foreground="#6A9FD6"
-                                                                           VerticalAlignment="Center" Margin="0,0,2,0"
+                                                                           Foreground="#E8E8F0" VerticalAlignment="Center" Margin="0,0,2,0"
                                                                            IsVisible="{Binding IsDirectory}"/>
+																<iconPacks:PackIconCodicons Kind="{Binding FolderIconKind}" Width="13" Height="13" Foreground="{Binding FileIconBrush}"
+                                                                           VerticalAlignment="Center" Margin="0,0,4,0"/>
 																<TextBlock Text="{Binding Name}" FontSize="11"
-                                                                           Foreground="{Binding IsDirectory, Converter={StaticResource BoolToWhite}}"
+                                                                           Foreground="#E8E8F0"
                                                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
 															</StackPanel>
 														</Border>
@@ -802,12 +802,12 @@
 																		</Border.Styles>
 																		<StackPanel Orientation="Horizontal" Spacing="4">
 																			<iconPacks:PackIconCodicons Kind="{Binding IconKind}" Width="10" Height="10"
-                                                                                       Foreground="#555570" VerticalAlignment="Center" Margin="0,0,2,0"/>
-																			<iconPacks:PackIconCodicons Kind="{Binding FolderIconKind}" Width="12" Height="12" Foreground="#6A9FD6"
-                                                                                       VerticalAlignment="Center" Margin="0,0,2,0"
+                                                                                       Foreground="#E8E8F0" VerticalAlignment="Center" Margin="0,0,2,0"
                                                                                        IsVisible="{Binding IsDirectory}"/>
+																			<iconPacks:PackIconCodicons Kind="{Binding FolderIconKind}" Width="13" Height="13" Foreground="{Binding FileIconBrush}"
+                                                                                       VerticalAlignment="Center" Margin="0,0,4,0"/>
 																			<TextBlock Text="{Binding Name}" FontSize="11"
-                                                                                       Foreground="#8888A8"
+                                                                                       Foreground="#E8E8F0"
                                                                                        TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
 																		</StackPanel>
 																	</Border>
