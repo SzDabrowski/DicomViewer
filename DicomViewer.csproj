@@ -47,6 +47,8 @@
 	<ItemGroup>
 		<Compile Remove="DicomViewer.Tests\**" />
 		<None Remove="DicomViewer.Tests\**" />
+		<Compile Remove="DicomViewer.Benchmarks\**" />
+		<None Remove="DicomViewer.Benchmarks\**" />
 	</ItemGroup>
 
 	<ItemGroup>
