@@ -182,8 +182,11 @@ namespace DicomViewer.Views
 
         private MainWindowViewModel? VM => DataContext as MainWindowViewModel;
 
-        // Each thumbnail is 74px wide + 3px margin on each side = 80px per item
-        private const double ThumbItemWidth = 80.0;
+        // Each thumbnail: Margin="3,0" (3+3) + BorderThickness="2" (2+2) + Grid Width="74" = 84px per item
+        private const double ThumbItemWidth = 84.0;
+
+        // The filmstrip StackPanel has Margin="4,6", adding 4px to the left edge
+        private const double FilmstripLeftMargin = 4.0;
 
         private void ScrollFilmstripToCurrentFrame()
         {
@@ -196,9 +199,10 @@ namespace DicomViewer.Views
                 double viewportW = scroller.Viewport.Width;
                 if (viewportW <= 0) return;
 
-                double targetOffset = VM.CurrentFrameIndex * ThumbItemWidth
-                                      - viewportW / 2
-                                      + ThumbItemWidth / 2;
+                double targetOffset = FilmstripLeftMargin
+                                      + VM.CurrentFrameIndex * ThumbItemWidth
+                                      + ThumbItemWidth / 2
+                                      - viewportW / 2;
 
                 double maxOffset = Math.Max(0, scroller.Extent.Width - viewportW);
                 targetOffset = Math.Max(0, Math.Min(targetOffset, maxOffset));

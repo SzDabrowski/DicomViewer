@@ -735,9 +735,20 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private void UpdateThumbnailSelection()
     {
-        // Deselect previous thumbnail
+        // Deselect previous thumbnail using tracked index for O(1) fast path
         if (_lastSelectedThumbnailIndex >= 0 && _lastSelectedThumbnailIndex < Thumbnails.Count)
             Thumbnails[_lastSelectedThumbnailIndex].IsCurrentFrame = false;
+
+        // Safety: if tracking got out of sync (e.g., after file switch / BuildThumbnails),
+        // ensure no other thumbnail remains highlighted
+        if (_lastSelectedThumbnailIndex != CurrentFrameIndex)
+        {
+            for (int i = 0; i < Thumbnails.Count; i++)
+            {
+                if (i != CurrentFrameIndex && Thumbnails[i].IsCurrentFrame)
+                    Thumbnails[i].IsCurrentFrame = false;
+            }
+        }
 
         // Select new thumbnail (CurrentFrameIndex maps directly to Thumbnails collection index)
         if (CurrentFrameIndex >= 0 && CurrentFrameIndex < Thumbnails.Count)
