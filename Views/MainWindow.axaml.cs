@@ -18,6 +18,7 @@ namespace DicomViewer.Views
     {
         private LogWindow? _logWindow;
         private KeyBindingSettings? _keyBindings;
+        private LocalizationService Loc => LocalizationService.Instance;
         private readonly ImageService _imageService = new();
         private readonly VideoService _videoService = new();
         private readonly DicomService _dicomService = new();
@@ -78,15 +79,15 @@ namespace DicomViewer.Views
                 {
                     var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
                     {
-                        Title = "Open File",
+                        Title = Loc["Dialog_OpenFile"],
                         AllowMultiple = true,
                         FileTypeFilter = new List<FilePickerFileType>
                         {
-                            new("All Supported") { Patterns = new[] { "*.dcm", "*.dicom", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.tif", "*.gif", "*.webp", "*.avi" } },
-                            new("DICOM Files") { Patterns = new[] { "*.dcm", "*.dicom" } },
-                            new("Image Files") { Patterns = new[] { "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.tif", "*.gif", "*.webp" } },
-                            new("Video Files") { Patterns = new[] { "*.avi" } },
-                            new("All Files") { Patterns = new[] { "*.*" } }
+                            new(Loc["Dialog_AllSupported"]) { Patterns = new[] { "*.dcm", "*.dicom", "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.tif", "*.gif", "*.webp", "*.avi" } },
+                            new(Loc["Dialog_DicomFiles"]) { Patterns = new[] { "*.dcm", "*.dicom" } },
+                            new(Loc["Dialog_ImageFiles"]) { Patterns = new[] { "*.jpg", "*.jpeg", "*.png", "*.bmp", "*.tiff", "*.tif", "*.gif", "*.webp" } },
+                            new(Loc["Dialog_VideoFiles"]) { Patterns = new[] { "*.avi" } },
+                            new(Loc["Dialog_AllFiles"]) { Patterns = new[] { "*.*" } }
                         }
                     });
                     if (files.Count > 0)
@@ -100,7 +101,7 @@ namespace DicomViewer.Views
                 {
                     var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
                     {
-                        Title = "Open Directory",
+                        Title = Loc["Dialog_OpenDirectory"],
                         AllowMultiple = false
                     });
                     if (folder.Count > 0)
@@ -122,7 +123,7 @@ namespace DicomViewer.Views
                 {
                     var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
                     {
-                        Title = "Select Default Directory",
+                        Title = Loc["Dialog_SelectDirectory"],
                         AllowMultiple = false
                     });
                     if (folder.Count > 0)
@@ -284,7 +285,7 @@ namespace DicomViewer.Views
                 if (ct.IsCancellationRequested) return; // Don't show errors for cancelled frames
                 LoggingService.Instance.Error("Canvas", $"Failed to render frame {safeFrameIndex}", ex);
                 VM.AddNotification(ViewModels.NotificationSeverity.Error,
-                    $"Failed to render frame {safeFrameIndex}",
+                    $"{Loc["Notif_FailedRenderFrame"]} {safeFrameIndex}",
                     ex.Message);
             }
             finally
@@ -474,7 +475,7 @@ namespace DicomViewer.Views
             {
                 var folder = await StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
                 {
-                    Title = "Select Default Directory",
+                    Title = Loc["Dialog_SelectDirectory"],
                     AllowMultiple = false
                 });
                 if (folder.Count > 0)
@@ -716,7 +717,7 @@ namespace DicomViewer.Views
                     LoggingService.Instance.Info("FolderOpen",
                         $"No DICOM files found in {System.IO.Path.GetFileName(dirPath)}");
                     VM.AddNotification(ViewModels.NotificationSeverity.Info,
-                        "No DICOM files found in selected directory");
+                        Loc["Notif_NoDicomInDir"]);
                 }
             }
             catch (Exception ex)

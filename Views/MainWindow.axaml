@@ -554,13 +554,34 @@
 					<StackPanel HorizontalAlignment="Left" VerticalAlignment="Top" Spacing="2"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}">
 						<TextBlock Text="{Binding ActiveFile.PatientName}" Foreground="White" FontSize="12" FontWeight="SemiBold"/>
-						<TextBlock Text="{Binding ActiveFile.PatientId, StringFormat={}ID: {0}}" Foreground="#DDDDDD" FontSize="10"/>
+						<TextBlock Foreground="#DDDDDD" FontSize="10">
+							<TextBlock.Text>
+								<MultiBinding StringFormat="{}{0} {1}">
+									<Binding Path="Loc[Overlay_ID]"/>
+									<Binding Path="ActiveFile.PatientId"/>
+								</MultiBinding>
+							</TextBlock.Text>
+						</TextBlock>
 						<StackPanel Orientation="Horizontal" Spacing="6">
 							<TextBlock Text="{Binding ActiveFile.PatientSex}" Foreground="#DDDDDD" FontSize="10"/>
 							<TextBlock Text="{Binding ActiveFile.PatientAge}" Foreground="#DDDDDD" FontSize="10"/>
-							<TextBlock Text="{Binding ActiveFile.PatientBirthDate, StringFormat={}DOB: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+							<TextBlock Foreground="#AAAAAA" FontSize="10">
+								<TextBlock.Text>
+									<MultiBinding StringFormat="{}{0} {1}">
+										<Binding Path="Loc[Overlay_DOB]"/>
+										<Binding Path="ActiveFile.PatientBirthDate"/>
+									</MultiBinding>
+								</TextBlock.Text>
+							</TextBlock>
 						</StackPanel>
-						<TextBlock Text="{Binding ActiveFile.StudyDate, StringFormat={}Date: {0}}" Foreground="#DDDDDD" FontSize="10"/>
+						<TextBlock Foreground="#DDDDDD" FontSize="10">
+							<TextBlock.Text>
+								<MultiBinding StringFormat="{}{0} {1}">
+									<Binding Path="Loc[Overlay_Date]"/>
+									<Binding Path="ActiveFile.StudyDate"/>
+								</MultiBinding>
+							</TextBlock.Text>
+						</TextBlock>
 					</StackPanel>
 					<!-- TOP-RIGHT: Institution, Study, Modality -->
 					<StackPanel HorizontalAlignment="Right" VerticalAlignment="Top" Spacing="2"
@@ -568,25 +589,67 @@
 						<TextBlock Text="{Binding ActiveFile.InstitutionName}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
 						<TextBlock Text="{Binding ActiveFile.Modality}" Foreground="White" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Right"/>
 						<TextBlock Text="{Binding ActiveFile.StudyDescription}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
-						<TextBlock Text="{Binding ActiveFile.AccessionNumber, StringFormat={}Acc#: {0}}" Foreground="#AAAAAA" FontSize="10" HorizontalAlignment="Right"/>
+						<TextBlock Foreground="#AAAAAA" FontSize="10" HorizontalAlignment="Right">
+							<TextBlock.Text>
+								<MultiBinding StringFormat="{}{0} {1}">
+									<Binding Path="Loc[Overlay_AccNo]"/>
+									<Binding Path="ActiveFile.AccessionNumber"/>
+								</MultiBinding>
+							</TextBlock.Text>
+						</TextBlock>
 						<TextBlock Text="{Binding WindowCenter, StringFormat={}WC: {0:F0}}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
 						<TextBlock Text="{Binding WindowWidth, StringFormat={}WW: {0:F0}}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
-						<TextBlock Text="{Binding ZoomLevel, StringFormat={}Zoom: {0:P0}}" Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right"/>
+						<TextBlock Foreground="#DDDDDD" FontSize="10" HorizontalAlignment="Right">
+							<TextBlock.Text>
+								<MultiBinding StringFormat="{}{0} {1:P0}">
+									<Binding Path="Loc[Overlay_Zoom]"/>
+									<Binding Path="ZoomLevel"/>
+								</MultiBinding>
+							</TextBlock.Text>
+						</TextBlock>
 						<!-- Lossy compression warning -->
-						<TextBlock Text="LOSSY" Foreground="#FF6666" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right"
+						<TextBlock Text="{Binding Loc[Overlay_Lossy]}" Foreground="#FF6666" FontSize="10" FontWeight="Bold" HorizontalAlignment="Right"
 						           IsVisible="{Binding ActiveFile.IsLossy}"/>
 					</StackPanel>
 					<!-- BOTTOM-LEFT: Series info, slice details -->
 					<StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Spacing="2"
                                 IsVisible="{Binding ActiveFile, Converter={x:Static ObjectConverters.IsNotNull}}">
 						<StackPanel Orientation="Horizontal" Spacing="6">
-							<TextBlock Text="{Binding ActiveFile.SeriesNumber, StringFormat={}Se: {0}}" Foreground="#AAAAAA" FontSize="10"/>
-							<TextBlock Text="{Binding ActiveFile.InstanceNumber, StringFormat={}Im: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+							<TextBlock Foreground="#AAAAAA" FontSize="10">
+								<TextBlock.Text>
+									<MultiBinding StringFormat="{}{0} {1}">
+										<Binding Path="Loc[Overlay_Series]"/>
+										<Binding Path="ActiveFile.SeriesNumber"/>
+									</MultiBinding>
+								</TextBlock.Text>
+							</TextBlock>
+							<TextBlock Foreground="#AAAAAA" FontSize="10">
+								<TextBlock.Text>
+									<MultiBinding StringFormat="{}{0} {1}">
+										<Binding Path="Loc[Overlay_Image]"/>
+										<Binding Path="ActiveFile.InstanceNumber"/>
+									</MultiBinding>
+								</TextBlock.Text>
+							</TextBlock>
 						</StackPanel>
 						<TextBlock Text="{Binding ActiveFile.SeriesDescription}" Foreground="#DDDDDD" FontSize="10"/>
 						<StackPanel Orientation="Horizontal" Spacing="6">
-							<TextBlock Text="{Binding ActiveFile.SliceLocation, StringFormat={}Loc: {0}}" Foreground="#AAAAAA" FontSize="10"/>
-							<TextBlock Text="{Binding ActiveFile.SliceThickness, StringFormat={}Thk: {0}}" Foreground="#AAAAAA" FontSize="10"/>
+							<TextBlock Foreground="#AAAAAA" FontSize="10">
+								<TextBlock.Text>
+									<MultiBinding StringFormat="{}{0} {1}">
+										<Binding Path="Loc[Overlay_Location]"/>
+										<Binding Path="ActiveFile.SliceLocation"/>
+									</MultiBinding>
+								</TextBlock.Text>
+							</TextBlock>
+							<TextBlock Foreground="#AAAAAA" FontSize="10">
+								<TextBlock.Text>
+									<MultiBinding StringFormat="{}{0} {1}">
+										<Binding Path="Loc[Overlay_Thickness]"/>
+										<Binding Path="ActiveFile.SliceThickness"/>
+									</MultiBinding>
+								</TextBlock.Text>
+							</TextBlock>
 						</StackPanel>
 						<TextBlock Text="{Binding ActiveFile.FileName}" Foreground="#888888" FontSize="10"/>
 					</StackPanel>
@@ -599,7 +662,14 @@
 							<Run Text=" / "/>
 							<Run Text="{Binding TotalFrames}"/>
 						</TextBlock>
-						<TextBlock Text="{Binding ActiveTool, StringFormat={}Tool: {0}}" Foreground="#AAAAAA" FontSize="10" HorizontalAlignment="Right"/>
+						<TextBlock Foreground="#AAAAAA" FontSize="10" HorizontalAlignment="Right">
+							<TextBlock.Text>
+								<MultiBinding StringFormat="{}{0} {1}">
+									<Binding Path="Loc[Overlay_Tool]"/>
+									<Binding Path="ActiveTool"/>
+								</MultiBinding>
+							</TextBlock.Text>
+						</TextBlock>
 					</StackPanel>
 				</Grid>
 

@@ -14,7 +14,7 @@
         ExtendClientAreaChromeHints="NoChrome"
         SystemDecorations="BorderOnly"
         Background="#0A0A0E"
-        Title="Log Viewer">
+        Title="{Binding Loc[Log_Title]}">
 
 	<Window.Resources>
 		<conv:LogLevelToColorConverter x:Key="LogLevelToColor"/>
