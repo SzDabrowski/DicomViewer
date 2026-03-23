@@ -74,6 +74,7 @@ public partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string _selectedCategory = "General";
     [ObservableProperty] private string _defaultDirectory = string.Empty;
     [ObservableProperty] private bool _showTooltips = true;
+    [ObservableProperty] private bool _showNotifications = true;
     [ObservableProperty] private int _selectedWindowModeIndex;
     [ObservableProperty] private bool _isGeneralSelected = true;
     [ObservableProperty] private bool _isControlsSelected;
@@ -100,6 +101,7 @@ public partial class SettingsViewModel : ViewModelBase
         _appSettings = _settingsService.Load();
         _defaultDirectory = _appSettings.DefaultDirectory;
         _showTooltips = _appSettings.ShowTooltips;
+        _showNotifications = _appSettings.ShowNotifications;
         _selectedWindowModeIndex = (int)_appSettings.StartupWindowMode;
         _selectedLanguageIndex = _appSettings.Language == "pl" ? 1 : 0;
         BuildKeyBindingRows();
@@ -217,6 +219,7 @@ public partial class SettingsViewModel : ViewModelBase
     }
 
     partial void OnShowTooltipsChanged(bool value) => HasUnsavedChanges = true;
+    partial void OnShowNotificationsChanged(bool value) => HasUnsavedChanges = true;
 
     partial void OnSelectedLanguageIndexChanged(int value)
     {
@@ -270,6 +273,7 @@ public partial class SettingsViewModel : ViewModelBase
     {
         _appSettings.DefaultDirectory = DefaultDirectory;
         _appSettings.ShowTooltips = ShowTooltips;
+        _appSettings.ShowNotifications = ShowNotifications;
         _appSettings.StartupWindowMode = StartupWindowMode;
         _appSettings.Language = SelectedLanguageIndex == 1 ? "pl" : "en";
         _settingsService.Save(_appSettings);
