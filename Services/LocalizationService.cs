@@ -300,6 +300,34 @@ public class LocalizationService : INotifyPropertyChanged
         ["Err_VideoNotSupported_Details"] = "Video files (.mp4, .avi, .mkv, .mov, .wmv) require FFmpeg libraries to be installed. Please install FFmpeg and ensure it is on your PATH.",
         ["Info_RestartRequired"] = "Restart required",
         ["Info_RestartRequired_Lang"] = "Some UI elements require a restart to fully apply the new language.",
+
+        // File Picker Dialogs
+        ["Dialog_OpenFile"] = "Open File",
+        ["Dialog_OpenDirectory"] = "Open Directory",
+        ["Dialog_SelectDirectory"] = "Select Default Directory",
+        ["Dialog_AllSupported"] = "All Supported",
+        ["Dialog_DicomFiles"] = "DICOM Files",
+        ["Dialog_ImageFiles"] = "Image Files",
+        ["Dialog_VideoFiles"] = "Video Files",
+        ["Dialog_AllFiles"] = "All Files",
+
+        // Overlay Labels
+        ["Overlay_ID"] = "ID:",
+        ["Overlay_DOB"] = "DOB:",
+        ["Overlay_Date"] = "Date:",
+        ["Overlay_AccNo"] = "Acc#:",
+        ["Overlay_Zoom"] = "Zoom:",
+        ["Overlay_Lossy"] = "LOSSY",
+        ["Overlay_Series"] = "Se:",
+        ["Overlay_Image"] = "Im:",
+        ["Overlay_Location"] = "Loc:",
+        ["Overlay_Thickness"] = "Thk:",
+
+        ["Overlay_Tool"] = "Tool:",
+
+        // Notification Messages
+        ["Notif_NoDicomInDir"] = "No DICOM files found in selected directory",
+        ["Notif_FailedRenderFrame"] = "Failed to render frame",
     };
 
     private static Dictionary<string, string> GetPolishStrings() => new()
@@ -526,5 +554,32 @@ public class LocalizationService : INotifyPropertyChanged
         ["Err_VideoNotSupported_Details"] = "Pliki wideo (.mp4, .avi, .mkv, .mov, .wmv) wymagaj\u0105 zainstalowanych bibliotek FFmpeg. Zainstaluj FFmpeg i upewnij si\u0119, \u017ce jest w zmiennej PATH.",
         ["Info_RestartRequired"] = "Wymagany restart",
         ["Info_RestartRequired_Lang"] = "Niekt\u00f3re elementy interfejsu wymagaj\u0105 restartu, aby w pe\u0142ni zastosowa\u0107 nowy j\u0119zyk.",
+
+        // File Picker Dialogs
+        ["Dialog_OpenFile"] = "Otw\u00f3rz plik",
+        ["Dialog_OpenDirectory"] = "Otw\u00f3rz katalog",
+        ["Dialog_SelectDirectory"] = "Wybierz domy\u015blny katalog",
+        ["Dialog_AllSupported"] = "Wszystkie obs\u0142ugiwane",
+        ["Dialog_DicomFiles"] = "Pliki DICOM",
+        ["Dialog_ImageFiles"] = "Pliki graficzne",
+        ["Dialog_VideoFiles"] = "Pliki wideo",
+        ["Dialog_AllFiles"] = "Wszystkie pliki",
+
+        // Overlay Labels
+        ["Overlay_ID"] = "ID:",
+        ["Overlay_DOB"] = "Ur.:",
+        ["Overlay_Date"] = "Data:",
+        ["Overlay_AccNo"] = "Nr dost.:",
+        ["Overlay_Zoom"] = "Powi\u0119ksz.:",
+        ["Overlay_Lossy"] = "STRATNA",
+        ["Overlay_Series"] = "Ser:",
+        ["Overlay_Image"] = "Obr:",
+        ["Overlay_Location"] = "Poz:",
+        ["Overlay_Thickness"] = "Grub:",
+        ["Overlay_Tool"] = "Narz\u0119dzie:",
+
+        // Notification Messages
+        ["Notif_NoDicomInDir"] = "Nie znaleziono plik\u00f3w DICOM w wybranym katalogu",
+        ["Notif_FailedRenderFrame"] = "Nie uda\u0142o si\u0119 wyrenderowa\u0107 klatki",
     };
 }

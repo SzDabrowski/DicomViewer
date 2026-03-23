@@ -11,7 +11,7 @@
         ExtendClientAreaToDecorationsHint="True"
         SystemDecorations="BorderOnly"
         Background="#0A0A0E"
-        Title="Settings"
+        Title="{Binding Loc[Settings_Title]}"
         CanResize="False">
 
 	<Window.Styles>
