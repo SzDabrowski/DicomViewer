@@ -190,25 +190,21 @@ namespace DicomViewer.Views
 
         private void ScrollFilmstripToCurrentFrame()
         {
-            // Use Post to ensure layout has been updated before calculating scroll position
-            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
-            {
-                var scroller = this.FindControl<ScrollViewer>("FilmstripScroller");
-                if (scroller == null || VM == null) return;
+            var scroller = this.FindControl<ScrollViewer>("FilmstripScroller");
+            if (scroller == null || VM == null) return;
 
-                double viewportW = scroller.Viewport.Width;
-                if (viewportW <= 0) return;
+            double viewportW = scroller.Viewport.Width;
+            if (viewportW <= 0) return;
 
-                double targetOffset = FilmstripLeftMargin
-                                      + VM.CurrentFrameIndex * ThumbItemWidth
-                                      + ThumbItemWidth / 2
-                                      - viewportW / 2;
+            double targetOffset = FilmstripLeftMargin
+                                  + VM.CurrentFrameIndex * ThumbItemWidth
+                                  + ThumbItemWidth / 2
+                                  - viewportW / 2;
 
-                double maxOffset = Math.Max(0, scroller.Extent.Width - viewportW);
-                targetOffset = Math.Max(0, Math.Min(targetOffset, maxOffset));
+            double maxOffset = Math.Max(0, scroller.Extent.Width - viewportW);
+            targetOffset = Math.Max(0, Math.Min(targetOffset, maxOffset));
 
-                scroller.Offset = new Avalonia.Vector(targetOffset, 0);
-            }, Avalonia.Threading.DispatcherPriority.Render);
+            scroller.Offset = new Avalonia.Vector(targetOffset, 0);
         }
 
         /// <summary>
