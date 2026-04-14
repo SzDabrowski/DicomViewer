@@ -11,7 +11,7 @@
         ExtendClientAreaToDecorationsHint="True"
         SystemDecorations="BorderOnly"
         Background="#0A0A0E"
-        Title="{Binding Loc[Settings_Title]}"
+        Title="{DynamicResource Settings_Title}"
         CanResize="False">
 
 	<Window.Styles>
@@ -93,7 +93,7 @@
 					<StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="14,0">
 						<iconPacks:PackIconCodicons Kind="SettingsGear" Width="14" Height="14"
 						           Foreground="#8888A8" VerticalAlignment="Center"/>
-						<TextBlock Text="{Binding Loc[Settings_Title]}" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
+						<TextBlock Text="{DynamicResource Settings_Title}" FontSize="12" Foreground="#E8E8F0" VerticalAlignment="Center"/>
 					</StackPanel>
 				</Border>
 				<Button Grid.Column="1" Classes="WinBtn WinBtnClose" x:Name="CloseBtn">
@@ -113,7 +113,7 @@
 					        Command="{Binding SelectCategoryCommand}" CommandParameter="General">
 						<StackPanel Orientation="Horizontal" Spacing="10">
 							<iconPacks:PackIconCodicons Kind="Settings" Width="16" Height="16" VerticalAlignment="Center"/>
-							<TextBlock Text="{Binding Loc[Settings_General]}" FontSize="13" VerticalAlignment="Center"/>
+							<TextBlock Text="{DynamicResource Settings_General}" FontSize="13" VerticalAlignment="Center"/>
 						</StackPanel>
 					</Button>
 					<Button Classes="SettingsCategoryBtn"
@@ -121,7 +121,7 @@
 					        Command="{Binding SelectCategoryCommand}" CommandParameter="Controls">
 						<StackPanel Orientation="Horizontal" Spacing="10">
 							<iconPacks:PackIconCodicons Kind="Record" Width="16" Height="16" VerticalAlignment="Center"/>
-							<TextBlock Text="{Binding Loc[Settings_Controls]}" FontSize="13" VerticalAlignment="Center"/>
+							<TextBlock Text="{DynamicResource Settings_Controls}" FontSize="13" VerticalAlignment="Center"/>
 						</StackPanel>
 					</Button>
 				</StackPanel>
@@ -138,10 +138,10 @@
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<iconPacks:PackIconCodicons Kind="Globe" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
-								<TextBlock Text="{Binding Loc[Settings_Language]}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<TextBlock Text="{DynamicResource Settings_Language}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
 							<StackPanel Spacing="6">
-								<TextBlock Text="{Binding Loc[Settings_DisplayLanguage]}" Foreground="#8888A8" FontSize="11"/>
+								<TextBlock Text="{DynamicResource Settings_DisplayLanguage}" Foreground="#8888A8" FontSize="11"/>
 								<ComboBox ItemsSource="{Binding LanguageOptions}"
 								          SelectedIndex="{Binding SelectedLanguageIndex}"
 								          MaxWidth="250" HorizontalAlignment="Left"
@@ -159,10 +159,10 @@
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<iconPacks:PackIconCodicons Kind="Folder" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
-								<TextBlock Text="{Binding Loc[Settings_DefaultFolder]}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<TextBlock Text="{DynamicResource Settings_DefaultFolder}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
 							<StackPanel Spacing="6">
-								<TextBlock Text="{Binding Loc[Settings_StartupDirectory]}" Foreground="#8888A8" FontSize="11"/>
+								<TextBlock Text="{DynamicResource Settings_StartupDirectory}" Foreground="#8888A8" FontSize="11"/>
 								<Grid ColumnDefinitions="*,Auto,Auto" Height="34">
 									<Border Grid.Column="0" Background="#1C1C28" CornerRadius="6" Padding="12,0"
 									        BorderBrush="#2A2A3A" BorderThickness="1" VerticalAlignment="Stretch">
@@ -170,14 +170,14 @@
 										           VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
 										           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
 									</Border>
-									<TextBlock Grid.Column="0" Text="{Binding Loc[Settings_NotSet]}" Foreground="#444460" FontSize="12"
+									<TextBlock Grid.Column="0" Text="{DynamicResource Settings_NotSet}" Foreground="#444460" FontSize="12"
 									           VerticalAlignment="Center" Margin="12,0"
 									           IsVisible="{Binding DefaultDirectory, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
 									<Button Grid.Column="1" Classes="AccentBtn" Command="{Binding BrowseDefaultDirectoryCommand}"
 									        Padding="12,0" Height="34" Margin="8,0,0,0">
 										<StackPanel Orientation="Horizontal" Spacing="6">
 											<iconPacks:PackIconCodicons Kind="FolderOpened" Width="12" Height="12" VerticalAlignment="Center"/>
-											<TextBlock Text="{Binding Loc[Settings_Browse]}" FontSize="11" VerticalAlignment="Center"/>
+											<TextBlock Text="{DynamicResource Settings_Browse}" FontSize="11" VerticalAlignment="Center"/>
 										</StackPanel>
 									</Button>
 									<Button Grid.Column="2" Classes="DangerBtn" Command="{Binding ClearDefaultDirectoryCommand}"
@@ -187,7 +187,7 @@
 										           HorizontalAlignment="Center" VerticalAlignment="Center"/>
 									</Button>
 								</Grid>
-								<TextBlock Text="{Binding Loc[Settings_DirectoryAutoLoad]}"
+								<TextBlock Text="{DynamicResource Settings_DirectoryAutoLoad}"
 								           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
 							</StackPanel>
 						</StackPanel>
@@ -199,12 +199,12 @@
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<iconPacks:PackIconCodicons Kind="Info" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
-								<TextBlock Text="{Binding Loc[Settings_Interface]}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<TextBlock Text="{DynamicResource Settings_Interface}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
 							<Grid ColumnDefinitions="*,Auto" Height="34">
 								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-									<TextBlock Text="{Binding Loc[Settings_ShowTooltips]}" Foreground="#E8E8F0" FontSize="12"/>
-									<TextBlock Text="{Binding Loc[Settings_ShowTooltipsDesc]}"
+									<TextBlock Text="{DynamicResource Settings_ShowTooltips}" Foreground="#E8E8F0" FontSize="12"/>
+									<TextBlock Text="{DynamicResource Settings_ShowTooltipsDesc}"
 									           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
 								</StackPanel>
 								<ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowTooltips}"
@@ -214,8 +214,8 @@
 
 							<Grid ColumnDefinitions="*,Auto" Height="34">
 								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-									<TextBlock Text="{Binding Loc[Settings_ShowNotifications]}" Foreground="#E8E8F0" FontSize="12"/>
-									<TextBlock Text="{Binding Loc[Settings_ShowNotificationsDesc]}"
+									<TextBlock Text="{DynamicResource Settings_ShowNotifications}" Foreground="#E8E8F0" FontSize="12"/>
+									<TextBlock Text="{DynamicResource Settings_ShowNotificationsDesc}"
 									           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
 								</StackPanel>
 								<ToggleSwitch Grid.Column="1" IsChecked="{Binding ShowNotifications}"
@@ -226,25 +226,25 @@
 							<!-- Startup Window Mode -->
 							<Grid ColumnDefinitions="*,Auto" Margin="0,12,0,0">
 								<StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-									<TextBlock Text="{Binding Loc[Settings_WindowMode]}" Foreground="#E8E8F0" FontSize="12"/>
-									<TextBlock Text="{Binding Loc[Settings_WindowModeDesc]}"
+									<TextBlock Text="{DynamicResource Settings_WindowMode}" Foreground="#E8E8F0" FontSize="12"/>
+									<TextBlock Text="{DynamicResource Settings_WindowModeDesc}"
 									           Foreground="#444460" FontSize="10" TextWrapping="Wrap"/>
 								</StackPanel>
 								<StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="0" VerticalAlignment="Center">
 									<Button Classes="SegBtn SegBtnLeft"
 									        Classes.Active="{Binding IsWindowedMode}"
 									        Command="{Binding SetWindowModeCommand}" CommandParameter="Windowed">
-										<TextBlock Text="{Binding Loc[Settings_Windowed]}"/>
+										<TextBlock Text="{DynamicResource Settings_Windowed}"/>
 									</Button>
 									<Button Classes="SegBtn"
 									        Classes.Active="{Binding IsMaximizedMode}"
 									        Command="{Binding SetWindowModeCommand}" CommandParameter="Maximized">
-										<TextBlock Text="{Binding Loc[Settings_Maximized]}"/>
+										<TextBlock Text="{DynamicResource Settings_Maximized}"/>
 									</Button>
 									<Button Classes="SegBtn SegBtnRight"
 									        Classes.Active="{Binding IsFullscreenMode}"
 									        Command="{Binding SetWindowModeCommand}" CommandParameter="Fullscreen">
-										<TextBlock Text="{Binding Loc[Settings_Fullscreen]}"/>
+										<TextBlock Text="{DynamicResource Settings_Fullscreen}"/>
 									</Button>
 								</StackPanel>
 							</Grid>
@@ -260,23 +260,23 @@
 							<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
 								<iconPacks:PackIconCodicons Kind="Record" Width="14" Height="14"
 								           Foreground="#4A9EFF" VerticalAlignment="Center"/>
-								<TextBlock Text="{Binding Loc[Controls_KeyboardShortcuts]}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
+								<TextBlock Text="{DynamicResource Controls_KeyboardShortcuts}" Foreground="#555570" FontSize="10" FontWeight="SemiBold" VerticalAlignment="Center"/>
 							</StackPanel>
 							<Button Grid.Column="1" Classes="DangerBtn" Command="{Binding ResetKeyBindingsCommand}"
 							        Padding="10,4" VerticalAlignment="Center">
 								<StackPanel Orientation="Horizontal" Spacing="4">
 									<iconPacks:PackIconCodicons Kind="DebugRestart" Width="11" Height="11" VerticalAlignment="Center"/>
-									<TextBlock Text="{Binding Loc[Controls_ResetAll]}" FontSize="10" VerticalAlignment="Center"/>
+									<TextBlock Text="{DynamicResource Controls_ResetAll}" FontSize="10" VerticalAlignment="Center"/>
 								</StackPanel>
 							</Button>
 						</Grid>
 
-						<TextBlock Text="{Binding Loc[Controls_RebindHint]}"
+						<TextBlock Text="{DynamicResource Controls_RebindHint}"
 						           Foreground="#444460" FontSize="10" TextWrapping="Wrap" Margin="0,-12,0,0"/>
 
 						<!-- Playback Section -->
 						<StackPanel Spacing="4">
-							<TextBlock Text="{Binding Loc[Controls_Playback]}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<TextBlock Text="{DynamicResource Controls_Playback}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
 							<ItemsControl ItemsSource="{Binding PlaybackBindings}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
@@ -290,7 +290,7 @@
 												<Panel>
 													<TextBlock Text="{Binding DisplayString}" FontSize="11"
 													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
-													<TextBlock Text="{Binding Loc[Controls_PressKey]}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													<TextBlock Text="{DynamicResource Controls_PressKey}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
 													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
 												</Panel>
 											</Button>
@@ -304,7 +304,7 @@
 
 						<!-- View Section -->
 						<StackPanel Spacing="4">
-							<TextBlock Text="{Binding Loc[Controls_View]}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<TextBlock Text="{DynamicResource Controls_View}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
 							<ItemsControl ItemsSource="{Binding ViewBindings}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
@@ -318,7 +318,7 @@
 												<Panel>
 													<TextBlock Text="{Binding DisplayString}" FontSize="11"
 													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
-													<TextBlock Text="{Binding Loc[Controls_PressKey]}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													<TextBlock Text="{DynamicResource Controls_PressKey}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
 													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
 												</Panel>
 											</Button>
@@ -332,7 +332,7 @@
 
 						<!-- Tools Section -->
 						<StackPanel Spacing="4">
-							<TextBlock Text="{Binding Loc[Controls_AnnotationTools]}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<TextBlock Text="{DynamicResource Controls_AnnotationTools}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
 							<ItemsControl ItemsSource="{Binding ToolBindings}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
@@ -346,7 +346,7 @@
 												<Panel>
 													<TextBlock Text="{Binding DisplayString}" FontSize="11"
 													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
-													<TextBlock Text="{Binding Loc[Controls_PressKey]}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													<TextBlock Text="{DynamicResource Controls_PressKey}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
 													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
 												</Panel>
 											</Button>
@@ -360,7 +360,7 @@
 
 						<!-- File & Edit Section -->
 						<StackPanel Spacing="4">
-							<TextBlock Text="{Binding Loc[Controls_File]}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<TextBlock Text="{DynamicResource Controls_File}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
 							<ItemsControl ItemsSource="{Binding FileBindings}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
@@ -374,7 +374,7 @@
 												<Panel>
 													<TextBlock Text="{Binding DisplayString}" FontSize="11"
 													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
-													<TextBlock Text="{Binding Loc[Controls_PressKey]}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													<TextBlock Text="{DynamicResource Controls_PressKey}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
 													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
 												</Panel>
 											</Button>
@@ -387,7 +387,7 @@
 						<Rectangle Height="1" Fill="#2A2A3A"/>
 
 						<StackPanel Spacing="4">
-							<TextBlock Text="{Binding Loc[Controls_Edit]}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
+							<TextBlock Text="{DynamicResource Controls_Edit}" Foreground="#8888A8" FontSize="11" FontWeight="SemiBold" Margin="0,0,0,4"/>
 							<ItemsControl ItemsSource="{Binding EditBindings}">
 								<ItemsControl.ItemTemplate>
 									<DataTemplate x:DataType="vm:KeyBindingRowViewModel">
@@ -401,7 +401,7 @@
 												<Panel>
 													<TextBlock Text="{Binding DisplayString}" FontSize="11"
 													           IsVisible="{Binding !IsRecording}" HorizontalAlignment="Center"/>
-													<TextBlock Text="{Binding Loc[Controls_PressKey]}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
+													<TextBlock Text="{DynamicResource Controls_PressKey}" FontSize="11" Foreground="#4A9EFF" FontStyle="Italic"
 													           IsVisible="{Binding IsRecording}" HorizontalAlignment="Center"/>
 												</Panel>
 											</Button>
@@ -424,7 +424,7 @@
 				<StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="6"
 				            IsVisible="{Binding ShowSaveConfirmation}" VerticalAlignment="Center">
 					<iconPacks:PackIconCodicons Kind="Check" Width="14" Height="14" Foreground="#4ADE80" VerticalAlignment="Center"/>
-					<TextBlock Text="{Binding Loc[Settings_Saved]}" FontSize="12" Foreground="#4ADE80" VerticalAlignment="Center"/>
+					<TextBlock Text="{DynamicResource Settings_Saved}" FontSize="12" Foreground="#4ADE80" VerticalAlignment="Center"/>
 				</StackPanel>
 				<Button Grid.Column="2" Classes="SegBtn" Command="{Binding SaveCommand}"
 				        IsEnabled="{Binding HasUnsavedChanges}" Padding="20,8" Margin="0,0,8,0">
@@ -435,13 +435,13 @@
 							</Style>
 						</StackPanel.Styles>
 						<iconPacks:PackIconCodicons Kind="Save" Width="14" Height="14" VerticalAlignment="Center"/>
-						<TextBlock Text="{Binding Loc[Settings_Save]}" FontSize="12" VerticalAlignment="Center"/>
+						<TextBlock Text="{DynamicResource Settings_Save}" FontSize="12" VerticalAlignment="Center"/>
 					</StackPanel>
 				</Button>
 				<Button Grid.Column="3" Classes="AccentBtn" Command="{Binding CloseCommand}" Padding="20,8">
 					<StackPanel Orientation="Horizontal" Spacing="6">
 						<iconPacks:PackIconCodicons Kind="ChromeClose" Width="14" Height="14" VerticalAlignment="Center"/>
-						<TextBlock Text="{Binding Loc[Settings_SaveClose]}" FontSize="12" VerticalAlignment="Center"/>
+						<TextBlock Text="{DynamicResource Settings_SaveClose}" FontSize="12" VerticalAlignment="Center"/>
 					</StackPanel>
 				</Button>
 			</Grid>

@@ -30,6 +30,17 @@ public partial class App : Application
             var appSettings = settings.Load();
             LocalizationService.Instance.SetLanguage(appSettings.Language);
 
+            // Load the correct language resource dictionary at startup
+            if (appSettings.Language == "pl")
+            {
+                var dictPath = "avares://DicomViewer/Assets/pl-PL.axaml";
+                var plDict = new Avalonia.Markup.Xaml.Styling.ResourceInclude(new System.Uri(dictPath))
+                {
+                    Source = new System.Uri(dictPath)
+                };
+                Resources.MergedDictionaries[0] = plDict;
+            }
+
             desktop.MainWindow = new MainWindow
             {
                 DataContext = new MainWindowViewModel()

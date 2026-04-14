@@ -221,10 +221,27 @@ public partial class SettingsViewModel : ViewModelBase
     partial void OnSelectedLanguageIndexChanged(int value)
     {
         var lang = value == 1 ? "pl" : "en";
+
+        // Keep existing state updates
         _loc.SetLanguage(lang);
         SaveSettings();
 
-        // Refresh all key binding labels
+        // Swap the Avalonia Resource Dictionary for static UI elements
+        string dictPath = lang == "pl"
+            ? "avares://DicomViewer/Assets/pl-PL.axaml"
+            : "avares://DicomViewer/Assets/en-US.axaml";
+
+        var newLanguageDict = new Avalonia.Markup.Xaml.Styling.ResourceInclude(new Uri(dictPath))
+        {
+            Source = new Uri(dictPath)
+        };
+
+        if (Avalonia.Application.Current != null)
+        {
+            Avalonia.Application.Current.Resources.MergedDictionaries[0] = newLanguageDict;
+        }
+
+        // Keep existing logic to refresh the dynamically generated C# collections
         foreach (var row in PlaybackBindings.Concat(ViewBindings).Concat(ToolBindings).Concat(FileBindings).Concat(EditBindings))
             row.RefreshLabel();
     }
