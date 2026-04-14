@@ -25,7 +25,7 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         {
             if (e.PropertyName == "Item[]" || e.PropertyName == nameof(LocalizationService.CurrentLanguage))
             {
-                OnPropertyChanged(nameof(Loc));
+                OnPropertyChanged(string.Empty); // signal all properties changed so Avalonia re-evaluates {Binding Loc[Key]} even though Loc returns the same singleton reference
                 OnLanguageChanged();
             }
         };

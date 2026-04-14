@@ -1,0 +1,157 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Toolbar & Tools -->
+    <sys:String x:Key="Open">Open</sys:String>
+    <sys:String x:Key="OpenFiles">Open File(s)...</sys:String>
+    <sys:String x:Key="OpenDirectory">Open Directory...</sys:String>
+    <sys:String x:Key="Arrow">Arrow</sys:String>
+    <sys:String x:Key="TextLabel">Text Label</sys:String>
+    <sys:String x:Key="FreehandDraw">Freehand Draw</sys:String>
+    <sys:String x:Key="Annotate">Annotate</sys:String>
+    <sys:String x:Key="Rectangle">Rectangle</sys:String>
+    <sys:String x:Key="Ellipse">Ellipse</sys:String>
+    <sys:String x:Key="Line">Line</sys:String>
+    <sys:String x:Key="Draw">Draw</sys:String>
+    <sys:String x:Key="Fit">Fit</sys:String>
+    <sys:String x:Key="Reset">Reset</sys:String>
+    <sys:String x:Key="Settings">Settings</sys:String>
+    <sys:String x:Key="Presets">Presets</sys:String>
+
+    <!-- Tooltips -->
+    <sys:String x:Key="Tip_OpenFileOrDir">Open File or Directory (Ctrl+O)</sys:String>
+    <sys:String x:Key="Tip_PanZoom">Pan / Zoom</sys:String>
+    <sys:String x:Key="Tip_WindowLevel">Window/Level</sys:String>
+    <sys:String x:Key="Tip_AnnotateTools">Annotate Tools</sys:String>
+    <sys:String x:Key="Tip_DrawShapes">Draw Shapes</sys:String>
+    <sys:String x:Key="Tip_AnnotationColor">Annotation Color</sys:String>
+    <sys:String x:Key="Tip_RotateCCW">Rotate Counter-Clockwise</sys:String>
+    <sys:String x:Key="Tip_RotateCW">Rotate Clockwise</sys:String>
+    <sys:String x:Key="Tip_FlipH">Flip Horizontal</sys:String>
+    <sys:String x:Key="Tip_FlipV">Flip Vertical</sys:String>
+    <sys:String x:Key="Tip_InvertColors">Invert Colors (I)</sys:String>
+    <sys:String x:Key="Tip_WindowPresets">Window Presets</sys:String>
+    <sys:String x:Key="Tip_LogViewer">Log Viewer (Ctrl+L)</sys:String>
+    <sys:String x:Key="Tip_ZoomOut">Zoom Out (-)</sys:String>
+    <sys:String x:Key="Tip_ZoomIn">Zoom In (+)</sys:String>
+    <sys:String x:Key="Tip_FitToWindow">Fit to Window (F)</sys:String>
+    <sys:String x:Key="Tip_ResetView">Reset View (R)</sys:String>
+    <sys:String x:Key="Tip_ToggleOverlay">Toggle Overlay</sys:String>
+    <sys:String x:Key="Tip_ToggleFilmstrip">Toggle Filmstrip</sys:String>
+    <sys:String x:Key="Tip_ToggleFilePanel">Toggle File Panel</sys:String>
+    <sys:String x:Key="Tip_Minimise">Minimise</sys:String>
+    <sys:String x:Key="Tip_MaximiseRestore">Maximise / Restore</sys:String>
+    <sys:String x:Key="Tip_Close">Close</sys:String>
+    <sys:String x:Key="Tip_FirstFrame">First Frame</sys:String>
+    <sys:String x:Key="Tip_PreviousFrame">Previous Frame</sys:String>
+    <sys:String x:Key="Tip_PlayPause">Play / Pause (Space)</sys:String>
+    <sys:String x:Key="Tip_NextFrame">Next Frame</sys:String>
+    <sys:String x:Key="Tip_LastFrame">Last Frame</sys:String>
+    <sys:String x:Key="Tip_LoopPlayback">Loop Playback</sys:String>
+    <sys:String x:Key="Tip_CopyErrorDetails">Copy error details</sys:String>
+    <sys:String x:Key="Tip_Dismiss">Dismiss</sys:String>
+    <sys:String x:Key="Tip_CollapseFilmstrip">Collapse Filmstrip</sys:String>
+    <sys:String x:Key="Tip_ExpandFilmstrip">Expand Filmstrip</sys:String>
+    <sys:String x:Key="Tip_HideFilePanel">Hide File Panel</sys:String>
+    <sys:String x:Key="Tip_ShowFilePanel">Show File Panel</sys:String>
+
+    <!-- Colors -->
+    <sys:String x:Key="Yellow">Yellow</sys:String>
+    <sys:String x:Key="Cyan">Cyan</sys:String>
+    <sys:String x:Key="Red">Red</sys:String>
+    <sys:String x:Key="Green">Green</sys:String>
+    <sys:String x:Key="Blue">Blue</sys:String>
+    <sys:String x:Key="Magenta">Magenta</sys:String>
+    <sys:String x:Key="Orange">Orange</sys:String>
+    <sys:String x:Key="White">White</sys:String>
+
+    <!-- Window/Level Presets -->
+    <sys:String x:Key="Brain">Brain</sys:String>
+    <sys:String x:Key="Lung">Lung</sys:String>
+    <sys:String x:Key="Bone">Bone</sys:String>
+    <sys:String x:Key="Abdomen">Abdomen</sys:String>
+    <sys:String x:Key="Mediastinum">Mediastinum</sys:String>
+    <sys:String x:Key="Liver">Liver</sys:String>
+    <sys:String x:Key="SoftTissue">Soft Tissue</sys:String>
+    <sys:String x:Key="Stroke">Stroke</sys:String>
+    <sys:String x:Key="Spine">Spine</sys:String>
+    <sys:String x:Key="Angio">Angio/CTA</sys:String>
+    <sys:String x:Key="ChestWide">Chest Wide</sys:String>
+
+    <!-- Main Viewer -->
+    <sys:String x:Key="DicomViewer">DICOM Viewer</sys:String>
+    <sys:String x:Key="NoFileLoaded">No DICOM file loaded</sys:String>
+    <sys:String x:Key="OpenOrDragDrop">Open a file or drag &amp; drop to begin</sys:String>
+    <sys:String x:Key="CtrlODragDrop">Ctrl+O to open  |  Drag &amp; drop supported</sys:String>
+    <sys:String x:Key="LoadingDicomFile">Loading DICOM File</sys:String>
+    <sys:String x:Key="DropFilesHere">Drop DICOM files here to open</sys:String>
+    <sys:String x:Key="Overlay_Lossy">LOSSY</sys:String>
+    <sys:String x:Key="Frame">Frame</sys:String>
+
+    <!-- Browser Panel -->
+    <sys:String x:Key="Browser">BROWSER</sys:String>
+    <sys:String x:Key="FilesAndDirectories">Files &amp; directories</sys:String>
+    <sys:String x:Key="Add">Add</sys:String>
+    <sys:String x:Key="NoDirectoryLoaded">No directory loaded</sys:String>
+    <sys:String x:Key="UseOpenDirectory">Use Open > Open Directory</sys:String>
+    <sys:String x:Key="OpenFilesPanel">OPEN FILES</sys:String>
+
+    <!-- Filmstrip -->
+    <sys:String x:Key="Filmstrip">FILMSTRIP</sys:String>
+    <sys:String x:Key="NoFileOpenFrames">No file loaded — open a DICOM file to see frames</sys:String>
+
+    <!-- Playback -->
+    <sys:String x:Key="FPS">FPS:</sys:String>
+    <sys:String x:Key="WL_Center">Center:</sys:String>
+    <sys:String x:Key="WL_Width">Width:</sys:String>
+
+    <!-- Log Viewer -->
+    <sys:String x:Key="Log_Title">Log Viewer</sys:String>
+    <sys:String x:Key="Log_Log">LOG</sys:String>
+    <sys:String x:Key="Log_All">ALL</sys:String>
+    <sys:String x:Key="Log_ShowAll">Show all</sys:String>
+    <sys:String x:Key="Log_InfoAbove">Info and above</sys:String>
+    <sys:String x:Key="Log_WarningsErrors">Warnings and errors</sys:String>
+    <sys:String x:Key="Log_ErrorsOnly">Errors only</sys:String>
+    <sys:String x:Key="Log_OpenFolder">Open log folder</sys:String>
+    <sys:String x:Key="Log_ClearView">Clear log view</sys:String>
+    <sys:String x:Key="Log_Refresh">Refresh</sys:String>
+
+    <!-- Settings Window -->
+    <sys:String x:Key="Settings_Title">Settings</sys:String>
+    <sys:String x:Key="Settings_Language">LANGUAGE</sys:String>
+    <sys:String x:Key="Settings_DisplayLanguage">Display Language</sys:String>
+    <sys:String x:Key="Settings_DefaultFolder">DEFAULT FOLDER</sys:String>
+    <sys:String x:Key="Settings_StartupDirectory">Startup Directory</sys:String>
+    <sys:String x:Key="Settings_NotSet">Not set</sys:String>
+    <sys:String x:Key="Settings_Browse">Browse</sys:String>
+    <sys:String x:Key="Settings_DirectoryAutoLoad">This directory will be loaded automatically on startup.</sys:String>
+    <sys:String x:Key="Settings_Interface">INTERFACE</sys:String>
+    <sys:String x:Key="Settings_ShowTooltips">Show Tooltips on Hover</sys:String>
+    <sys:String x:Key="Settings_ShowTooltipsDesc">Display helpful tips when hovering over buttons and controls.</sys:String>
+    <sys:String x:Key="Settings_ShowNotifications">Show Notifications</sys:String>
+    <sys:String x:Key="Settings_ShowNotificationsDesc">Display warnings and errors as overlay notifications in the main window.</sys:String>
+    <sys:String x:Key="Settings_WindowMode">Startup Window Mode</sys:String>
+    <sys:String x:Key="Settings_WindowModeDesc">Choose how the window opens on launch. Press F11 to toggle fullscreen.</sys:String>
+    <sys:String x:Key="Settings_Windowed">Windowed</sys:String>
+    <sys:String x:Key="Settings_Maximized">Maximized</sys:String>
+    <sys:String x:Key="Settings_Fullscreen">Fullscreen</sys:String>
+    <sys:String x:Key="Settings_General">General</sys:String>
+    <sys:String x:Key="Settings_Controls">Controls</sys:String>
+    <sys:String x:Key="Settings_Save">Save</sys:String>
+    <sys:String x:Key="Settings_SaveClose">Save &amp; Close</sys:String>
+    <sys:String x:Key="Settings_Saved">Settings saved</sys:String>
+
+    <!-- Controls / Key Bindings -->
+    <sys:String x:Key="Controls_KeyboardShortcuts">KEYBOARD SHORTCUTS</sys:String>
+    <sys:String x:Key="Controls_ResetAll">Reset All</sys:String>
+    <sys:String x:Key="Controls_RebindHint">Click a shortcut to rebind it, then press the new key combination.</sys:String>
+    <sys:String x:Key="Controls_Playback">Playback</sys:String>
+    <sys:String x:Key="Controls_View">View</sys:String>
+    <sys:String x:Key="Controls_AnnotationTools">Annotation Tools</sys:String>
+    <sys:String x:Key="Controls_File">File</sys:String>
+    <sys:String x:Key="Controls_Edit">Edit</sys:String>
+    <sys:String x:Key="Controls_PressKey">Press key...</sys:String>
+
+</ResourceDictionary>
