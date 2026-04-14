@@ -31,14 +31,16 @@ public partial class App : Application
             LocalizationService.Instance.SetLanguage(appSettings.Language);
 
             // Load the correct language resource dictionary at startup
-            if (appSettings.Language == "pl")
+            if (appSettings.Language is "pl" or "uk")
             {
-                var dictPath = "avares://DicomViewer/Assets/pl-PL.axaml";
-                var plDict = new Avalonia.Markup.Xaml.Styling.ResourceInclude(new System.Uri(dictPath))
+                var dictPath = appSettings.Language == "pl"
+                    ? "avares://DicomViewer/Assets/pl-PL.axaml"
+                    : "avares://DicomViewer/Assets/uk-UA.axaml";
+                var langDict = new Avalonia.Markup.Xaml.Styling.ResourceInclude(new System.Uri(dictPath))
                 {
                     Source = new System.Uri(dictPath)
                 };
-                Resources.MergedDictionaries[0] = plDict;
+                Resources.MergedDictionaries[0] = langDict;
             }
 
             desktop.MainWindow = new MainWindow

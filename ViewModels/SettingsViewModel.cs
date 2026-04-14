@@ -85,7 +85,7 @@ public partial class SettingsViewModel : ViewModelBase
     private Timer? _confirmationTimer;
 
     public List<string> WindowModeOptions { get; } = new() { "Windowed", "Maximized", "Fullscreen" };
-    public List<string> LanguageOptions { get; } = new() { "English", "Polski" };
+    public List<string> LanguageOptions { get; } = new() { "English", "Polski", "\u0423\u043a\u0440\u0430\u0457\u043d\u0441\u044c\u043a\u0430" };
 
     public ObservableCollection<KeyBindingRowViewModel> PlaybackBindings { get; } = new();
     public ObservableCollection<KeyBindingRowViewModel> ViewBindings { get; } = new();
@@ -100,7 +100,7 @@ public partial class SettingsViewModel : ViewModelBase
         _showTooltips = _appSettings.ShowTooltips;
         _showNotifications = _appSettings.ShowNotifications;
         _selectedWindowModeIndex = (int)_appSettings.StartupWindowMode;
-        _selectedLanguageIndex = _appSettings.Language == "pl" ? 1 : 0;
+        _selectedLanguageIndex = _appSettings.Language switch { "pl" => 1, "uk" => 2, _ => 0 };
         BuildKeyBindingRows();
     }
 
@@ -220,16 +220,19 @@ public partial class SettingsViewModel : ViewModelBase
 
     partial void OnSelectedLanguageIndexChanged(int value)
     {
-        var lang = value == 1 ? "pl" : "en";
+        var lang = value switch { 1 => "pl", 2 => "uk", _ => "en" };
 
         // Keep existing state updates
         _loc.SetLanguage(lang);
         SaveSettings();
 
         // Swap the Avalonia Resource Dictionary for static UI elements
-        string dictPath = lang == "pl"
-            ? "avares://DicomViewer/Assets/pl-PL.axaml"
-            : "avares://DicomViewer/Assets/en-US.axaml";
+        string dictPath = lang switch
+        {
+            "pl" => "avares://DicomViewer/Assets/pl-PL.axaml",
+            "uk" => "avares://DicomViewer/Assets/uk-UA.axaml",
+            _ => "avares://DicomViewer/Assets/en-US.axaml"
+        };
 
         var newLanguageDict = new Avalonia.Markup.Xaml.Styling.ResourceInclude(new Uri(dictPath))
         {
@@ -288,7 +291,7 @@ public partial class SettingsViewModel : ViewModelBase
         _appSettings.ShowTooltips = ShowTooltips;
         _appSettings.ShowNotifications = ShowNotifications;
         _appSettings.StartupWindowMode = StartupWindowMode;
-        _appSettings.Language = SelectedLanguageIndex == 1 ? "pl" : "en";
+        _appSettings.Language = SelectedLanguageIndex switch { 1 => "pl", 2 => "uk", _ => "en" };
         _settingsService.Save(_appSettings);
     }
 }
