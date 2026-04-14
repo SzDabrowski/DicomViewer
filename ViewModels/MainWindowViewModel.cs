@@ -731,6 +731,26 @@ public partial class MainWindowViewModel : ViewModelBase
         StatusMessage = _loc["Paused"];
     }
 
+    protected override void OnLanguageChanged()
+    {
+        // Skip refresh during transient states — those messages are short-lived and don't need updating.
+        if (IsLoadingFile || IsPlaying || IsBuffering) return;
+
+        StatusMessage = ActiveTool switch
+        {
+            MouseTool.None        => ActiveFile == null ? _loc["StatusReady"] : _loc["StatusNoTool"],
+            MouseTool.Pan         => _loc["StatusPanZoom"],
+            MouseTool.WindowLevel => _loc["StatusWindowLevel"],
+            MouseTool.Arrow       => _loc["StatusArrow"],
+            MouseTool.TextLabel   => _loc["StatusText"],
+            MouseTool.Freehand    => _loc["StatusFreehand"],
+            MouseTool.DrawRect    => _loc["StatusRectangle"],
+            MouseTool.DrawEllipse => _loc["StatusEllipse"],
+            MouseTool.DrawLine    => _loc["StatusLine"],
+            _                     => _loc["StatusNoToolSelected"]
+        };
+    }
+
     private int _lastSelectedThumbnailIndex = -1;
 
     private void UpdateThumbnailSelection()

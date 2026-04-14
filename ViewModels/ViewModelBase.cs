@@ -24,10 +24,19 @@ public abstract partial class ViewModelBase : ObservableObject, IDisposable
         _locChangedHandler = (_, e) =>
         {
             if (e.PropertyName == "Item[]" || e.PropertyName == nameof(LocalizationService.CurrentLanguage))
+            {
                 OnPropertyChanged(nameof(Loc));
+                OnLanguageChanged();
+            }
         };
         LocalizationService.Instance.PropertyChanged += _locChangedHandler;
     }
+
+    /// <summary>
+    /// Called whenever the active language changes. Override in subclasses to refresh
+    /// C#-assigned localized properties that cannot use {Binding Loc[Key]} directly.
+    /// </summary>
+    protected virtual void OnLanguageChanged() { }
 
     /// <summary>
     /// Unsubscribes from the localization service to prevent memory leaks.

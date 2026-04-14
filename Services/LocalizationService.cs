@@ -298,9 +298,6 @@ public class LocalizationService : INotifyPropertyChanged
         ["Err_CouldNotOpenLogFolder"] = "Could not open log folder:",
         ["Err_VideoNotSupported"] = "Video playback requires FFmpeg",
         ["Err_VideoNotSupported_Details"] = "Video files (.mp4, .avi, .mkv, .mov, .wmv) require FFmpeg libraries to be installed. Please install FFmpeg and ensure it is on your PATH.",
-        ["Info_RestartRequired"] = "Restart required",
-        ["Info_RestartRequired_Lang"] = "Some UI elements require a restart to fully apply the new language.",
-
         // File Picker Dialogs
         ["Dialog_OpenFile"] = "Open File",
         ["Dialog_OpenDirectory"] = "Open Directory",
@@ -552,9 +549,6 @@ public class LocalizationService : INotifyPropertyChanged
         ["Err_CouldNotOpenLogFolder"] = "Nie mo\u017cna otworzy\u0107 folderu log\u00f3w:",
         ["Err_VideoNotSupported"] = "Odtwarzanie wideo wymaga FFmpeg",
         ["Err_VideoNotSupported_Details"] = "Pliki wideo (.mp4, .avi, .mkv, .mov, .wmv) wymagaj\u0105 zainstalowanych bibliotek FFmpeg. Zainstaluj FFmpeg i upewnij si\u0119, \u017ce jest w zmiennej PATH.",
-        ["Info_RestartRequired"] = "Wymagany restart",
-        ["Info_RestartRequired_Lang"] = "Niekt\u00f3re elementy interfejsu wymagaj\u0105 restartu, aby w pe\u0142ni zastosowa\u0107 nowy j\u0119zyk.",
-
         // File Picker Dialogs
         ["Dialog_OpenFile"] = "Otw\u00f3rz plik",
         ["Dialog_OpenDirectory"] = "Otw\u00f3rz katalog",

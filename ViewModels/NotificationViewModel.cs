@@ -6,9 +6,8 @@ namespace DicomViewer.ViewModels;
 
 public enum NotificationSeverity { Info, Warning, Error }
 
-public partial class NotificationViewModel : ObservableObject
+public partial class NotificationViewModel : ViewModelBase
 {
-    public LocalizationService Loc => LocalizationService.Instance;
     [ObservableProperty] private string _message = string.Empty;
     [ObservableProperty] private NotificationSeverity _severity = NotificationSeverity.Info;
     [ObservableProperty] private string _details = string.Empty;
@@ -34,6 +33,8 @@ public partial class NotificationViewModel : ObservableObject
         NotificationSeverity.Error => _loc["Notif_Error"],
         _ => _loc["Notif_Info"],
     };
+
+    protected override void OnLanguageChanged() => OnPropertyChanged(nameof(SeverityLabel));
 
     public static NotificationViewModel Create(NotificationSeverity severity, string message, string details = "")
     {
